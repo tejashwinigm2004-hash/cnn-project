@@ -245,13 +245,17 @@ function SectionHead({ badge, badgeColor = "#f9c74f", title, titleClass = "tg-go
 function Nav({ page, setPage, cart }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
+const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", h);
-    return () => window.removeEventListener("scroll", h);
-  }, []);
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
 
+  handleResize(); // run once
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
   const go = (p) => {
     createSound("nav");
     setPage(p);
@@ -267,21 +271,13 @@ function Nav({ page, setPage, cart }) {
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
       padding: scrolled ? "10px 0" : "18px 0",
       background: scrolled ? "rgba(3,3,3,0.94)" : "transparent",
+    }}>
       backdropFilter: scrolled ? "blur(24px)" : "none",
       borderBottom: scrolled ? "1px solid rgba(255,255,255,0.07)" : "none",
       transition: "all .4s cubic-bezier(.22,1,.36,1)",
-    }}>
+    
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        {/* Logo + Text */}
-<div
-  onClick={() => go("home")}
-  style={{
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: 10
-  }}
->
+        
   {/* Logo */}
   <div
     style={{
@@ -360,7 +356,7 @@ function Nav({ page, setPage, cart }) {
             display: "none",
           }} className="ham">☰</button>
         </div>
-      </div>
+      
 
       {/* Mobile menu */}
       {mobileOpen && (
@@ -1335,3 +1331,4 @@ export default function App() {
     </div>
   );
 }
+
