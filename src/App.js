@@ -880,7 +880,9 @@ function ContactPage() {
             <div style={{ marginBottom: 28 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Message</label><textarea placeholder="I'd like to order..." rows={4} style={{ resize: "vertical" }} value={form.msg} onChange={e => setForm(f => ({ ...f, msg: e.target.value }))} /></div>
             <div style={{ display: "flex", gap: 10 }}>
               <Btn variant="gold" onClick={submit} style={{ flex: 1, justifyContent: "center", fontSize: 15, padding: "13px" }}>Send Message →</Btn>
-              <Btn variant="sub" onClick={() => createSound("add")} style={{ fontSize: 15, padding: "13px 18px" }}>📱</Btn>
+              <a href="https://wa.me/918618854283" target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
+  <Btn variant="sub" onClick={() => createSound("add")} style={{ fontSize: 15, padding: "13px 18px" }}>📱</Btn>
+</a>
             </div>
           </div>
         </div>
@@ -1135,7 +1137,7 @@ function Footer({ setPage }) {
               <div key={v} style={{ display: "flex", gap: 8, color: "rgba(255,255,255,0.5)", fontSize: 13, marginBottom: 10 }}><span>{ic}</span><span>{v}</span></div>
             ))}
             <div style={{ marginTop: 18 }}>
-              <Btn variant="sub" onClick={() => {}} style={{ fontSize: 13, padding: "10px 18px" }}>📱 WhatsApp Order</Btn>
+              <Btn variant="sub" onClick={(Submit) => {}} style={{ fontSize: 13, padding: "10px 18px" }}>📱 WhatsApp Order</Btn>
             </div>
           </div>
         </div>
