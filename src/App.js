@@ -102,11 +102,11 @@ const FAMILIES = [
   { name: "Arjun & Deepa Nair", location: "Whitefield, Bangalore", since: "2020", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&q=80", quote: "Been with CNN Farm Hub for 4 years! They feel like family. Best decision we ever made." },
 ];
 const TIMELINE = [
-  { year: "2009", title: "Farm Founded", text: "Started with 5 Gir cows on 2 acres of organic land in Karnataka.", color: "#39d353" },
-  { year: "2013", title: "Organic Certified", text: "Received government organic certification after 4 years of natural farming.", color: "#00b4d8" },
-  { year: "2017", title: "Local Delivery", text: "Launched home delivery serving 50 families in our region.", color: "#f9c74f" },
-  { year: "2021", title: "Digital Platform", text: "Launched online ordering platform to reach wider customers.", color: "#ff6b35" },
-  { year: "2025", title: "CNN Farm Hub", text: "Full-stack platform with subscriptions, app, and 500+ families served.", color: "#a78bfa" },
+  { year: "2021", title: "Farm Founded", text: "Started with 5 Gir cows on 2 acres of organic land in Karnataka.", color: "#39d353" },
+  { year: "2022", title: "Organic Certified", text: "Received government organic certification after 4 years of natural farming.", color: "#00b4d8" },
+  { year: "2023", title: "Local Delivery", text: "Launched home delivery serving 50 families in our region.", color: "#f9c74f" },
+  { year: "2024", title: "Digital Platform", text: "Launched online ordering platform to reach wider customers.", color: "#ff6b35" },
+  { year: "2026", title: "CNN Farm Hub", text: "Full-stack platform with subscriptions, app, and 500+ families served.", color: "#a78bfa" },
 ];
 
 /* ─────────────────────────────────────────────
@@ -663,8 +663,8 @@ function FarmPage() {
     "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80",
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&q=80",
   ];
-  const teamNames = ["Channakeshava N.", "Kavitha Devi", "Ravi Kumar"];
-  const teamRoles = ["Founder & Head Farmer", "Dairy Operations", "Delivery Manager"];
+  const teamNames = ["Narasimha Murthy C N", "Tejashwini G M", "Ravi Kumar"];
+  const teamRoles = ["Founder & Head Farmer", "Co-Founder", "Delivery Manager"];
 
   return (
   <div style={{ paddingTop: 100 }}>
@@ -705,13 +705,11 @@ function FarmPage() {
             <div>
               <SectionHead badge="Our Story" badgeColor="#00b4d8" title="From Karnataka's Heart to Your Home" titleClass="tg-farm" />
               <p style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.9, fontSize: 15, marginBottom: 20 }}>
-                CNN Farm Hub was born in 2009 when Channakeshava N. returned to his roots in Karnataka with a dream — to revive traditional desi cow farming and make pure A2 dairy accessible to urban families without compromise.
-              </p>
+CNN Farm Hub is a trusted farm-fresh marketplace rooted in Chinnappanahalli, Karnataka, bringing pure dairy products, organic vegetables, and naturally ripened fruits directly to your doorstep. We eliminate middlemen to ensure every household receives food that is fresh, clean, and honestly priced.              </p>
               <p style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.9, fontSize: 15, marginBottom: 30 }}>
-                Our 45-acre farm in Bāshettihalli is home to over 80 Gir cows raised on organic feed, open pastures, and traditional Vedic farming practices. Every drop of milk, every spoon of ghee carries the love and care of our farming family.
-              </p>
+At CNN Farm Hub, we follow sustainable farming practices that prioritize the health of our customers and the care of our land. We are your trusted farm neighbor, delivering nature's best with integrity and pride.              </p>
               <div className="farm-stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                {[["80+", "Gir Cows"], ["45", "Acres Organic"], ["6AM", "Delivery Time"], ["0", "Preservatives"]].map(([v, l]) => (
+                {[["8", "Gir Cows"], ["2", "Acres Organic"], ["6AM", "Delivery Time"], ["0", "Preservatives"]].map(([v, l]) => (
   <ScrollReveal key={l}>
     <div className="glass-farm" style={{ borderRadius: 14, padding: "16px 20px" }}>
       <StatCounter value={v} label={l} color="#00b4d8" />
@@ -1286,7 +1284,7 @@ function Footer({ setPage }) {
         <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(124,58,237,0.4),rgba(57,211,83,0.3),transparent)", marginBottom: 26 }} />
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13 }}>© 2025 CNN Farm Hub · Bāshettihalli, Karnataka · All rights reserved</div>
+          <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13 }}>© 2025 CNN Farm Hub · Chinnappanahalli, Karnataka · All rights reserved</div>
           <div style={{ display: "flex", gap: 20 }}>
             {["Privacy Policy", "Terms of Service", "Refund Policy"].map(l => (
               <span key={l} style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, cursor: "pointer" }} onClick={() => createSound("click")}>{l}</span>
