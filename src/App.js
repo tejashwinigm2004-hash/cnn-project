@@ -4,6 +4,28 @@ import { CustomCursor, GrainOverlay, WordReveal, MarqueeBand, ScrollReveal, Stat
 /* ─────────────────────────────────────────────
    SOUND ENGINE  (Web Audio API — no files needed)
 ───────────────────────────────────────────── */
+export function spawnParticles(x, y) {
+  const colors = ["#ff6b35","#f7931e","#f7c35a","#fff","#ff9a6c"];
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement("div");
+    el.className = "particle";
+    const angle = (i / 12) * Math.PI * 2;
+    const dist = 40 + Math.random() * 60;
+    el.style.cssText = `left:${x}px;top:${y}px;background:${colors[i%colors.length]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+  }
+}
+
+export function addRipple(btn, e) {
+  const r = btn.getBoundingClientRect();
+  const rEl = document.createElement("div");
+  rEl.className = "ripple-el";
+  rEl.style.left = (e.clientX - r.left) + "px";
+  rEl.style.top  = (e.clientY - r.top)  + "px";
+  btn.appendChild(rEl);
+  setTimeout(() => rEl.remove(), 600);
+}
 function createSound(type) {
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
   const g = ctx.createGain();
@@ -124,12 +146,45 @@ body{font-family:'Syne',sans-serif;background:var(--bg);color:#fff;overflow-x:hi
 @keyframes bgFlash{0%{background:rgba(255,255,255,0.12)}100%{background:transparent}}
 @keyframes bgFlash{0%{background:rgba(255,255,255,0.12)}100%{background:transparent}}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+/* ── ADD AFTER @keyframes bgFlash ── */
+@keyframes floatCard{0%,100%{transform:translateY(0px)}50%{transform:translateY(-10px)}}
+@keyframes imgBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,53,0.6)}60%{box-shadow:0 0 0 8px rgba(255,107,53,0)}}
+@keyframes pricePop{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-3deg)}70%{transform:scale(0.95)}100%{transform:scale(1)}}
+@keyframes particleBurst{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+@keyframes addSuccess{0%{transform:scale(1)}30%{transform:scale(1.2)}60%{transform:scale(0.9)}100%{transform:scale(1)}}
+@keyframes rippleAnim2{0%{transform:scale(0);opacity:0.6}100%{transform:scale(4);opacity:0}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,53,0)}50%{box-shadow:0 0 32px 4px rgba(255,107,53,0.18)}}
+@keyframes stockDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.6)}}
+@keyframes cardIn{0%{opacity:0;transform:translateY(60px) scale(0.9) rotateX(10deg)}100%{opacity:1;transform:translateY(0) scale(1) rotateX(0deg)}}
 .float{animation:floatY 6s ease-in-out infinite}
 .blob{animation:morphBlob 10s ease-in-out infinite}
 .page-enter{animation:pageSlide .5s cubic-bezier(.22,1,.36,1) forwards}
 .glass{background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-b)}
-.glass-product{background:rgba(255,107,53,0.06);backdrop-filter:blur(16px);border:1px solid rgba(255,107,53,0.22)}
-.glass-farm{background:rgba(0,180,216,0.06);backdrop-filter:blur(16px);border:1px solid rgba(0,180,216,0.22)}
+.glass-product{
+  background:rgba(255,107,53,0.06);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,107,53,0.22);
+  animation:floatCard 4s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
+  transition:box-shadow .4s ease;
+}
+.glass-product:hover{
+  box-shadow:0 32px 70px rgba(255,107,53,0.25)!important;
+}
+.glass-product:not(:hover) .product-img{
+  animation:imgBreath 5s ease-in-out infinite;
+}
+.glass-product:hover .product-img{
+  animation:none;
+  transform:scale(1.07);
+  transition:transform .5s ease;
+}
+.glass-product:hover .shimmer-layer{
+  animation:shimmer .8s ease forwards;
+}
+.glass-product:hover .desc-overlay{
+  transform:translateY(0)!important;
+}.glass-farm{background:rgba(0,180,216,0.06);backdrop-filter:blur(16px);border:1px solid rgba(0,180,216,0.22)}
 .glass-sub{background:rgba(57,211,83,0.06);backdrop-filter:blur(16px);border:1px solid rgba(57,211,83,0.22)}
 .glass-family{background:rgba(255,154,158,0.06);backdrop-filter:blur(16px);border:1px solid rgba(255,154,158,0.22)}
 .tg-gold{background:linear-gradient(135deg,#f9c74f,#f3722c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -139,6 +194,12 @@ body{font-family:'Syne',sans-serif;background:var(--bg);color:#fff;overflow-x:hi
 input,textarea{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#fff;font-family:'Syne',sans-serif;font-size:14px;outline:none;border-radius:10px;padding:12px 14px;width:100%;transition:all .3s}
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.3)}
 input:focus,textarea:focus{border-color:rgba(57,211,83,0.6);background:rgba(57,211,83,0.05);box-shadow:0 0 0 3px rgba(57,211,83,0.12)}
+.card-wrap{opacity:0;animation:cardIn .65s cubic-bezier(.25,.46,.45,.94) forwards}
+.price-val.pop{animation:pricePop .4s ease}
+.add-btn.success{animation:addSuccess .4s ease}
+.stock-dot{width:7px;height:7px;border-radius:50%;display:inline-block;animation:stockDot 1.5s ease-in-out infinite}
+.particle{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;animation:particleBurst .7s ease-out forwards;z-index:9999}
+.ripple-el{position:absolute;border-radius:50%;background:rgba(255,255,255,0.35);width:20px;height:20px;margin-left:-10px;margin-top:-10px;animation:rippleAnim2 .5s ease-out forwards;pointer-events:none}
 
 /* ── MOBILE RESPONSIVE ── */
 .farm-story-grid{grid-template-columns:1fr 1fr}
@@ -384,7 +445,6 @@ function Nav({ page, setPage, cart }) {
     </nav>
   );
 }
-
 /* ─────────────────────────────────────────────
    HERO — HOME
 ───────────────────────────────────────────── */
@@ -466,34 +526,34 @@ function ProductCard({ p, addToCart }) {
       className="glass-product"
       style={{
         borderRadius: 20, overflow: "hidden", cursor: "pointer",
-        transform: hover ? "translateY(-8px)" : "none",
-          boxShadow: hover ? "0 28px 60px rgba(255,107,53,0.2)" : "none",
-        boxShadow: hover ? "0 28px 60px rgba(255,107,53,0.2)" : "none",
         transition: "all .4s cubic-bezier(.25,.46,.45,.94)",
       }}
     >
       <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
-        <img src={p.img} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", transform: hover ? "scale(1.06)" : "scale(1)", transition: "transform .5s" }} />
-        <div style={{
+        <img src={p.img} alt={p.name} className="product-img"
+          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .5s ease" }} />
+        <div className="shimmer-layer" style={{
           position: "absolute", top: 0, left: 0,
           width: "40%", height: "100%",
           background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)",
-          transform: hover ? "translateX(200%) skewX(-15deg)" : "translateX(-100%) skewX(-15deg)",
-          transition: hover ? "transform 0.7s ease" : "none",
           pointerEvents: "none", zIndex: 2,
         }} />
-        <div style={{ position: "absolute", top: 14, left: 14 }}><Badge label={p.badge} color={p.badgeColor} /></div><div style={{
-  position: "absolute", bottom: 0, left: 0, right: 0,
-  background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
-  transform: hover ? "translateY(0)" : "translateY(100%)",
-  transition: "transform 0.4s ease",
-  padding: "14px 16px",
-  zIndex: 3,
-}}>
-  <p style={{ color: "#fff", fontSize: 12, margin: 0 }}>{p.desc}</p>
-</div>
-<div style={{ position: "absolute", top: 14, left: 14 }}><Badge label={p.badge} color={p.badgeColor} /></div>
-        <div style={{ position: "absolute", top: 14, right: 14, background: "rgba(0,0,0,0.7)", borderRadius: 8, padding: "4px 10px", fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{p.category}</div>
+        <div className="desc-overlay" style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+          transform: "translateY(100%)",
+          transition: "transform 0.4s ease",
+          padding: "14px 16px",
+          zIndex: 3,
+        }}>
+          <p style={{ color: "#fff", fontSize: 12, margin: 0 }}>{p.desc}</p>
+        </div>
+        <div style={{ position: "absolute", top: 14, left: 14 }}>
+          <Badge label={p.badge} color={p.badgeColor} />
+        </div>
+        <div style={{ position: "absolute", top: 14, right: 14, background: "rgba(0,0,0,0.7)", borderRadius: 8, padding: "4px 10px", fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
+          {p.category}
+        </div>
       </div>
       <div style={{ padding: "20px 22px" }}>
         <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 20, marginBottom: 8 }}>{p.name}</h3>
@@ -504,10 +564,33 @@ function ProductCard({ p, addToCart }) {
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <span className="tg-gold" style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, fontWeight: 900 }}>₹{p.price}</span>
+            <span className="tg-gold price-val" style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, fontWeight: 900 }}>₹{p.price}</span>
             <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginLeft: 6 }}>/{p.unit}</span>
           </div>
-          <Btn variant="orange" onClick={() => addToCart(p)} style={{ padding: "9px 18px", fontSize: 13 }}>Add +</Btn>
+          <Btn
+            variant="orange"
+            onClick={(e) => {
+              addToCart(p);
+              const btn = e.currentTarget;
+              const rect = btn.getBoundingClientRect();
+              spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+              addRipple(btn, e);
+              btn.classList.add("success");
+              btn.textContent = "✓ Added!";
+              const priceEl = btn.closest(".glass-product")?.querySelector(".price-val");
+              if (priceEl) {
+                priceEl.classList.add("pop");
+                setTimeout(() => priceEl.classList.remove("pop"), 500);
+              }
+              setTimeout(() => {
+                btn.classList.remove("success");
+                btn.textContent = "Add +";
+              }, 900);
+            }}
+            style={{ padding: "9px 18px", fontSize: 13, position: "relative", overflow: "hidden" }}
+          >
+            Add +
+          </Btn>
         </div>
       </div>
     </div>
@@ -560,8 +643,11 @@ function ProductsPage({ addToCart }) {
             ))}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 28 }}>
-            {filtered.map(p => <ProductCard key={p.id} p={p} addToCart={addToCart} />)}
-          </div>
+{filtered.map((p, i) => (
+  <div key={p.id} className="card-wrap" style={{animationDelay:`${i * 100}ms`}}>
+    <ProductCard p={p} addToCart={addToCart} />
+  </div>
+))}          </div>
         </div>
       </div>
     </div>
@@ -581,19 +667,35 @@ function FarmPage() {
   const teamRoles = ["Founder & Head Farmer", "Dairy Operations", "Delivery Manager"];
 
   return (
-    <div style={{ paddingTop: 100 }}>
-      {/* Hero */}
-      <div style={{ height: 320, overflow: "hidden", position: "relative" }}>
-        <img src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1400&q=80" alt="Farm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(5,5,5,0.2),rgba(5,5,5,0.9))", display: "flex", alignItems: "flex-end", padding: "40px 60px" }}>
-          <div>
-            <Badge label="Est. 2009" color="#00b4d8" />
-            <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(32px,5vw,56px)", marginTop: 12 }}>
-              <span className="tg-farm">Our Farm</span> Story
-            </h1>
-          </div>
+  <div style={{ paddingTop: 100 }}>
+    {/* Hero */}
+    <div style={{ height: 320, overflow: "hidden", position: "relative" }}>
+      <img src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1400&q=80" alt="Farm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(5,5,5,0.2),rgba(5,5,5,0.9))", display: "flex", alignItems: "flex-end", padding: "40px 60px" }}>
+        <div>
+          <Badge label="Est. 2009" color="#00b4d8" />
+          <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(32px,5vw,56px)", marginTop: 12 }}>
+            {[
+              { word: "Our",   cls: "tg-farm" },
+              { word: "Farm",  cls: "tg-farm" },
+              { word: "Story", cls: ""        },
+            ].map(({ word, cls }, i) => (
+              <span
+                key={i}
+                className="inline-block opacity-0"
+                style={{
+                  animation: "wordIn 0.5s ease forwards",
+                  animationDelay: `${i * 0.13}s`,
+                  marginRight: "0.25em",
+                }}
+              >
+                <span className={cls}>{word}</span>
+              </span>
+            ))}
+          </h1>
         </div>
       </div>
+    </div>
 
       <div style={{ background: "linear-gradient(160deg,rgba(0,180,216,0.07) 0%,transparent 60%)", padding: "70px 24px 100px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -1346,10 +1448,9 @@ export default function App() {
   };
 
   return (
-    <div style={{ background: "#050505", minHeight: "100vh" }}>
-      <Particles />
-      <CustomCursor color="#4ade80" />
-  <GrainOverlay opacity={0.04} />
+  <div style={{ background: "#050505", minHeight: "100vh" }}>
+    <Particles />
+    <GrainOverlay opacity={0.04} />
 
       {/* Ambient blobs */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
