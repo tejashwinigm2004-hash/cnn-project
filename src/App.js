@@ -136,6 +136,14 @@ input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.3)}
 input:focus,textarea:focus{border-color:rgba(57,211,83,0.6);background:rgba(57,211,83,0.05);box-shadow:0 0 0 3px rgba(57,211,83,0.12)}
 
 /* ── MOBILE RESPONSIVE ── */
+.farm-story-grid{grid-template-columns:1fr 1fr}
+.farm-team-grid{grid-template-columns:repeat(3,1fr)}
+.sub-plans-grid{grid-template-columns:repeat(3,1fr)}
+.contact-grid{grid-template-columns:1fr 1fr}
+.contact-form-fields{grid-template-columns:1fr 1fr}
+.cart-grid{grid-template-columns:1.5fr 1fr}
+.login-grid{grid-template-columns:1fr 1fr}
+.footer-grid{grid-template-columns:2fr 1fr 1fr 1fr}
 @media(max-width:768px){
   .hero-grid{grid-template-columns:1fr!important;padding-top:90px!important;padding-bottom:40px!important;gap:32px!important}
   .hero-image{display:none!important}
@@ -558,7 +566,7 @@ function FarmPage() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
           {/* Story */}
-          <div className="farm-story-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center", marginBottom: 80 }}>
+          <div className="farm-story-grid" style={{ display: "grid", gap: 60, alignItems: "center", marginBottom: 80 }}>
             <div>
               <SectionHead badge="Our Story" badgeColor="#00b4d8" title="From Karnataka's Heart to Your Home" titleClass="tg-farm" />
               <p style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.9, fontSize: 15, marginBottom: 20 }}>
@@ -602,7 +610,7 @@ function FarmPage() {
 
           {/* Team */}
           <SectionHead badge="Meet the Team" badgeColor="#00b4d8" title="The People Behind Your Milk" titleClass="tg-farm" />
-          <div className="farm-team-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 28 }}>
+          <div className="farm-team-grid" style={{ display: "grid", gap: 28 }}>
             {teamImages.map((img, i) => (
               <div key={i} className="glass-farm" style={{ borderRadius: 20, overflow: "hidden", textAlign: "center" }}>
                 <div style={{ height: 200, overflow: "hidden" }}>
@@ -732,7 +740,7 @@ function SubPage({ setPage }) {
           </div>
 
           {/* Plans */}
-          <div className="sub-plans-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, marginBottom: 70 }}>
+          <div className="sub-plans-grid" style={{ display: "grid", gap: 24, marginBottom: 70 }}>
             {PLANS.map(pl => (
               <div key={pl.id} onClick={() => { createSound("click"); setSelected(pl.id); }}
                 style={{
@@ -835,7 +843,7 @@ function ContactPage() {
       </div>
 
       <div style={{ background: "linear-gradient(160deg,rgba(124,58,237,0.07) 0%,transparent 60%)", padding: "70px 24px 100px" }}>
-        <div className="contact-grid" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
+        <div className="contact-grid" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gap: 48 }}>
           {/* Info */}
           <div>
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 38, marginBottom: 16 }}>Let's Talk<br /><span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Farm Fresh</span></h2>
@@ -868,7 +876,7 @@ function ContactPage() {
                 ✅ Message sent! We'll respond within 30 minutes.
               </div>
             )}
-            <div className="contact-form-fields" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+            <div className="contact-form-fields" style={{ display: "grid", gap: 14, marginBottom: 14 }}>
               <div><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Full Name *</label><input placeholder="Your name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
               <div><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Phone *</label><input placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} /></div>
             </div>
@@ -909,7 +917,7 @@ function CartPage({ cart, setCart, setPage }) {
             <Btn variant="gold" onClick={() => setPage("products")} style={{ fontSize: 15, padding: "13px 28px", marginTop: 10 }}>Browse Products →</Btn>
           </div>
         ) : (
-          <div className="cart-grid" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 30 }}>
+          <div className="cart-grid" style={{ display: "grid", gap: 30 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {cart.map(item => (
                 <div key={item.id} className="glass" style={{ borderRadius: 18, padding: "20px 22px", display: "flex", gap: 16, alignItems: "center" }}>
@@ -958,7 +966,7 @@ function LoginPage({ setPage }) {
   const [mode, setMode] = useState("login");
   return (
     <div style={{ paddingTop: 80, minHeight: "100vh", display: "flex", alignItems: "center" }}>
-      <div className="login-grid" style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
+      <div className="login-grid" style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px", display: "grid", gap: 60, alignItems: "center" }}>
         <div className="login-left">
           <div style={{ fontSize: 68, marginBottom: 18 }} className="float">🌿</div>
           <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(32px,5vw,52px)", marginBottom: 14 }}>
@@ -1042,7 +1050,7 @@ function HomeSections({ setPage, addToCart }) {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <SectionHead badge="Daily Delivery" badgeColor="#39d353" title="Subscribe & Save" titleClass="tg-sub"
             sub="Fresh dairy at your doorstep every morning. No trips, no compromise." />
-          <div className="sub-plans-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, marginBottom: 44 }}>
+          <div className="sub-plans-grid" style={{ display: "grid", gap: 24, marginBottom: 44 }}>
             {PLANS.map(pl => (
               <div key={pl.id} className="glass-sub plan-card" style={{ borderRadius: 22, padding: "28px 24px", textAlign: "center", border: pl.popular ? `1px solid ${pl.color}` : undefined }}>
                 {pl.popular && <Badge label="Most Popular" color={pl.color} />}
@@ -1093,7 +1101,7 @@ function Footer({ setPage }) {
   return (
     <footer style={{ background: "#060b1f", borderTop: "1px solid rgba(124,58,237,0.2)", padding: "60px 24px 30px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, marginBottom: 50 }}>
+        <div className="footer-grid" style={{ display: "grid", gap: 40, marginBottom: 50 }}>
           {/* Brand */}
           <div className="footer-brand">
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -1331,17 +1339,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
