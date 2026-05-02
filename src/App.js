@@ -1,3 +1,4 @@
+import logo from './logo.png';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CustomCursor, GrainOverlay, WordReveal, MarqueeBand, ScrollReveal, StatCounter, FloatingParticles } from './fx-components';
 /* ─────────────────────────────────────────────
@@ -85,6 +86,7 @@ const TIMELINE = [
   { year: "2021", title: "Digital Platform", text: "Launched online ordering platform to reach wider customers.", color: "#ff6b35" },
   { year: "2025", title: "CNN Farm Hub", text: "Full-stack platform with subscriptions, app, and 500+ families served.", color: "#a78bfa" },
 ];
+
 /* ─────────────────────────────────────────────
    GLOBAL STYLES (injected once)
 ───────────────────────────────────────────── */
@@ -120,6 +122,8 @@ body{font-family:'Syne',sans-serif;background:var(--bg);color:#fff;overflow-x:hi
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes slideDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes bgFlash{0%{background:rgba(255,255,255,0.12)}100%{background:transparent}}
+@keyframes bgFlash{0%{background:rgba(255,255,255,0.12)}100%{background:transparent}}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .float{animation:floatY 6s ease-in-out infinite}
 .blob{animation:morphBlob 10s ease-in-out infinite}
 .page-enter{animation:pageSlide .5s cubic-bezier(.22,1,.36,1) forwards}
@@ -312,8 +316,7 @@ function Nav({ page, setPage, cart }) {
         {/* Logo */}
         <div onClick={() => go("home")} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, overflow: "hidden" }}>
-            <img src="/logo.png" alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-          </div>
+<img src={logo} alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />          </div>
           <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.1" }}>
             <span style={{ fontSize: 16, fontWeight: 700, color: "#f9c74f" }}>CNN Organic</span>
             <span style={{ fontSize: 15, fontWeight: 600, color: "#2e7d32" }}>Fresh Farm</span>
@@ -464,13 +467,32 @@ function ProductCard({ p, addToCart }) {
       style={{
         borderRadius: 20, overflow: "hidden", cursor: "pointer",
         transform: hover ? "translateY(-8px)" : "none",
+          boxShadow: hover ? "0 28px 60px rgba(255,107,53,0.2)" : "none",
         boxShadow: hover ? "0 28px 60px rgba(255,107,53,0.2)" : "none",
         transition: "all .4s cubic-bezier(.25,.46,.45,.94)",
       }}
     >
       <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
         <img src={p.img} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", transform: hover ? "scale(1.06)" : "scale(1)", transition: "transform .5s" }} />
-        <div style={{ position: "absolute", top: 14, left: 14 }}><Badge label={p.badge} color={p.badgeColor} /></div>
+        <div style={{
+          position: "absolute", top: 0, left: 0,
+          width: "40%", height: "100%",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)",
+          transform: hover ? "translateX(200%) skewX(-15deg)" : "translateX(-100%) skewX(-15deg)",
+          transition: hover ? "transform 0.7s ease" : "none",
+          pointerEvents: "none", zIndex: 2,
+        }} />
+        <div style={{ position: "absolute", top: 14, left: 14 }}><Badge label={p.badge} color={p.badgeColor} /></div><div style={{
+  position: "absolute", bottom: 0, left: 0, right: 0,
+  background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+  transform: hover ? "translateY(0)" : "translateY(100%)",
+  transition: "transform 0.4s ease",
+  padding: "14px 16px",
+  zIndex: 3,
+}}>
+  <p style={{ color: "#fff", fontSize: 12, margin: 0 }}>{p.desc}</p>
+</div>
+<div style={{ position: "absolute", top: 14, left: 14 }}><Badge label={p.badge} color={p.badgeColor} /></div>
         <div style={{ position: "absolute", top: 14, right: 14, background: "rgba(0,0,0,0.7)", borderRadius: 8, padding: "4px 10px", fontSize: 12, color: "rgba(255,255,255,0.7)" }}>{p.category}</div>
       </div>
       <div style={{ padding: "20px 22px" }}>
@@ -511,7 +533,17 @@ function ProductsPage({ addToCart }) {
           </div>
         </div>
       </div>
-
+{/* Marquee Band */}
+      <div style={{ background: "linear-gradient(135deg,#ff6b35,#f7931e)", padding: "12px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
+        <div style={{
+          display: "inline-block",
+          animation: "marquee 20s linear infinite",
+        }}>
+          {["🥛 Farm Fresh Milk", "🧈 Pure Desi Ghee", "🌿 100% Organic", "🐄 Grass Fed Cows", "❄️ Cold Chain Delivery", "✅ FSSAI Certified", "🥛 Farm Fresh Milk", "🧈 Pure Desi Ghee", "🌿 100% Organic", "🐄 Grass Fed Cows", "❄️ Cold Chain Delivery", "✅ FSSAI Certified"].map((item, i) => (
+            <span key={i} style={{ marginRight: 48, fontSize: 14, fontWeight: 600, color: "#fff", fontFamily: "'Syne',sans-serif" }}>{item}</span>
+          ))}
+        </div>
+      </div>
       <div style={{
         background: "linear-gradient(160deg,rgba(255,107,53,0.07) 0%,transparent 60%)",
         padding: "60px 24px 100px",
@@ -578,11 +610,12 @@ function FarmPage() {
               </p>
               <div className="farm-stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 {[["80+", "Gir Cows"], ["45", "Acres Organic"], ["6AM", "Delivery Time"], ["0", "Preservatives"]].map(([v, l]) => (
-                  <div key={l} className="glass-farm" style={{ borderRadius: 14, padding: "16px 20px" }}>
-                    <div className="tg-farm" style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 28 }}>{v}</div>
-                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, marginTop: 2 }}>{l}</div>
-                  </div>
-                ))}
+  <ScrollReveal key={l}>
+    <div className="glass-farm" style={{ borderRadius: 14, padding: "16px 20px" }}>
+      <StatCounter value={v} label={l} color="#00b4d8" />
+    </div>
+  </ScrollReveal>
+))}
               </div>
             </div>
             <div className="farm-story-img" style={{ borderRadius: 24, overflow: "hidden", aspectRatio: "4/3" }}>
@@ -1017,6 +1050,7 @@ function LoginPage({ setPage }) {
 function HomeSections({ setPage, addToCart }) {
   return (
     <>
+    <MarqueeBand />
       {/* Products preview */}
       <section className="section-pad" style={{ background: "linear-gradient(160deg,rgba(255,107,53,0.07) 0%,transparent 60%)", padding: "90px 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -1232,7 +1266,7 @@ function Toast({ msg, onDone }) {
 }
 
 /* ─────────────────────────────────────────────
-   PARTICLES
+   <FloatingParticles />
 ───────────────────────────────────────────── */
 function Particles() {
   const particles = Array(18).fill(0).map((_, i) => ({
