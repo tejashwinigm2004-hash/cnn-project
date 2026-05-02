@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { CustomCursor, GrainOverlay, WordReveal, MarqueeBand, ScrollReveal, StatCounter, FloatingParticles } from './fx-components';
 /* ─────────────────────────────────────────────
    SOUND ENGINE  (Web Audio API — no files needed)
 ───────────────────────────────────────────── */
@@ -411,8 +412,8 @@ function Hero({ setPage }) {
             <span style={{ fontStyle: "italic", color: "rgba(255,255,255,0.55)", fontSize: "55%" }}>of Karnataka</span>
           </h1>
           <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 17, lineHeight: 1.8, marginBottom: 36, maxWidth: 460 }}>
-            Farm-fresh A2 milk, bilona ghee & artisan dairy products delivered to your doorstep every morning at 6AM. No middlemen, no preservatives — just pure love from our Gir cows.
-          </p>
+           Pure dairy, delivered fresh. Milk, ghee, paneer & more — straight from our farm to your doorstep every morning at 6AM. Serving all across Karnataka, because every family deserves the best.
+           </p>
           <div className="hero-btns" style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 48 }}>
             <Btn variant="gold" onClick={() => { setPage("subscription"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "14px 28px" }}>
               🥛 Subscribe Now →
@@ -1313,6 +1314,8 @@ export default function App() {
   return (
     <div style={{ background: "#050505", minHeight: "100vh" }}>
       <Particles />
+      <CustomCursor color="#4ade80" />
+  <GrainOverlay opacity={0.04} />
 
       {/* Ambient blobs */}
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
