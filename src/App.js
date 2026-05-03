@@ -1276,7 +1276,7 @@ function Footer({ setPage }) {
               <div key={v} style={{ display: "flex", gap: 8, color: "rgba(255,255,255,0.5)", fontSize: 13, marginBottom: 10 }}><span>{ic}</span><span>{v}</span></div>
             ))}
             <div style={{ marginTop: 18 }}>
-              <Btn variant="sub" onClick={(Submit) => {}} style={{ fontSize: 13, padding: "10px 18px" }}>📱 WhatsApp Order</Btn>
+              <Btn variant="sub"  onClick={() => window.open("https://wa.me/918618854283", "_blank")} style={{ fontSize: 13, padding: "10px 18px" }}>📱 WhatsApp Order</Btn>
             </div>
           </div>
         </div>
