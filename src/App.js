@@ -1,3 +1,5 @@
+import axios from 'axios';
+import API_URL from './config';
 import logo from './logo.png';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CustomCursor, GrainOverlay, WordReveal, MarqueeBand, ScrollReveal, StatCounter, FloatingParticles } from './fx-components';
@@ -1098,6 +1100,38 @@ function CartPage({ cart, setCart, setPage }) {
 ───────────────────────────────────────────── */
 function LoginPage({ setPage }) {
   const [mode, setMode] = useState("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const url = mode === "login"
+        ? `${API_URL}/api/auth/login`
+        : `${API_URL}/api/auth/signup`;
+
+      const body = mode === "login"
+        ? { email, password }
+        : { name, email, phone, password };
+
+      const res = await axios.post(url, body);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      createSound("success");
+      setPage("home");
+      window.scrollTo(0, 0);
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ paddingTop: 80, minHeight: "100vh", display: "flex", alignItems: "center" }}>
       <div className="login-grid" style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px", display: "grid", gap: 60, alignItems: "center" }}>
@@ -1116,25 +1150,26 @@ function LoginPage({ setPage }) {
         <div className="glass" style={{ borderRadius: 28, padding: "38px" }}>
           <div style={{ display: "flex", gap: 0, marginBottom: 30, background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: 4 }}>
             {["login", "signup"].map(m => (
-              <button key={m} onClick={() => { createSound("nav"); setMode(m); }} style={{
+              <button key={m} onClick={() => { createSound("nav"); setMode(m); setError(""); }} style={{
                 flex: 1, padding: "10px", border: "none", cursor: "pointer", borderRadius: 9, fontSize: 14, fontWeight: 600, fontFamily: "'Syne',sans-serif",
                 background: mode === m ? "linear-gradient(135deg,#39d353,#16a34a)" : "transparent",
                 color: mode === m ? "#fff" : "rgba(255,255,255,0.5)", transition: "all .3s",
               }}>{m === "login" ? "Log In" : "Sign Up"}</button>
             ))}
           </div>
-          {mode === "signup" && <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Full Name</label><input placeholder="Your full name" /></div>}
-          <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Email Address</label><input type="email" placeholder="you@email.com" /></div>
-          {mode === "signup" && <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX" /></div>}
+          {mode === "signup" && <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Full Name</label><input placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} /></div>}
+          <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Email Address</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
+          {mode === "signup" && <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX" value={phone} onChange={e => setPhone(e.target.value)} /></div>}
           <div style={{ marginBottom: 22 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
               <label style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Password</label>
               {mode === "login" && <span style={{ fontSize: 12, color: "#39d353", cursor: "pointer" }}>Forgot password?</span>}
             </div>
-            <input type="password" placeholder="••••••••" />
+            <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
           </div>
-          <Btn variant="gold" onClick={() => { createSound("success"); setPage("home"); window.scrollTo(0, 0); }} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
-            {mode === "login" ? "Log In →" : "Create Account →"}
+          {error && <div style={{ color: "#ff4444", fontSize: 13, marginBottom: 14, textAlign: "center" }}>{error}</div>}
+          <Btn variant="gold" onClick={handleSubmit} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
+            {loading ? "Please wait..." : mode === "login" ? "Log In →" : "Create Account →"}
           </Btn>
           <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(249,199,79,0.4),transparent)", margin: "22px 0" }} />
           <Btn variant="ghost" onClick={() => {}} style={{ width: "100%", fontSize: 14, padding: "12px", display: "block", textAlign: "center" }}>📱 Continue with Phone OTP</Btn>
@@ -1142,9 +1177,7 @@ function LoginPage({ setPage }) {
       </div>
     </div>
   );
-}
-
-/* ─────────────────────────────────────────────
+}/* ─────────────────────────────────────────────
    HOME SECTIONS (Products preview + Families preview)
 ───────────────────────────────────────────── */
 function HomeSections({ setPage, addToCart }) {
