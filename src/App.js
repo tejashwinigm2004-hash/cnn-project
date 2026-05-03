@@ -521,6 +521,7 @@ function Hero({ setPage }) {
 ───────────────────────────────────────────── */
 function ProductCard({ p, addToCart }) {
   const [hover, setHover] = useState(false);
+  const [added, setAdded] = useState(false);
   return (
     <div
       onMouseEnter={() => setHover(true)}
@@ -577,21 +578,19 @@ function ProductCard({ p, addToCart }) {
               const rect = btn.getBoundingClientRect();
               spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
               addRipple(btn, e);
-              btn.classList.add("success");
-              btn.textContent = "✓ Added!";
+               setAdded(true);
               const priceEl = btn.closest(".glass-product")?.querySelector(".price-val");
               if (priceEl) {
                 priceEl.classList.add("pop");
                 setTimeout(() => priceEl.classList.remove("pop"), 500);
               }
               setTimeout(() => {
-                btn.classList.remove("success");
-                btn.textContent = "Add +";
+                setAdded(false);
               }, 900);
             }}
-            style={{ padding: "9px 18px", fontSize: 13, position: "relative", overflow: "hidden" }}
-          >
-            Add +
+style={{ padding: "9px 18px", fontSize: 13, position: "relative", overflow: "hidden" }}
+      className={added ? "success" : ""}          >
+               {added ? "✓ Added!" : "Add +"} 
           </Btn>
         </div>
       </div>
