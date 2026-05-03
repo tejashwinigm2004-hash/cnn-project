@@ -12,6 +12,7 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/cart', require('./routes/cart'));
+app.use('/api/orders', require('./routes/orders'));
 
 app.get('/', (req, res) => res.send('CNN Farm Hub API running ✅'));
 
