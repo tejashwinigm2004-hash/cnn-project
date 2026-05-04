@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendWelcomeEmail } = require("../utils/emailService");
 
 
 // SIGNUP
@@ -16,6 +17,12 @@ router.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ name, email, password: hashedPassword, phone });
     await user.save();
+    // Send welcome email
+try {
+  await sendWelcomeEmail(email, name);
+} catch (emailErr) {
+  console.error("Welcome email failed:", emailErr.message);
+}
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 

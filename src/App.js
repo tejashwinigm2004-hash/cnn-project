@@ -1105,32 +1105,48 @@ function LoginPage({ setPage }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      const url = mode === "login"
-        ? `${API_URL}/api/auth/login`
-        : `${API_URL}/api/auth/signup`;
+  setError("");
+  setSuccess("");
+  setLoading(true);
+  try {
+    const url = mode === "login"
+      ? `${API_URL}/api/auth/login`
+      : `${API_URL}/api/auth/signup`;
 
-      const body = mode === "login"
-        ? { email, password }
-        : { name, email, phone, password };
+    const body = mode === "login"
+      ? { email, password }
+      : { name, email, phone, password };
 
-      const res = await axios.post(url, body);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      createSound("success");
-      setPage("home");
-      window.scrollTo(0, 0);
-    } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+    console.log("Calling URL:", url);
+    console.log("Sending body:", body);
+
+    const res = await axios.post(url, body);
+
+    console.log("Response:", res.data); // ← ADD THIS
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    if (mode === "signup") {
+      setSuccess("🎉 Registered successfully! Redirecting...");
+      await new Promise(r => setTimeout(r, 1500));
     }
-  };
 
+    createSound("success");
+    setPage("home");
+    window.scrollTo(0, 0);
+
+  } catch (err) {
+    console.error("Status:", err.response?.status);       // ← ADD THIS
+    console.error("Error data:", err.response?.data);     // ← ADD THIS
+    setError(err.response?.data?.message || "Something went wrong");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div style={{ paddingTop: 80, minHeight: "100vh", display: "flex", alignItems: "center" }}>
       <div className="login-grid" style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px", display: "grid", gap: 60, alignItems: "center" }}>
