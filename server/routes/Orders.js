@@ -3,6 +3,8 @@ const router = express.Router();
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const auth = require('../middleware/auth');
+const { sendOrderConfirmationEmail } = require('../utils/emailService');
+const User = require('../models/User');
 
 // CREATE order
 router.post('/create', auth, async (req, res) => {
@@ -15,6 +17,14 @@ router.post('/create', auth, async (req, res) => {
       deliveryAddress
     });
     await order.save();
+
+    // ✅ Send order confirmation email
+    try {
+      const user = await User.findById(req.user.id);
+      await sendOrderConfirmationEmail(user.email, user.name, order);
+    } catch (emailErr) {
+      console.error("Order email failed:", emailErr.message);
+    }
 
     // Clear cart after order
     await Cart.findOneAndDelete({ userId: req.user.id });

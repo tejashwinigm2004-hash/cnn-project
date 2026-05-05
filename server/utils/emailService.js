@@ -1,6 +1,5 @@
 const nodemailer = require("nodemailer");
-console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -16,26 +15,72 @@ const sendWelcomeEmail = async (toEmail, userName) => {
     subject: "Welcome to CNN Farm Hub! 🌿",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-        
         <h2 style="color: #2e7d32;">Welcome to CNN Farm Hub, ${userName}! 🌿</h2>
-        
         <p style="color: #555;">Thank you for joining us! We're so happy to have you.</p>
-        
         <p style="color: #555;">At CNN Farm Hub, we deliver <strong>fresh, organic farm products</strong> straight from our farm to your doorstep — milk, ghee, and more.</p>
-
         <a href="https://cnnfarmhub.com/products" 
            style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #2e7d32; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
           Browse Our Products
         </a>
-
         <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
-
         <p style="color: #aaa; font-size: 12px;">CNN Farm Hub | Fresh from our farm, daily.</p>
       </div>
     `,
   };
-
-  await transporter.sendMail(mailOptions);
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully:", result.response);
+  } catch (err) {
+    console.error("Email error:", err.message);
+  }
 };
 
-module.exports = { sendWelcomeEmail };
+const sendOrderConfirmationEmail = async (toEmail, userName, order) => {
+  const itemsList = order.items.map(item => `
+    <tr>
+      <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.name}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.quantity}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #eee;">₹${item.price}</td>
+    </tr>
+  `).join('');
+
+  const mailOptions = {
+    from: `"CNN Farm Hub" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject: "Order Confirmed! 🛒 CNN Farm Hub",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="color: #2e7d32;">Order Confirmed! 🎉</h2>
+        <p style="color: #555;">Hi ${userName}, your order has been placed successfully!</p>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background: #f5f5f5;">
+              <th style="padding: 8px; text-align: left;">Product</th>
+              <th style="padding: 8px; text-align: left;">Qty</th>
+              <th style="padding: 8px; text-align: left;">Price</th>
+            </tr>
+          </thead>
+          <tbody>${itemsList}</tbody>
+        </table>
+        <div style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+          <strong>Total Amount: ₹${order.totalAmount}</strong>
+        </div>
+        <p style="color: #555; margin-top: 20px;">We'll deliver your order fresh every morning! 🥛</p>
+        <a href="https://cnnfarmhub.com/orders" 
+           style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #2e7d32; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+          Track Your Order
+        </a>
+        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
+        <p style="color: #aaa; font-size: 12px;">CNN Farm Hub | Fresh from our farm, daily.</p>
+      </div>
+    `,
+  };
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log("Order confirmation email sent:", result.response);
+  } catch (err) {
+    console.error("Order email error:", err.message);
+  }
+};
+
+module.exports = { sendWelcomeEmail, sendOrderConfirmationEmail };
