@@ -6,10 +6,8 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    process.env.CLIENT_URL
-  ]
+  origin: ['http://localhost:3000', 'http://localhost:3001']
+  
 }));
 app.use(express.json());
 
@@ -18,6 +16,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/Products'));
 app.use('/api/cart', require('./routes/Cart'));
 app.use('/api/orders', require('./routes/Orders'));
+app.use('/api/admin', require('./routes/admin'));
 app.get('/', (req, res) => res.send('CNN Farm Hub API running ✅'));
 
 mongoose.connect(process.env.MONGO_URI)
