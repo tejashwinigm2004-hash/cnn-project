@@ -17,6 +17,7 @@ app.use('/api/products', require('./routes/Products'));
 app.use('/api/cart', require('./routes/Cart'));
 app.use('/api/orders', require('./routes/Orders'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/subscriptions', require('./routes/Subscriptions'));
 app.get('/', (req, res) => res.send('CNN Farm Hub API running ✅'));
 
 mongoose.connect(process.env.MONGO_URI)
