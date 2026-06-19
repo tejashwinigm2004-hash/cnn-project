@@ -7,8 +7,8 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001']
-  
+  origin: true,
+  credentials: true
 }));
 // Rate limiting
 const limiter = rateLimit({
