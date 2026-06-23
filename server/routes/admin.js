@@ -4,6 +4,7 @@ const adminMiddleware = require('../middleware/adminMiddleware');
 const User = require('../models/User');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const { sendPushNotification, sendPushNotificationToMany } = require('../utils/pushNotifications');
 
 // ✅ GET ALL ORDERS
 router.get('/orders', adminMiddleware, async (req, res) => {
@@ -24,6 +25,21 @@ router.patch('/orders/:id', adminMiddleware, async (req, res) => {
       { status },
       { new: true }
     );
+
+    try {
+      const user = await User.findById(order.userId);
+      if (user?.pushToken) {
+        await sendPushNotification(
+          user.pushToken,
+          'Order Update',
+          `Your order is now ${status}!`,
+          { orderId: order._id.toString() }
+        );
+      }
+    } catch (notifErr) {
+      console.error('Order notification failed:', notifErr.message);
+    }
+
     res.json(order);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -90,6 +106,18 @@ router.get('/analytics', adminMiddleware, async (req, res) => {
       totalProducts,
       totalRevenue
     });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+// ✅ SEND ANNOUNCEMENT TO ALL USERS
+router.post('/announce', adminMiddleware, async (req, res) => {
+  try {
+    const { title, message } = req.body;
+    const users = await User.find({ pushToken: { $exists: true, $ne: null } });
+    const tokens = users.map(u => u.pushToken);
+    const result = await sendPushNotificationToMany(tokens, title, message);
+    res.json({ message: `Announcement sent to ${tokens.length} users`, result });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

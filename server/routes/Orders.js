@@ -5,6 +5,7 @@ const Cart = require('../models/Cart');
 const auth = require('../middleware/auth');
 const { sendOrderConfirmationEmail } = require('../utils/emailService');
 const User = require('../models/User');
+const { sendPushNotification } = require('../utils/pushNotifications');
 
 // CREATE order
 router.post('/create', auth, async (req, res) => {
@@ -55,6 +56,22 @@ router.patch('/:id/status', auth, async (req, res) => {
       { status: req.body.status },
       { new: true }
     );
+
+    // Send push notification to the customer about their order status
+    try {
+      const user = await User.findById(order.userId);
+      if (user?.pushToken) {
+        await sendPushNotification(
+          user.pushToken,
+          'Order Update',
+          `Your order is now ${req.body.status}!`,
+          { orderId: order._id.toString() }
+        );
+      }
+    } catch (notifErr) {
+      console.error('Order notification failed:', notifErr.message);
+    }
+
     res.json(order);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

@@ -51,4 +51,15 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// SAVE PUSH TOKEN
+const authMiddleware = require('../middleware/auth');
+router.post('/push-token', authMiddleware, async (req, res) => {
+  try {
+    const { pushToken } = req.body;
+    await User.findByIdAndUpdate(req.user.id, { pushToken });
+    res.json({ message: 'Push token saved' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
 module.exports = router;
