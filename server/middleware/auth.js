@@ -1,7 +1,11 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  // Website sends the token via httpOnly cookie; mobile sends it via Authorization header
+  const tokenFromCookie = req.cookies?.token;
+  const tokenFromHeader = req.header('Authorization')?.replace('Bearer ', '');
+  const token = tokenFromCookie || tokenFromHeader;
+
   if (!token) return res.status(401).json({ message: 'No token, access denied' });
 
   try {

@@ -3,6 +3,7 @@ import API_URL from './config';
 import logo from './logo.png';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CustomCursor, GrainOverlay, WordReveal, MarqueeBand, ScrollReveal, StatCounter, FloatingParticles } from './fx-components';
+import { useAuth } from "./context/AuthContext";
 /* ─────────────────────────────────────────────
    SOUND ENGINE  (Web Audio API — no files needed)
 ───────────────────────────────────────────── */
@@ -333,6 +334,7 @@ function SectionHead({ badge, badgeColor = "#f9c74f", title, titleClass = "tg-go
    NAV
 ───────────────────────────────────────────── */
 function Nav({ page, setPage, cart }) {
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -355,6 +357,12 @@ function Nav({ page, setPage, cart }) {
     setPage(p);
     setMobileOpen(false);
     window.scrollTo(0, 0);
+  };
+
+  const handleLogout = () => {
+    createSound("nav");
+    logout();
+    go("home");
   };
 
   const links = ["home", "products", "farm", "families", "subscription", "contact"];
@@ -403,11 +411,22 @@ function Nav({ page, setPage, cart }) {
           </div>
         )}
 
-        {/* Right: Login + Cart + Hamburger */}
+        {/* Right: Login/Logout + Cart + Hamburger */}
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <Btn variant="ghost" onClick={() => go("login")} style={{ padding: "8px 16px", fontSize: 13 }}>
-            Login
-          </Btn>
+          {user ? (
+            <>
+              <span style={{ color: "#f9c74f", fontSize: 13, fontWeight: 600 }}>
+                Hi, {user.name?.split(" ")[0] || "there"}
+              </span>
+              <Btn variant="ghost" onClick={handleLogout} style={{ padding: "8px 16px", fontSize: 13 }}>
+                Logout
+              </Btn>
+            </>
+          ) : (
+            <Btn variant="ghost" onClick={() => go("login")} style={{ padding: "8px 16px", fontSize: 13 }}>
+              Login
+            </Btn>
+          )}
           <Btn variant="gold" onClick={() => go("cart")} style={{ padding: "8px 16px", fontSize: 13 }}>
             🛒 Cart {cart.length > 0 && (
               <span style={{ background: "#ff3b30", borderRadius: "50%", padding: "1px 6px", fontSize: 11, marginLeft: 4 }}>
@@ -1099,6 +1118,7 @@ function CartPage({ cart, setCart, setPage }) {
 ───────────────────────────────────────────── */
 function LoginPage({ setPage }) {
   const [mode, setMode] = useState("login");
+  const { login } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -1120,15 +1140,15 @@ function LoginPage({ setPage }) {
       ? { email, password }
       : { name, email, phone, password };
 
-    console.log("Calling URL:", url);
-    console.log("Sending body:", body);
+    const res = await axios.post(url, body, { withCredentials: true });
 
-    const res = await axios.post(url, body);
+    console.log("Response:", res.data);
 
-    console.log("Response:", res.data); // ← ADD THIS
-
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("user", JSON.stringify(res.data.user));
+    // The JWT is no longer handled here — the server sets it as an
+    // httpOnly cookie directly on the response, so the browser stores
+    // it automatically and JS never sees the token itself.
+    // We keep only non-sensitive user info (name/email) for display.
+    login(res.data.user);
 
     if (mode === "signup") {
       setSuccess("🎉 Registered successfully! Redirecting...");
@@ -1140,8 +1160,8 @@ function LoginPage({ setPage }) {
     window.scrollTo(0, 0);
 
   } catch (err) {
-    console.error("Status:", err.response?.status);       // ← ADD THIS
-    console.error("Error data:", err.response?.data);     // ← ADD THIS
+    console.error("Status:", err.response?.status);
+    console.error("Error data:", err.response?.data);
     setError(err.response?.data?.message || "Something went wrong");
   } finally {
     setLoading(false);
