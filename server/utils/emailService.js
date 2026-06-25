@@ -82,5 +82,47 @@ const sendOrderConfirmationEmail = async (toEmail, userName, order) => {
     console.error("Order email error:", err.message);
   }
 };
+const sendBookingNotificationEmail = async (booking) => {
+  const mailOptions = {
+    from: `"CNN Farm Hub" <${process.env.EMAIL_USER}>`,
+    to: "cnnfarmhub@gmail.com",
+    subject: `New Discovery Call Booking — ${booking.date}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="color: #2e7d32;">New Call Booking Request 📞</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Name</strong></td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">${booking.name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Phone</strong></td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">${booking.phone}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Email</strong></td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">${booking.email}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Date</strong></td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">${booking.date}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px;"><strong>Time Slot</strong></td>
+            <td style="padding: 8px;">${booking.timeSlot}</td>
+          </tr>
+        </table>
+        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
+        <p style="color: #aaa; font-size: 12px;">CNN Farm Hub | Booking System</p>
+      </div>
+    `,
+  };
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log("Booking notification email sent:", result.response);
+  } catch (err) {
+    console.error("Booking email error:", err.message);
+  }
+};
 
-module.exports = { sendWelcomeEmail, sendOrderConfirmationEmail };
+module.exports = { sendWelcomeEmail, sendOrderConfirmationEmail, sendBookingNotificationEmail };
