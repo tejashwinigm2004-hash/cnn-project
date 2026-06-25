@@ -1220,7 +1220,7 @@ function LoginPage({ setPage }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
-
+ 
   const handleSubmit = async () => {
   setError("");
   setSuccess("");
@@ -1229,30 +1229,30 @@ function LoginPage({ setPage }) {
     const url = mode === "login"
       ? `${API_URL}/api/auth/login`
       : `${API_URL}/api/auth/signup`;
-
+ 
     const body = mode === "login"
       ? { email, password }
       : { name, email, phone, password };
-
+ 
     const res = await axios.post(url, body, { withCredentials: true });
-
+ 
     console.log("Response:", res.data);
-
+ 
     // The JWT is no longer handled here — the server sets it as an
     // httpOnly cookie directly on the response, so the browser stores
     // it automatically and JS never sees the token itself.
     // We keep only non-sensitive user info (name/email) for display.
     login(res.data.user);
-
+ 
     if (mode === "signup") {
       setSuccess("🎉 Registered successfully! Redirecting...");
       await new Promise(r => setTimeout(r, 1500));
     }
-
+ 
     createSound("success");
     setPage("home");
     window.scrollTo(0, 0);
-
+ 
   } catch (err) {
     console.error("Status:", err.response?.status);
     console.error("Error data:", err.response?.data);
@@ -1263,12 +1263,65 @@ function LoginPage({ setPage }) {
 };
   return (
     <div style={{ paddingTop: 80, minHeight: "100vh", display: "flex", alignItems: "center" }}>
+      {/* Animation keyframes for the heading — added, nothing else changed */}
+      <style>{`
+  @keyframes wordFloat {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes writeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0px) scale(1);
+    }
+  }
+`}</style>
       <div className="login-grid" style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px", display: "grid", gap: 60, alignItems: "center" }}>
         <div className="login-left">
-          <div style={{ fontSize: 68, marginBottom: 18 }} className="float">🌿</div>
-          <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(32px,5vw,52px)", marginBottom: 14 }}>
-            {mode === "login" ? <>Welcome Back<br /><span className="tg-gold">Family</span></> : <>Join the Farm<br /><span className="tg-gold">Family</span></>}
-          </h1>
+         <h1 style={{
+  fontFamily: "'Playfair Display',serif",
+  fontWeight: 900,
+  fontSize: "clamp(32px,5vw,52px)",
+  marginBottom: 14,
+}}>
+  {(mode === "login" ? "Welcome Back" : "Join the Farm").split(" ").map((word, i) => (
+    <span
+      key={`line1-${i}`}
+      style={{
+        display: "inline-block",
+        marginRight: "0.3em",
+        opacity: 0,
+        animation: `writeIn 0.5s ease-out ${i * 0.2}s forwards, wordFloat 2.5s ease-in-out ${i * 0.15 + 1}s infinite`,
+      }}
+    >
+      {word}
+    </span>
+  ))}
+  <br />
+  {(mode === "login" ? "CNN Family" : "Family").split(" ").map((word, i) => (
+    <span
+      key={`line2-${i}`}
+      style={{
+        display: "inline-block",
+        marginRight: "0.3em",
+        color: "#f9c74f",
+        opacity: 0,
+        animation: `writeIn 0.5s ease-out ${(i + 2) * 0.2}s forwards, wordFloat 2.5s ease-in-out ${(i + 4) * 0.15 + 1}s infinite`,
+      }}
+    >
+      {word}
+    </span>
+  ))}
+</h1>
           <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, lineHeight: 1.8, marginBottom: 32 }}>
             {mode === "login" ? "Log in to manage your subscriptions, track orders, and enjoy member benefits." : "Create your account to start receiving fresh dairy every morning."}
           </p>
