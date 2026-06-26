@@ -339,36 +339,156 @@ function Nav({ page, setPage, cart }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
+  const [openDropdown, setOpenDropdown] = useState(null); // NEW
+ 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
+ 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
+ 
+  // NEW: inject dropdown CSS once
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.id = "nav-dropdown-styles";
+    style.innerHTML = `
+      .nav-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%) translateY(-6px);
+        min-width: 210px;
+        background: rgba(18, 16, 6, 0.97);
+        border: 1px solid rgba(249,199,79,0.18);
+        border-radius: 12px;
+        padding: 8px 0;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+        z-index: 999;
+        backdrop-filter: blur(16px);
+        pointer-events: none;
+      }
+      .nav-dropdown.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+        pointer-events: all;
+      }
+      .nav-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.7);
+        cursor: pointer;
+        transition: color 0.18s, background 0.18s;
+        white-space: nowrap;
+      }
+      .nav-dropdown-item:hover {
+        color: #f9c74f;
+        background: rgba(249,199,79,0.07);
+      }
+      .nav-dropdown-divider {
+        border: none;
+        border-top: 1px solid rgba(255,255,255,0.07);
+        margin: 6px 0;
+      }
+      .nav-dropdown-label {
+        padding: 5px 18px 3px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(255,255,255,0.28);
+        font-weight: 600;
+      }
+      .nav-link-wrap {
+        position: relative;
+      }
+    `;
+    if (!document.getElementById("nav-dropdown-styles")) {
+      document.head.appendChild(style);
+    }
+    return () => document.getElementById("nav-dropdown-styles")?.remove();
+  }, []);
+ 
   const go = (p) => {
     createSound("nav");
     setPage(p);
     setMobileOpen(false);
+    setOpenDropdown(null); // close any open dropdown
     window.scrollTo(0, 0);
   };
-
+ 
   const handleLogout = () => {
     createSound("nav");
     logout();
     go("home");
   };
-
+ 
   const links = ["home", "products", "farm", "families", "subscription", "contact"];
-  const labels = { home: "Home", products: "Products", farm: "Our Farm", families: "Families", subscription: "Subscribe", contact: "Contact" };
-
+  const labels = {
+    home: "Home", products: "Products", farm: "Our Farm",
+    families: "Families", subscription: "Subscribe", contact: "Contact"
+  };
+ 
+  // NEW: dropdown config for each nav link
+  const dropdowns = {
+    products: [
+      { label: "🥛 Dairy & Milk",   page: "products" },
+      { label: "🧀 Paneer & Ghee",  page: "products" },
+      { label: "🥚 Eggs",           page: "products" },
+      { label: "🍯 Honey",          page: "products" },
+      { divider: true },
+      { label: "🛒 All Products",   page: "products" },
+    ],
+    farm: [
+      { label: "🌾 Our Story",      page: "farm" },
+      { label: "🐄 Meet the Cows",  page: "farm" },
+      { label: "♻️ Sustainability", page: "farm" },
+      { label: "📸 Farm Gallery",   page: "farm" },
+    ],
+    families: [
+      { label: "📦 Family Boxes",   page: "families" },
+      { label: "🎁 Gift Hampers",   page: "families" },
+      { label: "🧒 Kids & Schools", page: "families" },
+      { label: "❤️ Community CSA",  page: "families" },
+    ],
+    subscription: [
+      { sectionLabel: "Choose a plan" },
+      { label: "🥦 Weekly Veggie Box",    page: "subscription" },
+      { label: "🍓 Seasonal Fruit Box",   page: "subscription" },
+      { label: "🧀 Dairy & Eggs Bundle",  page: "subscription" },
+      { divider: true },
+      { label: "⚙️ Manage Subscription", page: "subscription" },
+    ],
+    contact: [
+      { label: "📞 Call Us",    page: "contact" },
+      { label: "✉️ Email",      page: "contact" },
+      { label: "📍 Find Us",    page: "contact" },
+      { label: "💬 WhatsApp",   page: "contact" },
+    ],
+  };
+ 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (!e.target.closest(".nav-link-wrap")) setOpenDropdown(null);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+ 
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
@@ -378,40 +498,68 @@ function Nav({ page, setPage, cart }) {
       borderBottom: scrolled ? "1px solid rgba(255,255,255,0.07)" : "none",
       transition: "all .4s cubic-bezier(.22,1,.36,1)",
     }}>
-
+ 
       {/* Main flex row */}
       <div style={{
         maxWidth: 1280, margin: "0 auto", padding: "0 24px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
-
+ 
         {/* Logo */}
         <div onClick={() => go("home")} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, overflow: "hidden" }}>
-<img src={logo} alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />          </div>
+            <img src={logo} alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          </div>
           <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.1" }}>
             <span style={{ fontSize: 16, fontWeight: 700, color: "#f9c74f" }}>CNN Organic</span>
             <span style={{ fontSize: 15, fontWeight: 600, color: "#2e7d32" }}>Fresh Farm</span>
           </span>
         </div>
-
-        {/* Desktop links */}
+ 
+        {/* Desktop links — NOW WITH DROPDOWNS */}
         {!isMobile && (
           <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
             {links.map(l => (
-              <span key={l} onClick={() => go(l)} style={{
-                cursor: "pointer", fontSize: 13, fontWeight: 600,
-                color: page === l ? "#f9c74f" : "rgba(255,255,255,0.7)",
-                transition: "color .25s", textTransform: "capitalize",
-                borderBottom: page === l ? "2px solid #f9c74f" : "2px solid transparent",
-                paddingBottom: 2,
-              }}>
-                {labels[l]}
-              </span>
+              <div
+                key={l}
+                className="nav-link-wrap"
+                onMouseEnter={() => dropdowns[l] ? setOpenDropdown(l) : null}
+                onMouseLeave={() => setOpenDropdown(null)}
+              >
+                {/* The link itself */}
+                <span
+                  onClick={() => go(l)}
+                  style={{
+                    cursor: "pointer", fontSize: 13, fontWeight: 600,
+                    color: page === l ? "#f9c74f" : "rgba(255,255,255,0.7)",
+                    transition: "color .25s", textTransform: "capitalize",
+                    borderBottom: page === l ? "2px solid #f9c74f" : "2px solid transparent",
+                    paddingBottom: 2,
+                    display: "flex", alignItems: "center", gap: 4,
+                  }}
+                >
+                  {labels[l]}
+                </span>
+ 
+                {/* Dropdown panel */}
+                {dropdowns[l] && (
+                  <div className={`nav-dropdown${openDropdown === l ? " open" : ""}`}>
+                    {dropdowns[l].map((item, i) => {
+                      if (item.divider)      return <hr key={i} className="nav-dropdown-divider" />;
+                      if (item.sectionLabel) return <div key={i} className="nav-dropdown-label">{item.sectionLabel}</div>;
+                      return (
+                        <div key={i} className="nav-dropdown-item" onClick={() => go(item.page)}>
+                          {item.label}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}
-
+ 
         {/* Right: Login/Logout + Cart + Hamburger */}
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           {user ? (
@@ -443,10 +591,10 @@ function Nav({ page, setPage, cart }) {
             </button>
           )}
         </div>
-
+ 
       </div>
-
-      {/* Mobile dropdown */}
+ 
+      {/* Mobile dropdown — unchanged */}
       {isMobile && mobileOpen && (
         <div className="glass" style={{
           position: "absolute", top: "100%", left: 0, right: 0,
