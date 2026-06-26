@@ -785,15 +785,17 @@ function ProductCard({ p, addToCart }) {
   const [added, setAdded] = useState(false);
   return (
     <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      className="glass-product"
-      style={{
-        borderRadius: 20, overflow: "hidden", cursor: "pointer",
-        transition: "all .4s cubic-bezier(.25,.46,.45,.94)",
-      }}
-    >
-      <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
+  onMouseEnter={() => setHover(true)}
+  onMouseLeave={() => setHover(false)}
+  className="glass-product"
+  style={{
+    borderRadius: 20, overflow: "hidden", cursor: "pointer",
+    transition: "all .4s cubic-bezier(.25,.46,.45,.94)",
+    width: 200, margin: "0 auto",
+  }}
+>
+    
+      <div style={{ position: "relative", height: 50, overflow: "hidden" }}>
         <img src={p.img} alt={p.name} className="product-img"
           style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .5s ease" }} />
         <div className="shimmer-layer" style={{
@@ -819,8 +821,8 @@ function ProductCard({ p, addToCart }) {
           {p.category}
         </div>
       </div>
-      <div style={{ padding: "20px 22px" }}>
-        <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 20, marginBottom: 8 }}>{p.name}</h3>
+      <div style={{ padding: "8px 6px" }}>
+        <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 12, marginBottom: 8 }}>{p.name}</h3>
         <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>{p.desc}</p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
           <Stars n={p.stars} />
@@ -828,7 +830,7 @@ function ProductCard({ p, addToCart }) {
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <span className="tg-gold price-val" style={{ fontFamily: "'Playfair Display',serif", fontSize: 26, fontWeight: 900 }}>₹{p.price}</span>
+            <span className="tg-gold price-val" style={{ fontFamily: "'Playfair Display',serif", fontSize: 14, fontWeight: 900 }}>₹{p.price}</span>
             <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginLeft: 6 }}>/{p.unit}</span>
           </div>
           <Btn
@@ -890,10 +892,10 @@ function ProductsPage({ addToCart }) {
         </div>
       </div>
       <div style={{
-        background: "linear-gradient(160deg,rgba(255,107,53,0.07) 0%,transparent 60%)",
-        padding: "60px 24px 100px",
-      }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+  background: "linear-gradient(160deg,rgba(255,107,53,0.07) 0%,transparent 60%)",
+  padding: "60px 5% 100px",
+}}>
+  <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           {/* Filter */}
           <div style={{ display: "flex", gap: 10, marginBottom: 48, flexWrap: "wrap" }}>
             {cats.map(c => (
@@ -904,7 +906,7 @@ function ProductsPage({ addToCart }) {
               }}>{c}</button>
             ))}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 28 }}>
+         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 40 }}>
 {filtered.map((p, i) => (
   <div key={p.id} className="card-wrap" style={{animationDelay:`${i * 100}ms`}}>
     <ProductCard p={p} addToCart={addToCart} />
