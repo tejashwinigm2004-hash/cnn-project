@@ -761,57 +761,78 @@ function Hero({ setPage }) {
           </div>
         </div>
 
-        {/* Right — hero image */}
-        <div className="hero-image float" style={{ position: "relative", borderRadius: 30, overflow: "hidden", aspectRatio: "4/5", maxHeight: 540 }}>
-          <img src="data:image/jpeg;base64,/9j/4AAQ..." alt="Farm cows" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg,transparent 40%,rgba(5,5,5,0.6))" }} />
-          <div className="glass" style={{ position: "absolute", bottom: 24, left: 24, right: 24, borderRadius: 16, padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg,#39d353,#00b894)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0, animation: "pulse 2.5s ease-in-out infinite" }}>✓</div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>Delivered Fresh Today</div>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 12 }}>Morning batch dispatched at 5:30 AM</div>
-            </div>
-          </div>
-        </div>
+{/* Right — hero image */}
+<div className="hero-image float" style={{ position: "relative", borderRadius: 30, overflow: "hidden", aspectRatio: "4/5", maxHeight: 540, maxWidth: 440, margin: "0 auto" }}>
+  <img src="data:image/jpeg;base64,/9j/4AAQ..." alt="Farm cows" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg,transparent 40%,rgba(5,5,5,0.6))" }} />
+  <div className="glass" style={{ position: "absolute", bottom: 24, left: 24, right: 24, borderRadius: 16, padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+    <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg,#39d353,#00b894)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0, animation: "pulse 2.5s ease-in-out infinite" }}>✓</div>
+    <div>
+      <div style={{ fontWeight: 700, fontSize: 14 }}>Delivered Fresh Today</div>
+      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 12 }}>Morning batch dispatched at 5:30 AM</div>
+   </div>
+</div>
+      </div>
       </div>
     </section>
   );
 }
+
 /* ─────────────────────────────────────────────
    PRODUCTS PAGE
 ───────────────────────────────────────────── */
 function ProductCard({ p, addToCart }) {
   const [hover, setHover] = useState(false);
   const [added, setAdded] = useState(false);
+
   return (
     <div
-  onMouseEnter={() => setHover(true)}
-  onMouseLeave={() => setHover(false)}
-  className="glass-product"
-  style={{
-    borderRadius: 20, overflow: "hidden", cursor: "pointer",
-    transition: "all .4s cubic-bezier(.25,.46,.45,.94)",
-    width: 200, margin: "0 auto",
-  }}
->
-    
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="glass-product"
+      style={{
+        borderRadius: 20,
+        overflow: "hidden",
+        cursor: "pointer",
+        transition: "all .4s cubic-bezier(.25,.46,.45,.94)",
+        width: 200,
+        margin: "0 auto",
+      }}
+    >
       <div style={{ position: "relative", height: 50, overflow: "hidden" }}>
-        <img src={p.img} alt={p.name} className="product-img"
-          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .5s ease" }} />
-        <div className="shimmer-layer" style={{
-          position: "absolute", top: 0, left: 0,
-          width: "40%", height: "100%",
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)",
-          pointerEvents: "none", zIndex: 2,
-        }} />
-        <div className="desc-overlay" style={{
-          position: "absolute", bottom: 0, left: 0, right: 0,
-          background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
-          transform: "translateY(100%)",
-          transition: "transform 0.4s ease",
-          padding: "14px 16px",
-          zIndex: 3,
-        }}>
+        <img
+          src={p.img}
+          alt={p.name}
+          className="product-img"
+          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .5s ease" }}
+        />
+        <div
+          className="shimmer-layer"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "40%",
+            height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)",
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        />
+        <div
+          className="desc-overlay"
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+            transform: "translateY(100%)",
+            transition: "transform 0.4s ease",
+            padding: "14px 16px",
+            zIndex: 3,
+          }}
+        >
           <p style={{ color: "#fff", fontSize: 12, margin: 0 }}>{p.desc}</p>
         </div>
         <div style={{ position: "absolute", top: 14, left: 14 }}>
@@ -821,6 +842,7 @@ function ProductCard({ p, addToCart }) {
           {p.category}
         </div>
       </div>
+
       <div style={{ padding: "8px 6px" }}>
         <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 12, marginBottom: 8 }}>{p.name}</h3>
         <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>{p.desc}</p>
@@ -841,7 +863,7 @@ function ProductCard({ p, addToCart }) {
               const rect = btn.getBoundingClientRect();
               spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
               addRipple(btn, e);
-               setAdded(true);
+              setAdded(true);
               const priceEl = btn.closest(".glass-product")?.querySelector(".price-val");
               if (priceEl) {
                 priceEl.classList.add("pop");
@@ -851,73 +873,49 @@ function ProductCard({ p, addToCart }) {
                 setAdded(false);
               }, 900);
             }}
-style={{ padding: "9px 18px", fontSize: 13, position: "relative", overflow: "hidden" }}
-      className={added ? "success" : ""}          >
-               {added ? "✓ Added!" : "Add +"} 
+            style={{ padding: "9px 18px", fontSize: 13, position: "relative", overflow: "hidden" }}
+            className={added ? "success" : ""}
+          >
+            {added ? "✓ Added!" : "Add +"}
           </Btn>
         </div>
       </div>
     </div>
   );
 }
-
+/* ─────────────────────────────────────────────
+   PRODUCTS PAGE (full catalog)
+   Uses the existing PRODUCTS array already
+   defined elsewhere in App.js
+───────────────────────────────────────────── */
 function ProductsPage({ addToCart }) {
-  const cats = ["All", "Dairy", "Ghee", "Butter", "Drinks"];
-  const [active, setActive] = useState("All");
-  const filtered = active === "All" ? PRODUCTS : PRODUCTS.filter(p => p.category === active);
-
   return (
-    <div style={{ paddingTop: 100 }}>
-      {/* Hero image strip */}
-      <div style={{ height: 280, overflow: "hidden", position: "relative", marginBottom: 0 }}>
-        <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1400&q=80" alt="Farm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(5,5,5,0.3),rgba(5,5,5,0.85))", display: "flex", alignItems: "flex-end", padding: "40px 60px" }}>
-          <div>
-            <Badge label="Fresh Daily" color="#ff6b35" />
-            <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(32px,5vw,56px)", marginTop: 12 }}>
-              Our <span className="tg-gold">Products</span>
-            </h1>
-          </div>
-        </div>
-      </div>
-{/* Marquee Band */}
-      <div style={{ background: "linear-gradient(135deg,#ff6b35,#f7931e)", padding: "12px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
-        <div style={{
-          display: "inline-block",
-          animation: "marquee 20s linear infinite",
-        }}>
-          {["🥛 Farm Fresh Milk", "🧈 Pure Desi Ghee", "🌿 100% Organic", "🐄 Grass Fed Cows", "❄️ Cold Chain Delivery", "✅ FSSAI Certified", "🥛 Farm Fresh Milk", "🧈 Pure Desi Ghee", "🌿 100% Organic", "🐄 Grass Fed Cows", "❄️ Cold Chain Delivery", "✅ FSSAI Certified"].map((item, i) => (
-            <span key={i} style={{ marginRight: 48, fontSize: 14, fontWeight: 600, color: "#fff", fontFamily: "'Syne',sans-serif" }}>{item}</span>
+    <div style={{ paddingTop: 100, paddingBottom: 60 }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
+        <SectionHead
+          badge="Farm Fresh"
+          badgeColor="#ff6b35"
+          title="Our Products"
+          titleClass="tg-gold"
+          sub="Pure A2 dairy, ghee & artisan products made with zero additives and maximum love."
+        />
+        <div
+          className="products-grid"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))",
+            gap: 24,
+            marginTop: 44,
+          }}
+        >
+          {PRODUCTS.map((p) => (
+            <ProductCard key={p.id} p={p} addToCart={addToCart} />
           ))}
-        </div>
-      </div>
-      <div style={{
-  background: "linear-gradient(160deg,rgba(255,107,53,0.07) 0%,transparent 60%)",
-  padding: "60px 5% 100px",
-}}>
-  <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          {/* Filter */}
-          <div style={{ display: "flex", gap: 10, marginBottom: 48, flexWrap: "wrap" }}>
-            {cats.map(c => (
-              <button key={c} onClick={() => { createSound("nav"); setActive(c); }} style={{
-                padding: "8px 20px", borderRadius: 100, border: "none", cursor: "pointer", fontFamily: "'Syne',sans-serif", fontWeight: 600, fontSize: 13,
-                background: active === c ? "linear-gradient(135deg,#ff6b35,#f7931e)" : "rgba(255,255,255,0.07)",
-                color: active === c ? "#fff" : "rgba(255,255,255,0.6)", transition: "all .25s",
-              }}>{c}</button>
-            ))}
-          </div>
-         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 40 }}>
-{filtered.map((p, i) => (
-  <div key={p.id} className="card-wrap" style={{animationDelay:`${i * 100}ms`}}>
-    <ProductCard p={p} addToCart={addToCart} />
-  </div>
-))}          </div>
         </div>
       </div>
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────
    FARM PAGE
 ───────────────────────────────────────────── */
@@ -1530,42 +1528,134 @@ function HomeSections({ setPage, addToCart }) {
         </div>
       </section>
 
-      {/* Farm strip */}
-      <section style={{ position: "relative", height: 440, overflow: "hidden" }}>
-        <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1400&q=80" alt="Farm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
-          <div style={{ textAlign: "center", maxWidth: 600 }}>
-            <Badge label="Est. 2009 · Karnataka" color="#00b4d8" />
-            <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(22px,5vw,48px)", margin: "20px 0 16px" }}>
-              <span className="tg-farm">15 Years of Pure</span><br />Farming Tradition
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.65)", marginBottom: 30, lineHeight: 1.8, fontSize: "clamp(13px,3vw,16px)" }}>80+ Gir cows. 45 acres of organic land. Vedic farming methods. Every drop tells a story.</p>
-            <Btn variant="farm" onClick={() => { setPage("farm"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 28px" }}>Discover Our Farm →</Btn>
-          </div>
-        </div>
-      </section>
+     {/* Farm strip */}
+<section style={{ position: "relative", height: 440, overflow: "hidden" }}>
+  <div style={{ width: "90%", height: "100%", margin: "0 auto", position: "relative" }}>
+    <img
+      src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1400&q=80"
+      alt="Farm"
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  </div>
+  <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
+    <div style={{ textAlign: "center", maxWidth: 500 }}>
+      <Badge label="Est. 2009 · Karnataka" color="#00b4d8" />
+      <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(22px,5vw,48px)", margin: "20px 0 16px" }}>
+        <span className="tg-farm">15 Years of Pure</span><br />Farming Tradition
+      </h2>
+      <p style={{ color: "rgba(255,255,255,0.65)", marginBottom: 30, lineHeight: 1.8, fontSize: "clamp(13px,3vw,16px)" }}>80+ Gir cows. 45 acres of organic land. Vedic farming methods. Every drop tells a story.</p>
+      <Btn variant="farm" onClick={() => { setPage("farm"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 28px" }}>Discover Our Farm →</Btn>
+    </div>
+  </div>
+</section>
 
       {/* Subscription preview */}
-      <section className="section-pad" style={{ background: "linear-gradient(160deg,rgba(57,211,83,0.07) 0%,transparent 60%)", padding: "90px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <SectionHead badge="Daily Delivery" badgeColor="#39d353" title="Subscribe & Save" titleClass="tg-sub"
-            sub="Fresh dairy at your doorstep every morning. No trips, no compromise." />
-          <div className="sub-plans-grid" style={{ display: "grid", gap: 24, marginBottom: 44 }}>
-            {PLANS.map(pl => (
-              <div key={pl.id} className="glass-sub plan-card" style={{ borderRadius: 22, padding: "28px 24px", textAlign: "center", border: pl.popular ? `1px solid ${pl.color}` : undefined }}>
-                {pl.popular && <Badge label="Most Popular" color={pl.color} />}
-                <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 22, margin: "14px 0 6px" }}>{pl.name}</h3>
-                <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 34, color: pl.color }}>₹{pl.price.toLocaleString()}<span style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", fontWeight: 400 }}>/mo</span></div>
-              </div>
-            ))}
-          </div>
-          <div style={{ textAlign: "center" }}>
-            <Btn variant="sub" onClick={() => { setPage("subscription"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 30px" }}>See All Plans →</Btn>
+<section className="section-pad" style={{ background: "linear-gradient(160deg,rgba(57,211,83,0.07) 0%,transparent 60%)", padding: "90px 24px", position: "relative", overflow: "hidden" }}>
+  <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
+    <SectionHead badge="Daily Delivery" badgeColor="#39d353" title="Subscribe & Save" titleClass="tg-sub"
+      sub="Fresh dairy at your doorstep every morning. No trips, no compromise." />
+
+    <div className="sub-plans-grid" style={{ display: "grid", gap: 28, marginBottom: 44, alignItems: "start" }}>
+      {PLANS.map((pl, i) => (
+        <div
+          key={pl.id}
+          className="plan-card-animated"
+          style={{
+            position: "relative",
+            borderRadius: 24,
+            overflow: "hidden",
+            cursor: "pointer",
+            background: "rgba(255,255,255,0.04)",
+            border: pl.popular ? `2px solid ${pl.color}` : "1px solid rgba(255,255,255,0.08)",
+            transform: pl.popular ? "translateY(-10px)" : "none",
+            boxShadow: pl.popular ? `0 24px 60px ${pl.color}44` : "none",
+            transition: "transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s ease",
+            animation: `floatCard 5s ease-in-out ${i * 0.4}s infinite`,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = `translateY(${pl.popular ? -14 : -8}px)`;
+            e.currentTarget.style.boxShadow = `0 30px 60px ${pl.color}44`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = pl.popular ? "translateY(-10px)" : "none";
+            e.currentTarget.style.boxShadow = pl.popular ? `0 24px 60px ${pl.color}44` : "none";
+          }}
+        >
+          {/* Popular banner */}
+          {pl.popular && (
+            <div style={{
+              background: `linear-gradient(135deg,${pl.color},${pl.color}88)`,
+              textAlign: "center",
+              padding: "10px",
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: 1,
+              color: "#020f05",
+            }}>
+              ★ MOST POPULAR
+            </div>
+          )}
+
+          {/* Glowing blob behind price */}
+          <div style={{
+            position: "absolute",
+            top: pl.popular ? 40 : 10,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 200,
+            height: 200,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${pl.color}22 0%, transparent 70%)`,
+            filter: "blur(10px)",
+            pointerEvents: "none",
+            animation: "pulseBlob 4s ease-in-out infinite",
+          }} />
+
+          <div style={{ padding: "30px 28px", position: "relative" }}>
+            <div style={{ fontSize: 13, color: pl.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>
+              {pl.name}
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}>
+              <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#fff" }}>
+                ₹{pl.price.toLocaleString()}
+              </span>
+              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>/{pl.period}</span>
+            </div>
+            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginBottom: 26 }}>Billed monthly</div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
+              {pl.items.map(item => (
+                <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(255,255,255,0.75)" }}>
+                  <span style={{ color: pl.color, flexShrink: 0, marginTop: 1 }}>✓</span>{item}
+                </div>
+              ))}
+            </div>
+
+            <Btn
+              variant={pl.popular ? "sub" : "ghost"}
+              onClick={() => { setPage("subscription"); window.scrollTo(0, 0); }}
+              style={{
+                width: "100%",
+                justifyContent: "center",
+                fontSize: 14,
+                padding: "13px",
+                background: pl.popular ? `linear-gradient(135deg,${pl.color},${pl.color}cc)` : undefined,
+                color: pl.popular ? "#020f05" : undefined,
+              }}
+            >
+              {pl.popular ? "✓ Selected" : "Select Plan"}
+            </Btn>
           </div>
         </div>
-      </section>
+      ))}
+    </div>
 
-      {/* Families preview */}
+    <div style={{ textAlign: "center" }}>
+      <Btn variant="sub" onClick={() => { setPage("subscription"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 30px" }}>See All Plans →</Btn>
+    </div>
+  </div>
+</section>
+{/* Families preview */}
       <section className="section-pad" style={{ background: "linear-gradient(160deg,rgba(255,154,158,0.07) 0%,transparent 60%)", padding: "90px 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <SectionHead badge="Real Stories" badgeColor="#ff9a9e" title="Loved by Families" titleClass="tg-family" />
