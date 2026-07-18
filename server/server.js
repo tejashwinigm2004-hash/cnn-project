@@ -8,6 +8,7 @@ const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
+app.set('trust proxy', 1); // Required so express-rate-limit reads the real client IP behind Render's proxy
 
 const allowedOrigins = [
   'http://localhost:3000',                              // local website dev

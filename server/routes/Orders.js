@@ -78,4 +78,19 @@ router.patch('/:id/status', auth, async (req, res) => {
   }
 });
 
+// UPDATE payment status for an existing order
+router.patch('/:id/payment', auth, async (req, res) => {
+  try {
+    const { paymentId, paymentStatus } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { paymentId, paymentStatus },
+      { new: true }
+    );
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;
