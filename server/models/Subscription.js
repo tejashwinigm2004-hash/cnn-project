@@ -6,24 +6,57 @@ const subscriptionSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+
+  // Distinguishes the two subscription types
+  type: {
+    type: String,
+    enum: ['product', 'plan'],
+    required: true,
+    default: 'product'
+  },
+
+  // --- Fields for per-product subscriptions (type: 'product') ---
   productId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true
+    ref: 'Product'
   },
   frequency: {
     type: String,
-    enum: ['daily', 'weekly', 'monthly'],
-    required: true
+    enum: ['daily', 'weekly', 'monthly']
   },
   quantity: {
     type: Number,
-    required: true,
     default: 1
   },
-  deliveryAddress: {
+
+  // --- Fields for tiered bundle plans (type: 'plan') ---
+  planId: {
+    type: String // 'starter' | 'premium' | 'family'
+  },
+  planName: {
+    type: String
+  },
+  price: {
+    type: Number
+  },
+  features: [{
+    type: String
+  }],
+  paymentId: {
+    type: String
+  },
+  paymentStatus: {
     type: String,
-    required: true
+    enum: ['pending', 'paid', 'failed'],
+    default: 'pending'
+  },
+  nextBillingDate: {
+    type: Date
+  },
+
+  // --- Shared fields ---
+  deliveryAddress: {
+    type: String
   },
   status: {
     type: String,
