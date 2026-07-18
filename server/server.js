@@ -63,21 +63,42 @@ app.use('/api/subscriptions', require('./routes/Subscriptions'));
 app.use('/api/bookings', require('./routes/bookings'));
  
 // Razorpay: create order
-// Client now sends planId instead of a raw amount — server looks up the real price.
+// Supports two payment types:
+//  - { planId } for subscription plans — price looked up from PLAN_PRICES
+//  - { orderId } for existing cart orders — price looked up from the saved Order doc
+// The client never gets to dictate the amount directly.
 app.post('/api/payment/create-order', async (req, res) => {
   try {
-    const { planId } = req.body;
-    const price = PLAN_PRICES[planId];
+    const { planId, orderId } = req.body;
+    let price;
+    let notes = {};
  
-    if (!planId || !price) {
-      return res.status(400).json({ message: 'Invalid plan selected' });
+    if (planId) {
+      price = PLAN_PRICES[planId];
+      if (!price) {
+        return res.status(400).json({ message: 'Invalid plan selected' });
+      }
+      notes = { type: 'plan', planId };
+    } else if (orderId) {
+      const Order = require('./models/Order');
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      if (order.paymentStatus === 'paid') {
+        return res.status(400).json({ message: 'Order already paid' });
+      }
+      price = order.totalAmount;
+      notes = { type: 'order', orderId };
+    } else {
+      return res.status(400).json({ message: 'planId or orderId is required' });
     }
  
     const order = await razorpay.orders.create({
-      amount: Math.round(price * 100), // convert to paise, using the SERVER's price, not the client's
+      amount: Math.round(price * 100), // convert to paise, using the SERVER's known price
       currency: 'INR',
       receipt: `receipt_${Date.now()}`,
-      notes: { planId }, // tag the order so we can cross-check later
+      notes,
     });
  
     res.json(order);
