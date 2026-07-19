@@ -8,18 +8,20 @@ const User = require('../models/User');
 const { sendPushNotification } = require('../utils/pushNotifications');
 
 // CREATE order
-router.post('/create', auth, async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
-    const { items, totalAmount, deliveryAddress } = req.body;
+    const { items, totalAmount, deliveryAddress, deliveryInstructions, deliverySlot } = req.body;
+
     const order = new Order({
       userId: req.user.id,
       items,
       totalAmount,
-      deliveryAddress
+      deliveryAddress,
+      deliveryInstructions,
+      deliverySlot,
     });
     await order.save();
 
-    // ✅ Send order confirmation email
     try {
       const user = await User.findById(req.user.id);
       await sendOrderConfirmationEmail(user.email, user.name, order);
@@ -27,11 +29,11 @@ router.post('/create', auth, async (req, res) => {
       console.error("Order email failed:", emailErr.message);
     }
 
-    // Clear cart after order
     await Cart.findOneAndDelete({ userId: req.user.id });
 
     res.status(201).json(order);
   } catch (err) {
+    console.error('Order creation failed:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
@@ -57,7 +59,6 @@ router.patch('/:id/status', auth, async (req, res) => {
       { new: true }
     );
 
-    // Send push notification to the customer about their order status
     try {
       const user = await User.findById(order.userId);
       if (user?.pushToken) {
