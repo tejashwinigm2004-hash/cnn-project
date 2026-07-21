@@ -1901,7 +1901,7 @@ export default function App() {
   };
 
   return (
-  <div style={{ background: "#050505", minHeight: "100vh" }}>
+  <div style={{ background: "#fbf3f3", minHeight: "100vh" }}>
     <Particles />
     <GrainOverlay opacity={0.04} />
 
