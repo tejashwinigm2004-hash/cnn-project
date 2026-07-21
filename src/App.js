@@ -390,14 +390,14 @@ function Nav({ page, setPage, cart }) {
         padding: 10px 18px;
         font-size: 13px;
         font-weight: 500;
-        color: rgba(255,255,255,0.7);
+        color: rgba(11,11,11,0.95);
         cursor: pointer;
         transition: color 0.18s, background 0.18s;
         white-space: nowrap;
       }
       .nav-dropdown-item:hover {
         color: #f9c74f;
-        background: rgba(249,199,79,0.07);
+        background: rgba(246, 245, 244, 0.07);
       }
       .nav-dropdown-divider {
         border: none;
@@ -493,7 +493,7 @@ function Nav({ page, setPage, cart }) {
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
       padding: scrolled ? "10px 0" : "18px 0",
-      background: scrolled ? "rgba(3,3,3,0.94)" : "transparent",
+      background: scrolled ? "rgba(246, 242, 242, 0.94)" : "transparent",
       backdropFilter: scrolled ? "blur(24px)" : "none",
       borderBottom: scrolled ? "1px solid rgba(255,255,255,0.07)" : "none",
       transition: "all .4s cubic-bezier(.22,1,.36,1)",
@@ -531,7 +531,7 @@ function Nav({ page, setPage, cart }) {
                   onClick={() => go(l)}
                   style={{
                     cursor: "pointer", fontSize: 13, fontWeight: 600,
-                    color: page === l ? "#f9c74f" : "rgba(255,255,255,0.7)",
+                    color: page === l ? "#f9c74f" : "rgba(11, 11, 11, 0.95)",
                     transition: "color .25s", textTransform: "capitalize",
                     borderBottom: page === l ? "2px solid #f9c74f" : "2px solid transparent",
                     paddingBottom: 2,
@@ -675,7 +675,7 @@ function Hero({ setPage }) {
             opacity: 0,
             fontStyle: 'italic',
             fontSize: '55%',
-            color: 'rgba(255,255,255,0.55)',
+            color: 'rgba(11,11,11,0.95)',
             animation: `itFadeUp .4s ease ${(baseDelay + i * 0.055).toFixed(3)}s forwards`
           }}>{c}</span>
     );
@@ -685,29 +685,31 @@ function Hero({ setPage }) {
       minHeight: "100vh", display: "flex", alignItems: "center",
       background: `radial-gradient(ellipse 70% 60% at 15% 45%,rgba(20,10,5,0.9) 0%,transparent 65%),
         radial-gradient(ellipse 50% 40% at 80% 20%,rgba(249,199,79,0.07) 0%,transparent 55%),
-        radial-gradient(ellipse 60% 35% at 65% 80%,rgba(57,211,83,0.07) 0%,transparent 55%), #f3efef`,
+        radial-gradient(ellipse 60% 35% at 65% 80%,rgba(57,211,83,0.07) 0%,transparent 55%), #fff`,
       position: "relative", overflow: "hidden",
     }}>
       {/* Blob */}
-      <div className="blob" style={{ position: "absolute", top: "-10%", right: "-5%", width: 500, height: 500, background: "radial-gradient(circle,rgba(244, 244, 244, 0.08) 0%,transparent 70%)", pointerEvents: "none" }} />
+      <div className="blob" style={{ position: "absolute", top: "-10%", right: "-5%", width: 500, height: 500, background: "radial-gradient(circle,rgba(237, 232, 232, 0.08) 0%,transparent 70%)", pointerEvents: "none" }} />
       <div className="blob" style={{ position: "absolute", bottom: "-15%", left: "-8%", width: 420, height: 420, background: "radial-gradient(circle,rgba(57,211,83,0.07) 0%,transparent 70%)", pointerEvents: "none", animationDelay: "-5s" }} />
 
-      <div className="hero-grid" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center", paddingTop: 100, paddingBottom: 80 }}>
+      <div className="hero-grid" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "1fr", gap: 60, alignItems: "center", paddingTop: 100, paddingBottom: 80 }}>
         {/* Left */}
         <div style={{ animation: "pageSlide .7s cubic-bezier(.22,1,.36,1) forwards" }}>
           <Badge label="🌿 Organic · A2 · Farm Fresh" color="#39d353" />
 
           <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(38px,6vw,72px)", lineHeight: 1.1, margin: "22px 0 22px", perspective: 1000 }}>
 
-            {/* Line 1: Pure Dairy */}
-            <span style={{ display: 'block' }}>
+            {/* Line 1: Pure Dairy From Heart — all in one line */}
+            <span style={{
+              display: 'flex',
+              flexWrap: 'nowrap',
+              alignItems: 'baseline',
+              whiteSpace: 'nowrap',
+              fontSize: 'clamp(24px, 5.5vw, 72px)',
+              gap: '0.22em',
+            }}>
               <span style={{ display:'inline-block', opacity:0, animation:'slamDown .5s cubic-bezier(.6,-.3,.4,1.4) .1s forwards', color:'#000' }}>Pure</span>
-              <span style={{ display:'inline-block', width:'0.28em' }} />
               <span style={{ display:'inline-block', opacity:0, animation:'slideBlur .65s cubic-bezier(.22,1,.36,1) .55s forwards', color:'#000' }}>Dairy</span>
-            </span>
-
-            {/* Line 2: From Heart */}
-            <span style={{ display:'block', position:'relative' }}>
               <span style={{
                 display:'inline-block', opacity:0,
                 animation:'zoomSettle .6s cubic-bezier(.22,1,.36,1) 1.05s forwards',
@@ -715,7 +717,6 @@ function Hero({ setPage }) {
                 backgroundSize:'300% auto',
                 WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
               }}>From</span>
-              <span style={{ display:'inline-block', width:'0.28em' }} />
               <span style={{
                 display:'inline-block', opacity:0, transformOrigin:'50% 100%',
                 animation:'flipUp .65s cubic-bezier(.22,1,.36,1) 1.5s forwards, glowPulse 2.5s ease-in-out 2.3s infinite',
@@ -723,16 +724,17 @@ function Hero({ setPage }) {
                 backgroundSize:'300% auto',
                 WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
               }}>Heart</span>
-              {/* underline bar */}
-              <span style={{
-                display:'block', height:2, width:0,
-                background:'linear-gradient(90deg,transparent,#f9c74f 40%,#fff8dc 60%,transparent)',
-                borderRadius:2, marginTop:4,
-                animation:'barGrow .7s cubic-bezier(.22,1,.36,1) 2.3s forwards'
-              }} />
             </span>
 
-            {/* Line 3: of Karnataka */}
+            {/* underline bar under "Heart" */}
+            <span style={{
+              display:'block', height:2, width:0,
+              background:'linear-gradient(90deg,transparent,#f9c74f 40%,#fff8dc 60%,transparent)',
+              borderRadius:2, marginTop:4,
+              animation:'barGrow .7s cubic-bezier(.22,1,.36,1) 2.3s forwards'
+            }} />
+
+            {/* Line 2: of Karnataka */}
             <span style={{ display:'block', marginTop:2 }}>
               {itLetters('of Karnataka', 2.2)}
             </span>
@@ -760,24 +762,10 @@ function Hero({ setPage }) {
             ))}
           </div>
         </div>
-
-{/* Right — hero image */}
-<div className="hero-image float" style={{ position: "relative", borderRadius: 30, overflow: "hidden", aspectRatio: "4/5", maxHeight: 540, maxWidth: 440, margin: "0 auto" }}>
-  <img src="data:image/jpeg;base64,/9j/4AAQ..." alt="Farm cows" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg,transparent 40%,rgba(5,5,5,0.6))" }} />
-  <div className="glass" style={{ position: "absolute", bottom: 24, left: 24, right: 24, borderRadius: 16, padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
-    <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg,#39d353,#00b894)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0, animation: "pulse 2.5s ease-in-out infinite" }}>✓</div>
-    <div>
-      <div style={{ fontWeight: 700, fontSize: 14 }}>Delivered Fresh Today</div>
-      <div style={{ color: "rgba(185, 69, 69, 0.5)", fontSize: 12 }}>Morning batch dispatched at 5:30 AM</div>
-   </div>
-</div>
-      </div>
       </div>
     </section>
   );
 }
-
 /* ─────────────────────────────────────────────
    PRODUCTS PAGE
 ───────────────────────────────────────────── */
@@ -795,16 +783,19 @@ function ProductCard({ p, addToCart }) {
         overflow: "hidden",
         cursor: "pointer",
         transition: "all .4s cubic-bezier(.25,.46,.45,.94)",
-        width: 200,
+        width: "100%",
+        maxWidth: 300,
+        display: "flex",
+        flexDirection: "column",
         margin: "0 auto",
       }}
     >
-      <div style={{ position: "relative", height: 50, overflow: "hidden" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 3", overflow: "hidden" }}>
         <img
           src={p.img}
           alt={p.name}
           className="product-img"
-          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .5s ease" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform .5s ease" }}
         />
         <div
           className="shimmer-layer"
@@ -843,16 +834,16 @@ function ProductCard({ p, addToCart }) {
         </div>
       </div>
 
-      <div style={{ padding: "8px 6px" }}>
-        <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 12, marginBottom: 8 }}>{p.name}</h3>
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>{p.desc}</p>
+      <div style={{ padding: "16px 18px 20px", display: "flex", flexDirection: "column", flex: 1 }}>
+        <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 17, marginBottom: 8 }}>{p.name}</h3>
+        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, lineHeight: 1.6, marginBottom: 14, minHeight: 42 }}>{p.desc}</p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
           <Stars n={p.stars} />
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>({p.reviews})</span>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
           <div>
-            <span className="tg-gold price-val" style={{ fontFamily: "'Playfair Display',serif", fontSize: 14, fontWeight: 900 }}>₹{p.price}</span>
+            <span className="tg-gold price-val" style={{ fontFamily: "'Playfair Display',serif", fontSize: 20, fontWeight: 900 }}>₹{p.price}</span>
             <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginLeft: 6 }}>/{p.unit}</span>
           </div>
           <Btn
@@ -883,6 +874,7 @@ function ProductCard({ p, addToCart }) {
     </div>
   );
 }
+
 /* ─────────────────────────────────────────────
    PRODUCTS PAGE (full catalog)
    Uses the existing PRODUCTS array already
@@ -903,7 +895,7 @@ function ProductsPage({ addToCart }) {
           className="products-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))",
+            gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))",
             gap: 24,
             marginTop: 44,
           }}
