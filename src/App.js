@@ -365,14 +365,14 @@ function Nav({ page, setPage, cart }) {
         left: 50%;
         transform: translateX(-50%) translateY(-6px);
         min-width: 210px;
-        background: rgba(18, 16, 6, 0.97);
-        border: 1px solid rgba(249,199,79,0.18);
+        background: rgba(247, 245, 237, 0.97);
+        border: 1px solid rgba(47, 150, 33, 0.18);
         border-radius: 12px;
         padding: 8px 0;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+        box-shadow: 0 16px 40px rgba(109, 42, 42, 0.7);
         z-index: 999;
         backdrop-filter: blur(16px);
         pointer-events: none;
@@ -390,7 +390,7 @@ function Nav({ page, setPage, cart }) {
         padding: 10px 18px;
         font-size: 13px;
         font-weight: 500;
-        color: rgba(11,11,11,0.95);
+        color: rgba(11, 11, 11, 0.95);
         cursor: pointer;
         transition: color 0.18s, background 0.18s;
         white-space: nowrap;
@@ -777,7 +777,6 @@ function ProductCard({ p, addToCart }) {
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className="glass-product"
       style={{
         borderRadius: 20,
         overflow: "hidden",
@@ -788,6 +787,8 @@ function ProductCard({ p, addToCart }) {
         display: "flex",
         flexDirection: "column",
         margin: "0 auto",
+        background: "#f5f3ff",
+        border: "1px solid rgba(255,107,53,0.2)",
       }}
     >
       <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 3", overflow: "hidden" }}>
@@ -824,7 +825,7 @@ function ProductCard({ p, addToCart }) {
             zIndex: 3,
           }}
         >
-          <p style={{ color: "#000", fontSize: 12, margin: 0 }}>{p.desc}</p>
+          <p style={{ color: "#fff", fontSize: 12, margin: 0 }}>{p.desc}</p>
         </div>
         <div style={{ position: "absolute", top: 14, left: 14 }}>
           <Badge label={p.badge} color={p.badgeColor} />
@@ -835,16 +836,16 @@ function ProductCard({ p, addToCart }) {
       </div>
 
       <div style={{ padding: "16px 18px 20px", display: "flex", flexDirection: "column", flex: 1 }}>
-        <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 17, marginBottom: 8 }}>{p.name}</h3>
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, lineHeight: 1.6, marginBottom: 14, minHeight: 42 }}>{p.desc}</p>
+        <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 17, marginBottom: 8, color: "#0a0a0a" }}>{p.name}</h3>
+        <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 13, lineHeight: 1.6, marginBottom: 14, minHeight: 42 }}>{p.desc}</p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
           <Stars n={p.stars} />
-          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>({p.reviews})</span>
+          <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 12 }}>({p.reviews})</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
           <div>
             <span className="tg-gold price-val" style={{ fontFamily: "'Playfair Display',serif", fontSize: 20, fontWeight: 900 }}>₹{p.price}</span>
-            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginLeft: 6 }}>/{p.unit}</span>
+            <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 12, marginLeft: 6 }}>/{p.unit}</span>
           </div>
           <Btn
             variant="orange"
@@ -882,7 +883,7 @@ function ProductCard({ p, addToCart }) {
 ───────────────────────────────────────────── */
 function ProductsPage({ addToCart }) {
   return (
-    <div style={{ paddingTop: 100, paddingBottom: 60 }}>
+    <div style={{ paddingTop: 100, paddingBottom: 60, background: "#fff" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
         <SectionHead
           badge="Farm Fresh"
@@ -951,7 +952,8 @@ function FarmPage() {
       </div>
     </div>
 
-      <div style={{ background: "linear-gradient(160deg,rgba(0,180,216,0.07) 0%,transparent 60%)", padding: "70px 24px 100px" }}>
+      {/* page background now plain white, matches other pages */}
+      <div style={{ background: "#fff", padding: "70px 24px 100px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
           {/* Story */}
@@ -965,7 +967,7 @@ At CNN Farm Hub, we follow sustainable farming practices that prioritize the hea
               <div className="farm-stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 {[["8", "Gir Cows"], ["2", "Acres Organic"], ["6AM", "Delivery Time"], ["0", "Preservatives"]].map(([v, l]) => (
   <ScrollReveal key={l}>
-    <div className="glass-farm" style={{ borderRadius: 14, padding: "16px 20px" }}>
+    <div style={{ borderRadius: 14, padding: "16px 20px", background: "#f5f3ff", border: "1px solid rgba(0,180,216,0.2)" }}>
       <StatCounter value={v} label={l} color="#00c6d8" />
     </div>
   </ScrollReveal>
@@ -987,8 +989,8 @@ At CNN Farm Hub, we follow sustainable farming practices that prioritize the hea
                     <div style={{ width: 50, height: 50, borderRadius: "50%", flexShrink: 0, background: `linear-gradient(135deg,${t.color},${t.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 11, color: "#000" }}>{t.year}</div>
                     {i < TIMELINE.length - 1 && <div style={{ width: 2, flex: 1, minHeight: 30, background: `linear-gradient(${t.color}55,transparent)`, marginTop: 3 }} />}
                   </div>
-                  <div className="glass-farm" style={{ borderRadius: 16, padding: "18px 22px", flex: 1 }}>
-                    <h4 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 19, marginBottom: 6 }}>{t.title}</h4>
+                  <div style={{ borderRadius: 16, padding: "18px 22px", flex: 1, background: "#f5f3ff", border: "1px solid rgba(0,180,216,0.2)" }}>
+                    <h4 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 19, marginBottom: 6, color: "#0a0a0a" }}>{t.title}</h4>
                     <p style={{ color: "rgba(11, 11, 11, 0.95)", lineHeight: 1.7, fontSize: 14 }}>{t.text}</p>
                   </div>
                 </div>
@@ -1000,12 +1002,12 @@ At CNN Farm Hub, we follow sustainable farming practices that prioritize the hea
           <SectionHead badge="Meet the Team" badgeColor="#00b4d8" title="The People Behind Your Milk" titleClass="tg-farm" />
           <div className="farm-team-grid" style={{ display: "grid", gap: 28 }}>
             {teamImages.map((img, i) => (
-              <div key={i} className="glass-farm" style={{ borderRadius: 20, overflow: "hidden", textAlign: "center" }}>
+              <div key={i} style={{ borderRadius: 20, overflow: "hidden", textAlign: "center", background: "#f5f3ff", border: "1px solid rgba(0,180,216,0.2)" }}>
                 <div style={{ height: 200, overflow: "hidden" }}>
                   <img src={img} alt={teamNames[i]} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 <div style={{ padding: "22px" }}>
-                  <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 18 }}>{teamNames[i]}</h3>
+                  <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 18, color: "#0a0a0a" }}>{teamNames[i]}</h3>
                   <p style={{ color: "#00b4d8", fontSize: 13, marginTop: 4 }}>{teamRoles[i]}</p>
                 </div>
               </div>
@@ -1016,8 +1018,8 @@ At CNN Farm Hub, we follow sustainable farming practices that prioritize the hea
           <div style={{ marginTop: 60, borderRadius: 28, overflow: "hidden", position: "relative" }}>
             <img src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1200&q=80" alt="Farm visit" style={{ width: "100%", height: 280, objectFit: "cover" }} />
             <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 18 }}>
-              <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 36, textAlign: "center" }}>Visit Our Farm</h2>
-              <p style={{ color: "rgba(11, 11, 11, 0.95)", textAlign: "center" }}>Open for family visits: Saturday & Sunday, 7AM–11AM</p>
+              <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 36, textAlign: "center", color: "#fff" }}>Visit Our Farm</h2>
+              <p style={{ color: "#fff", textAlign: "center" }}>Open for family visits: Saturday & Sunday, 7AM–11AM</p>
               <Btn variant="farm" style={{ fontSize: 15, padding: "13px 28px" }} onClick={() => {}}>Book Farm Visit →</Btn>
             </div>
           </div>
@@ -1046,14 +1048,20 @@ function FamiliesPage({ setPage }) {
         </div>
       </div>
 
-      <div style={{ background: "linear-gradient(160deg,rgba(255,154,158,0.07) 0%,transparent 60%)", padding: "70px 24px 100px" }}>
+      {/* page background now plain white, matches Contact/Sub pages */}
+      <div style={{ background: "#fff", padding: "70px 24px 100px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <SectionHead badge="Testimonials" badgeColor="#ff9a9e" title="Loved by 500+ Families" titleClass="tg-family"
             sub="Real stories from families who switched to CNN Farm Hub and never looked back." />
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 28, marginBottom: 70 }}>
             {FAMILIES.map((f, i) => (
-              <div key={i} className="glass-family" style={{ borderRadius: 22, overflow: "hidden", transition: "transform .4s", cursor: "pointer" }}
+              <div key={i}
+                style={{
+                  borderRadius: 22, overflow: "hidden", transition: "transform .4s", cursor: "pointer",
+                  background: "#f5f3ff",
+                  border: "1px solid rgba(255,154,158,0.25)",
+                }}
                 onMouseEnter={e => e.currentTarget.style.transform = "translateY(-8px)"}
                 onMouseLeave={e => e.currentTarget.style.transform = "none"}>
                 <div style={{ height: 180, overflow: "hidden" }}>
@@ -1062,7 +1070,7 @@ function FamiliesPage({ setPage }) {
                 <div style={{ padding: "22px 24px" }}>
                   <Stars n={5} />
                   <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 14, lineHeight: 1.75, margin: "12px 0 18px", fontStyle: "italic" }}>"{f.quote}"</p>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>{f.name}</div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: "#0a0a0a" }}>{f.name}</div>
                   <div style={{ color: "#ff9a9e", fontSize: 12, marginTop: 3 }}>📍 {f.location}</div>
                   <div style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 11, marginTop: 2 }}>Member since {f.since}</div>
                 </div>
@@ -1071,9 +1079,13 @@ function FamiliesPage({ setPage }) {
           </div>
 
           {/* Join CTA */}
-          <div className="families-join-cta glass-family" style={{ borderRadius: 28, padding: "56px", textAlign: "center" }}>
+          <div className="families-join-cta" style={{
+            borderRadius: 28, padding: "56px", textAlign: "center",
+            background: "#f5f3ff",
+            border: "1px solid rgba(255,154,158,0.25)",
+          }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>🤝</div>
-            <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 38, marginBottom: 14 }}>
+            <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 38, marginBottom: 14, color: "#0a0a0a" }}>
               Join the <span className="tg-family">Farm Family</span>
             </h2>
             <p style={{ color: "rgba(11, 11, 11, 0.95)", marginBottom: 30, fontSize: 16, maxWidth: 500, margin: "0 auto 30px" }}>
@@ -1089,7 +1101,6 @@ function FamiliesPage({ setPage }) {
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────
    SUBSCRIPTION PAGE
 ───────────────────────────────────────────── */
@@ -1111,18 +1122,24 @@ function SubPage({ setPage }) {
         </div>
       </div>
 
-      <div style={{ background: "linear-gradient(160deg,rgba(57,211,83,0.07) 0%,transparent 60%)", padding: "70px 24px 100px" }}>
+      {/* page background now plain white, matches Contact page */}
+      <div style={{ background: "#fff", padding: "70px 24px 100px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <SectionHead badge="Farm to Doorstep" badgeColor="#39d353" title="Pick Your Plan" titleClass="tg-sub"
             sub="Fresh dairy every morning. Pause or cancel anytime. No hidden charges." />
 
           {/* Frequency */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 0, marginBottom: 48, background: "rgba(255,255,255,0.05)", borderRadius: 14, padding: 5, width: "fit-content", margin: "0 auto 48px" }}>
+          <div style={{
+            display: "flex", justifyContent: "center", gap: 0, marginBottom: 48,
+            background: "#f5f3ff",
+            border: "1px solid rgba(124,58,237,0.15)",
+            borderRadius: 14, padding: 5, width: "fit-content", margin: "0 auto 48px"
+          }}>
             {["daily", "weekly", "monthly"].map(f => (
               <button key={f} onClick={() => { createSound("nav"); setFreq(f); }} style={{
                 padding: "10px 24px", border: "none", cursor: "pointer", fontFamily: "'Syne',sans-serif", fontWeight: 600, fontSize: 13, borderRadius: 10,
                 background: freq === f ? "linear-gradient(135deg,#39d353,#00b894)" : "transparent",
-                color: freq === f ? "#020f05" : "rgba(255,255,255,0.55)", transition: "all .3s", textTransform: "capitalize",
+                color: freq === f ? "#020f05" : "rgba(11,11,11,0.95)", transition: "all .3s", textTransform: "capitalize",
               }}>{f}</button>
             ))}
           </div>
@@ -1133,8 +1150,8 @@ function SubPage({ setPage }) {
               <div key={pl.id} onClick={() => { createSound("click"); setSelected(pl.id); }}
                 style={{
                   borderRadius: 24, overflow: "hidden", cursor: "pointer",
-                  border: selected === pl.id ? `2px solid ${pl.color}` : "2px solid rgba(255,255,255,0.08)",
-                  background: selected === pl.id ? `${pl.color}11` : "rgba(255,255,255,0.04)",
+                  border: selected === pl.id ? `2px solid ${pl.color}` : "2px solid rgba(124,58,237,0.15)",
+                  background: selected === pl.id ? `${pl.color}11` : "#f5f3ff",
                   transform: selected === pl.id ? "translateY(-6px)" : "none",
                   boxShadow: selected === pl.id ? `0 24px 50px ${pl.color}33` : "none",
                   transition: "all .35s cubic-bezier(.22,1,.36,1)",
@@ -1144,9 +1161,9 @@ function SubPage({ setPage }) {
                   <div style={{ fontSize: 13, color: pl.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>{pl.name}</div>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}>
                     <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#000" }}>₹{pl.price.toLocaleString()}</span>
-                    <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>/{pl.period}</span>
+                    <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 14 }}>/{pl.period}</span>
                   </div>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginBottom: 26 }}>Billed {freq}</div>
+                  <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 12, marginBottom: 26 }}>Billed {freq}</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
                     {pl.items.map(item => (
                       <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(11, 11, 11, 0.95)" }}>
@@ -1167,9 +1184,13 @@ function SubPage({ setPage }) {
           </div>
 
           {/* CTA bar */}
-          <div className="glass-sub" style={{ borderRadius: 24, padding: "36px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
+          <div style={{
+            borderRadius: 24, padding: "36px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20,
+            background: "#f5f3ff",
+            border: "1px solid rgba(124,58,237,0.15)",
+          }}>
             <div>
-              <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 26 }}>Ready to subscribe?</h3>
+              <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 26, color: "#0a0a0a" }}>Ready to subscribe?</h3>
               <p style={{ color: "rgba(11, 11, 11, 0.95)", marginTop: 4 }}>Free delivery · Pause anytime · No contract</p>
             </div>
             <div style={{ display: "flex", gap: 12 }}>
@@ -1186,10 +1207,14 @@ function SubPage({ setPage }) {
                 ["2", "📍", "Share Address", "Tell us where to deliver — doorstep delivery anywhere in the city."],
                 ["3", "💳", "Pay Securely", "Pay via Razorpay — cards, UPI, netbanking all supported."],
                 ["4", "🥛", "Fresh Delivery", "Get farm-fresh products at your door every morning at 6AM."]].map(([n, ic, t, d]) => (
-                <div key={n} className="glass-sub" style={{ borderRadius: 18, padding: "26px 22px", textAlign: "center" }}>
+                <div key={n} style={{
+                  borderRadius: 18, padding: "26px 22px", textAlign: "center",
+                  background: "#f5f3ff",
+                  border: "1px solid rgba(124,58,237,0.15)",
+                }}>
                   <div style={{ fontSize: 36, marginBottom: 12 }}>{ic}</div>
                   <div className="tg-sub" style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 36, marginBottom: 6 }}>{n}</div>
-                  <h4 style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>{t}</h4>
+                  <h4 style={{ fontWeight: 700, fontSize: 16, marginBottom: 8, color: "#0a0a0a" }}>{t}</h4>
                   <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 13, lineHeight: 1.7 }}>{d}</p>
                 </div>
               ))}
@@ -1230,7 +1255,8 @@ function ContactPage() {
         </div>
       </div>
 
-      <div style={{ background: "linear-gradient(160deg,rgba(124,58,237,0.07) 0%,transparent 60%)", padding: "70px 24px 100px" }}>
+      {/* page background now plain white */}
+      <div style={{ background: "#fff", padding: "70px 24px 100px" }}>
         <div className="contact-grid" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gap: 48 }}>
           {/* Info */}
           <div>
@@ -1243,7 +1269,17 @@ function ContactPage() {
                 ["📍", "rgba(124,58,237,0.15)", "rgba(124,58,237,0.3)", "#a78bfa", "Location", "Chinnappanahalli, Karnataka", "Farm visits: Sat–Sun 7AM–11AM"],
                 ["💬", "rgba(57,211,83,0.15)", "rgba(57,211,83,0.3)", "#39d353", "WhatsApp", "+91 8618854283", "Fastest response channel"],
               ].map(([ic, bg, br, color, label, val, sub]) => (
-                <div key={label} className="glass" style={{ borderRadius: 16, padding: "18px 20px", display: "flex", gap: 14, alignItems: "center", cursor: "pointer" }}
+                <div key={label}
+                  style={{
+                    borderRadius: 16,
+                    padding: "18px 20px",
+                    display: "flex",
+                    gap: 14,
+                    alignItems: "center",
+                    cursor: "pointer",
+                    background: "#f5f3ff", /* light lavender box */
+                    border: "1px solid rgba(124,58,237,0.15)",
+                  }}
                   onClick={() => createSound("click")}>
                   <div style={{ width: 46, height: 46, borderRadius: 12, background: bg, border: `1px solid ${br}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{ic}</div>
                   <div>
@@ -1257,24 +1293,107 @@ function ContactPage() {
           </div>
 
           {/* Form */}
-          <div className="glass" style={{ borderRadius: 28, padding: "36px" }}>
-            <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 26, marginBottom: 26 }}>Send a Message</h3>
+          <div
+            style={{
+              borderRadius: 28,
+              padding: "36px",
+              background: "#f5f3ff", /* light lavender box, matches theme accent */
+              border: "1px solid rgba(124,58,237,0.15)",
+            }}
+          >
+            <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 26, marginBottom: 26, color: "#0a0a0a" }}>Send a Message</h3>
             {sent && (
-              <div className="glass-sub" style={{ borderRadius: 12, padding: "13px 17px", marginBottom: 20, color: "#39d353", fontWeight: 600 }}>
+              <div style={{ background: "rgba(57,211,83,0.12)", border: "1px solid rgba(57,211,83,0.35)", borderRadius: 12, padding: "13px 17px", marginBottom: 20, color: "#1a8a3d", fontWeight: 600 }}>
                 ✅ Message sent! We'll respond within 30 minutes.
               </div>
             )}
             <div className="contact-form-fields" style={{ display: "grid", gap: 14, marginBottom: 14 }}>
-              <div><label style={{ display: "block", fontSize: 13, color: "rgba(11, 11, 11, 0.95)", marginBottom: 6 }}>Full Name *</label><input placeholder="Your name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-              <div><label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Phone *</label><input placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} /></div>
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: "rgba(11, 11, 11, 0.95)", marginBottom: 6 }}>Full Name *</label>
+                <input
+                  placeholder="Your name"
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  style={{
+                    width: "100%",
+                    padding: "12px 14px",
+                    borderRadius: 10,
+                    border: "1px solid rgba(124,58,237,0.2)",
+                    background: "#fff",
+                    color: "#0a0a0a",
+                    fontSize: 14,
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Phone *</label>
+                <input
+                  placeholder="+91 XXXXX XXXXX"
+                  value={form.phone}
+                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  style={{
+                    width: "100%",
+                    padding: "12px 14px",
+                    borderRadius: 10,
+                    border: "1px solid rgba(124,58,237,0.2)",
+                    background: "#fff",
+                    color: "#0a0a0a",
+                    fontSize: 14,
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
             </div>
-            <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Email</label><input type="email" placeholder="your@email.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
-            <div style={{ marginBottom: 28 }}><label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Message</label><textarea placeholder="I'd like to order..." rows={4} style={{ resize: "vertical" }} value={form.msg} onChange={e => setForm(f => ({ ...f, msg: e.target.value }))} /></div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Email</label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(124,58,237,0.2)",
+                  background: "#fff",
+                  color: "#0a0a0a",
+                  fontSize: 14,
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: 28 }}>
+              <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Message</label>
+              <textarea
+                placeholder="I'd like to order..."
+                rows={4}
+                value={form.msg}
+                onChange={e => setForm(f => ({ ...f, msg: e.target.value }))}
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(124,58,237,0.2)",
+                  background: "#fff",
+                  color: "#0a0a0a",
+                  fontSize: 14,
+                  outline: "none",
+                  resize: "vertical",
+                  boxSizing: "border-box",
+                  fontFamily: "inherit",
+                }}
+              />
+            </div>
             <div style={{ display: "flex", gap: 10 }}>
               <Btn variant="gold" onClick={submit} style={{ flex: 1, justifyContent: "center", fontSize: 15, padding: "13px" }}>Send Message →</Btn>
               <a href="https://wa.me/918618854283" target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
-  <Btn variant="sub" onClick={() => createSound("add")} style={{ fontSize: 15, padding: "13px 18px" }}>📱</Btn>
-</a>
+                <Btn variant="sub" onClick={() => createSound("add")} style={{ fontSize: 15, padding: "13px 18px" }}>📱</Btn>
+              </a>
             </div>
           </div>
         </div>
@@ -1282,7 +1401,6 @@ function ContactPage() {
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────
    CART PAGE
 ───────────────────────────────────────────── */
@@ -1507,7 +1625,7 @@ function HomeSections({ setPage, addToCart }) {
     <>
     <MarqueeBand />
       {/* Products preview */}
-      <section className="section-pad" style={{ background: "linear-gradient(160deg,rgba(255,107,53,0.07) 0%,transparent 60%)", padding: "90px 24px" }}>
+      <section className="section-pad" style={{ background: "#fff", padding: "90px 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <SectionHead badge="Farm Fresh" badgeColor="#ff6b35" title="Our Products" titleClass="tg-gold"
             sub="Pure A2 dairy, ghee & artisan products made with zero additives and maximum love." />
@@ -1532,17 +1650,17 @@ function HomeSections({ setPage, addToCart }) {
   <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
     <div style={{ textAlign: "center", maxWidth: 500 }}>
       <Badge label="Est. 2009 · Karnataka" color="#00b4d8" />
-      <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(22px,5vw,48px)", margin: "20px 0 16px" }}>
+      <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(22px,5vw,48px)", margin: "20px 0 16px", color: "#fff" }}>
         <span className="tg-farm">15 Years of Pure</span><br />Farming Tradition
       </h2>
-      <p style={{ color: "rgba(255,255,255,0.65)", marginBottom: 30, lineHeight: 1.8, fontSize: "clamp(13px,3vw,16px)" }}>80+ Gir cows. 45 acres of organic land. Vedic farming methods. Every drop tells a story.</p>
+      <p style={{ color: "rgba(255,255,255,0.8)", marginBottom: 30, lineHeight: 1.8, fontSize: "clamp(13px,3vw,16px)" }}>80+ Gir cows. 45 acres of organic land. Vedic farming methods. Every drop tells a story.</p>
       <Btn variant="farm" onClick={() => { setPage("farm"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 28px" }}>Discover Our Farm →</Btn>
     </div>
   </div>
 </section>
 
       {/* Subscription preview */}
-<section className="section-pad" style={{ background: "linear-gradient(160deg,rgba(57,211,83,0.07) 0%,transparent 60%)", padding: "90px 24px", position: "relative", overflow: "hidden" }}>
+<section className="section-pad" style={{ background: "#fff", padding: "90px 24px", position: "relative", overflow: "hidden" }}>
   <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
     <SectionHead badge="Daily Delivery" badgeColor="#39d353" title="Subscribe & Save" titleClass="tg-sub"
       sub="Fresh dairy at your doorstep every morning. No trips, no compromise." />
@@ -1557,8 +1675,8 @@ function HomeSections({ setPage, addToCart }) {
             borderRadius: 24,
             overflow: "hidden",
             cursor: "pointer",
-            background: "rgba(255,255,255,0.04)",
-            border: pl.popular ? `2px solid ${pl.color}` : "1px solid rgba(255,255,255,0.08)",
+            background: "#f5f3ff",
+            border: pl.popular ? `2px solid ${pl.color}` : "1px solid rgba(124,58,237,0.15)",
             transform: pl.popular ? "translateY(-10px)" : "none",
             boxShadow: pl.popular ? `0 24px 60px ${pl.color}44` : "none",
             transition: "transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s ease",
@@ -1611,13 +1729,13 @@ function HomeSections({ setPage, addToCart }) {
               <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#000" }}>
                 ₹{pl.price.toLocaleString()}
               </span>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>/{pl.period}</span>
+              <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 14 }}>/{pl.period}</span>
             </div>
-            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginBottom: 26 }}>Billed monthly</div>
+            <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 12, marginBottom: 26 }}>Billed monthly</div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
               {pl.items.map(item => (
-                <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(255,255,255,0.75)" }}>
+                <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(11, 11, 11, 0.95)" }}>
                   <span style={{ color: pl.color, flexShrink: 0, marginTop: 1 }}>✓</span>{item}
                 </div>
               ))}
@@ -1648,19 +1766,19 @@ function HomeSections({ setPage, addToCart }) {
   </div>
 </section>
 {/* Families preview */}
-      <section className="section-pad" style={{ background: "linear-gradient(160deg,rgba(255,154,158,0.07) 0%,transparent 60%)", padding: "90px 24px" }}>
+      <section className="section-pad" style={{ background: "#fff", padding: "90px 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <SectionHead badge="Real Stories" badgeColor="#ff9a9e" title="Loved by Families" titleClass="tg-family" />
           <div className="families-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 24, marginBottom: 44 }}>
             {FAMILIES.slice(0, 3).map((f, i) => (
-              <div key={i} className="glass-family" style={{ borderRadius: 20, overflow: "hidden" }}>
+              <div key={i} style={{ borderRadius: 20, overflow: "hidden", background: "#f5f3ff", border: "1px solid rgba(255,154,158,0.25)" }}>
                 <div style={{ height: 160, overflow: "hidden" }}>
                   <img src={f.img} alt={f.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 <div style={{ padding: "18px 20px" }}>
                   <Stars n={5} />
-                  <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, fontStyle: "italic", margin: "10px 0 12px", lineHeight: 1.7 }}>"{f.quote.slice(0, 80)}…"</p>
-                  <div style={{ fontWeight: 700, fontSize: 14 }}>{f.name}</div>
+                  <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 13, fontStyle: "italic", margin: "10px 0 12px", lineHeight: 1.7 }}>"{f.quote.slice(0, 80)}…"</p>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0a0a0a" }}>{f.name}</div>
                   <div style={{ color: "#ff9a9e", fontSize: 12 }}>Member since {f.since}</div>
                 </div>
               </div>
