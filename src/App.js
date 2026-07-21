@@ -9,7 +9,7 @@ import { useAuth } from "./context/AuthContext";
    SOUND ENGINE  (Web Audio API — no files needed)
 ───────────────────────────────────────────── */
 export function spawnParticles(x, y) {
-  const colors = ["#ff6b35","#f7931e","#f7c35a","#fff","#ff9a6c"];
+  const colors = ["#ff6b35","#f7931e","#f7c35a","#000","#ff9a6c"];
   for (let i = 0; i < 12; i++) {
     const el = document.createElement("div");
     el.className = "particle";
@@ -131,7 +131,7 @@ const CSS = `
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Syne',sans-serif;background:var(--bg);color:#fff;overflow-x:hidden}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:#000;overflow-x:hidden}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:linear-gradient(var(--gold1),var(--gold2));border-radius:3px}
@@ -195,7 +195,7 @@ body{font-family:'Syne',sans-serif;background:var(--bg);color:#fff;overflow-x:hi
 .tg-farm{background:linear-gradient(135deg,#00b4d8,#0077b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .tg-sub{background:linear-gradient(135deg,#39d353,#00b894);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .tg-family{background:linear-gradient(135deg,#ff9a9e,#e84393);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-input,textarea{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#fff;font-family:'Syne',sans-serif;font-size:14px;outline:none;border-radius:10px;padding:12px 14px;width:100%;transition:all .3s}
+input,textarea{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#000;font-family:'Syne',sans-serif;font-size:14px;outline:none;border-radius:10px;padding:12px 14px;width:100%;transition:all .3s}
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.3)}
 input:focus,textarea:focus{border-color:rgba(57,211,83,0.6);background:rgba(57,211,83,0.05);box-shadow:0 0 0 3px rgba(57,211,83,0.12)}
 .card-wrap{opacity:0;animation:cardIn .65s cubic-bezier(.25,.46,.45,.94) forwards}
@@ -255,13 +255,13 @@ function Btn({ children, onClick, style = {}, className = "", variant = "gold", 
   const ref = useRef();
   const variants = {
     gold: { background: "linear-gradient(135deg,#f9c74f,#f3722c)", color: "#0a0000", boxShadow: "0 6px 28px rgba(249,199,79,0.3)" },
-    farm: { background: "linear-gradient(135deg,#00b4d8,#0077b6)", color: "#fff", boxShadow: "0 6px 24px rgba(0,180,216,0.28)" },
+    farm: { background: "linear-gradient(135deg,#00b4d8,#0077b6)", color: "#000", boxShadow: "0 6px 24px rgba(0,180,216,0.28)" },
     sub: { background: "linear-gradient(135deg,#39d353,#00b894)", color: "#020f05", boxShadow: "0 6px 24px rgba(57,211,83,0.28)" },
-    family: { background: "linear-gradient(135deg,#ff9a9e,#e84393)", color: "#fff", boxShadow: "0 6px 24px rgba(255,154,158,0.28)" },
-    ghost: { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" },
+    family: { background: "linear-gradient(135deg,#ff9a9e,#e84393)", color: "#000", boxShadow: "0 6px 24px rgba(255,154,158,0.28)" },
+    ghost: { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "#000" },
     outline: { background: "transparent", border: "2px solid rgba(57,211,83,0.55)", color: "#39d353" },
-    orange: { background: "linear-gradient(135deg,#ff6b35,#f7931e)", color: "#fff", boxShadow: "0 6px 24px rgba(255,107,53,0.28)" },
-    purple: { background: "linear-gradient(135deg,#7c3aed,#a78bfa)", color: "#fff", boxShadow: "0 6px 24px rgba(124,58,237,0.3)" },
+    orange: { background: "linear-gradient(135deg,#ff6b35,#f7931e)", color: "#000", boxShadow: "0 6px 24px rgba(255,107,53,0.28)" },
+    purple: { background: "linear-gradient(135deg,#7c3aed,#a78bfa)", color: "#000", boxShadow: "0 6px 24px rgba(124,58,237,0.3)" },
   };
   const handle = (e) => {
     if (disabled) return;
@@ -585,7 +585,7 @@ function Nav({ page, setPage, cart }) {
           </Btn>
           {isMobile && (
             <button onClick={() => { createSound("nav"); setMobileOpen(v => !v); }} style={{
-              background: "none", border: "none", color: "#fff", fontSize: 22, cursor: "pointer",
+              background: "none", border: "none", color: "#000", fontSize: 22, cursor: "pointer",
             }}>
               {mobileOpen ? "✕" : "☰"}
             </button>
@@ -685,11 +685,11 @@ function Hero({ setPage }) {
       minHeight: "100vh", display: "flex", alignItems: "center",
       background: `radial-gradient(ellipse 70% 60% at 15% 45%,rgba(20,10,5,0.9) 0%,transparent 65%),
         radial-gradient(ellipse 50% 40% at 80% 20%,rgba(249,199,79,0.07) 0%,transparent 55%),
-        radial-gradient(ellipse 60% 35% at 65% 80%,rgba(57,211,83,0.07) 0%,transparent 55%), #050505`,
+        radial-gradient(ellipse 60% 35% at 65% 80%,rgba(57,211,83,0.07) 0%,transparent 55%), #f3efef`,
       position: "relative", overflow: "hidden",
     }}>
       {/* Blob */}
-      <div className="blob" style={{ position: "absolute", top: "-10%", right: "-5%", width: 500, height: 500, background: "radial-gradient(circle,rgba(249,199,79,0.08) 0%,transparent 70%)", pointerEvents: "none" }} />
+      <div className="blob" style={{ position: "absolute", top: "-10%", right: "-5%", width: 500, height: 500, background: "radial-gradient(circle,rgba(244, 244, 244, 0.08) 0%,transparent 70%)", pointerEvents: "none" }} />
       <div className="blob" style={{ position: "absolute", bottom: "-15%", left: "-8%", width: 420, height: 420, background: "radial-gradient(circle,rgba(57,211,83,0.07) 0%,transparent 70%)", pointerEvents: "none", animationDelay: "-5s" }} />
 
       <div className="hero-grid" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center", paddingTop: 100, paddingBottom: 80 }}>
@@ -701,9 +701,9 @@ function Hero({ setPage }) {
 
             {/* Line 1: Pure Dairy */}
             <span style={{ display: 'block' }}>
-              <span style={{ display:'inline-block', opacity:0, animation:'slamDown .5s cubic-bezier(.6,-.3,.4,1.4) .1s forwards', color:'#fff' }}>Pure</span>
+              <span style={{ display:'inline-block', opacity:0, animation:'slamDown .5s cubic-bezier(.6,-.3,.4,1.4) .1s forwards', color:'#000' }}>Pure</span>
               <span style={{ display:'inline-block', width:'0.28em' }} />
-              <span style={{ display:'inline-block', opacity:0, animation:'slideBlur .65s cubic-bezier(.22,1,.36,1) .55s forwards', color:'#fff' }}>Dairy</span>
+              <span style={{ display:'inline-block', opacity:0, animation:'slideBlur .65s cubic-bezier(.22,1,.36,1) .55s forwards', color:'#000' }}>Dairy</span>
             </span>
 
             {/* Line 2: From Heart */}
@@ -739,7 +739,7 @@ function Hero({ setPage }) {
 
           </h1>
 
-          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 17, lineHeight: 1.8, marginBottom: 36, maxWidth: 460 }}>
+          <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 17, lineHeight: 1.8, marginBottom: 36, maxWidth: 460 }}>
             Pure dairy, delivered fresh. Milk, ghee, paneer & more — straight from our farm to your doorstep every morning at 6AM. Serving all across Karnataka, because every family deserves the best.
           </p>
           <div className="hero-btns" style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 48 }}>
@@ -755,7 +755,7 @@ function Hero({ setPage }) {
             {stats.map(s => (
               <div key={s.l}>
                 <div className="tg-gold" style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 900 }}>{s.v}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>{s.l}</div>
+                <div style={{ fontSize: 11, color: "rgba(11, 11, 11, 0.95)", marginTop: 2 }}>{s.l}</div>
               </div>
             ))}
           </div>
@@ -769,7 +769,7 @@ function Hero({ setPage }) {
     <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg,#39d353,#00b894)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0, animation: "pulse 2.5s ease-in-out infinite" }}>✓</div>
     <div>
       <div style={{ fontWeight: 700, fontSize: 14 }}>Delivered Fresh Today</div>
-      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 12 }}>Morning batch dispatched at 5:30 AM</div>
+      <div style={{ color: "rgba(185, 69, 69, 0.5)", fontSize: 12 }}>Morning batch dispatched at 5:30 AM</div>
    </div>
 </div>
       </div>
@@ -833,7 +833,7 @@ function ProductCard({ p, addToCart }) {
             zIndex: 3,
           }}
         >
-          <p style={{ color: "#fff", fontSize: 12, margin: 0 }}>{p.desc}</p>
+          <p style={{ color: "#000", fontSize: 12, margin: 0 }}>{p.desc}</p>
         </div>
         <div style={{ position: "absolute", top: 14, left: 14 }}>
           <Badge label={p.badge} color={p.badgeColor} />
@@ -933,7 +933,7 @@ function FarmPage() {
     {/* Hero */}
     <div style={{ height: 320, overflow: "hidden", position: "relative" }}>
       <img src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1400&q=80" alt="Farm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(5,5,5,0.2),rgba(5,5,5,0.9))", display: "flex", alignItems: "flex-end", padding: "40px 60px" }}>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(6, 6, 6, 0.2),rgba(5,5,5,0.9))", display: "flex", alignItems: "flex-end", padding: "40px 60px" }}>
         <div>
           <Badge label="Est. 2009" color="#00b4d8" />
           <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(32px,5vw,56px)", marginTop: 12 }}>
@@ -966,15 +966,15 @@ function FarmPage() {
           <div className="farm-story-grid" style={{ display: "grid", gap: 60, alignItems: "center", marginBottom: 80 }}>
             <div>
               <SectionHead badge="Our Story" badgeColor="#00b4d8" title="From Karnataka's Heart to Your Home" titleClass="tg-farm" />
-              <p style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.9, fontSize: 15, marginBottom: 20 }}>
+              <p style={{ color: "rgba(11, 11, 11, 0.95)", lineHeight: 1.9, fontSize: 15, marginBottom: 20 }}>
 CNN Farm Hub is a trusted farm-fresh marketplace rooted in Chinnappanahalli, Karnataka, bringing pure dairy products, organic vegetables, and naturally ripened fruits directly to your doorstep. We eliminate middlemen to ensure every household receives food that is fresh, clean, and honestly priced.              </p>
-              <p style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.9, fontSize: 15, marginBottom: 30 }}>
+              <p style={{ color: "rgba(11, 11, 11, 0.95)", lineHeight: 1.9, fontSize: 15, marginBottom: 30 }}>
 At CNN Farm Hub, we follow sustainable farming practices that prioritize the health of our customers and the care of our land. We are your trusted farm neighbor, delivering nature's best with integrity and pride.              </p>
               <div className="farm-stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 {[["8", "Gir Cows"], ["2", "Acres Organic"], ["6AM", "Delivery Time"], ["0", "Preservatives"]].map(([v, l]) => (
   <ScrollReveal key={l}>
     <div className="glass-farm" style={{ borderRadius: 14, padding: "16px 20px" }}>
-      <StatCounter value={v} label={l} color="#00b4d8" />
+      <StatCounter value={v} label={l} color="#00c6d8" />
     </div>
   </ScrollReveal>
 ))}
@@ -992,12 +992,12 @@ At CNN Farm Hub, we follow sustainable farming practices that prioritize the hea
               {TIMELINE.map((t, i) => (
                 <div key={t.year} style={{ display: "flex", gap: 22, marginBottom: 30 }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <div style={{ width: 50, height: 50, borderRadius: "50%", flexShrink: 0, background: `linear-gradient(135deg,${t.color},${t.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 11, color: "#fff" }}>{t.year}</div>
+                    <div style={{ width: 50, height: 50, borderRadius: "50%", flexShrink: 0, background: `linear-gradient(135deg,${t.color},${t.color}88)`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 11, color: "#000" }}>{t.year}</div>
                     {i < TIMELINE.length - 1 && <div style={{ width: 2, flex: 1, minHeight: 30, background: `linear-gradient(${t.color}55,transparent)`, marginTop: 3 }} />}
                   </div>
                   <div className="glass-farm" style={{ borderRadius: 16, padding: "18px 22px", flex: 1 }}>
                     <h4 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 19, marginBottom: 6 }}>{t.title}</h4>
-                    <p style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.7, fontSize: 14 }}>{t.text}</p>
+                    <p style={{ color: "rgba(11, 11, 11, 0.95)", lineHeight: 1.7, fontSize: 14 }}>{t.text}</p>
                   </div>
                 </div>
               ))}
@@ -1025,7 +1025,7 @@ At CNN Farm Hub, we follow sustainable farming practices that prioritize the hea
             <img src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1200&q=80" alt="Farm visit" style={{ width: "100%", height: 280, objectFit: "cover" }} />
             <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 18 }}>
               <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 36, textAlign: "center" }}>Visit Our Farm</h2>
-              <p style={{ color: "rgba(255,255,255,0.7)", textAlign: "center" }}>Open for family visits: Saturday & Sunday, 7AM–11AM</p>
+              <p style={{ color: "rgba(11, 11, 11, 0.95)", textAlign: "center" }}>Open for family visits: Saturday & Sunday, 7AM–11AM</p>
               <Btn variant="farm" style={{ fontSize: 15, padding: "13px 28px" }} onClick={() => {}}>Book Farm Visit →</Btn>
             </div>
           </div>
@@ -1069,10 +1069,10 @@ function FamiliesPage({ setPage }) {
                 </div>
                 <div style={{ padding: "22px 24px" }}>
                   <Stars n={5} />
-                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, lineHeight: 1.75, margin: "12px 0 18px", fontStyle: "italic" }}>"{f.quote}"</p>
+                  <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 14, lineHeight: 1.75, margin: "12px 0 18px", fontStyle: "italic" }}>"{f.quote}"</p>
                   <div style={{ fontWeight: 700, fontSize: 15 }}>{f.name}</div>
                   <div style={{ color: "#ff9a9e", fontSize: 12, marginTop: 3 }}>📍 {f.location}</div>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginTop: 2 }}>Member since {f.since}</div>
+                  <div style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 11, marginTop: 2 }}>Member since {f.since}</div>
                 </div>
               </div>
             ))}
@@ -1084,7 +1084,7 @@ function FamiliesPage({ setPage }) {
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 38, marginBottom: 14 }}>
               Join the <span className="tg-family">Farm Family</span>
             </h2>
-            <p style={{ color: "rgba(255,255,255,0.55)", marginBottom: 30, fontSize: 16, maxWidth: 500, margin: "0 auto 30px" }}>
+            <p style={{ color: "rgba(11, 11, 11, 0.95)", marginBottom: 30, fontSize: 16, maxWidth: 500, margin: "0 auto 30px" }}>
               Become part of 500+ families who trust CNN Farm Hub for pure, fresh dairy every single day.
             </p>
             <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
@@ -1111,7 +1111,7 @@ function SubPage({ setPage }) {
         <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=1400&q=80" alt="Milk" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(5,5,5,0.2),rgba(5,5,5,0.9))", display: "flex", alignItems: "flex-end", padding: "clamp(16px,4vw,40px) clamp(16px,5vw,60px)" }}>
           <div>
-            <Badge label="Daily Fresh" color="#39d353" />
+            <Badge label="Daily Fresh" color="#000" />
             <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(28px,5vw,56px)", marginTop: 12 }}>
               <span className="tg-sub">Subscription Plans</span>
             </h1>
@@ -1151,13 +1151,13 @@ function SubPage({ setPage }) {
                 <div style={{ padding: "30px 28px" }}>
                   <div style={{ fontSize: 13, color: pl.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>{pl.name}</div>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}>
-                    <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#fff" }}>₹{pl.price.toLocaleString()}</span>
+                    <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#000" }}>₹{pl.price.toLocaleString()}</span>
                     <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>/{pl.period}</span>
                   </div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginBottom: 26 }}>Billed {freq}</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
                     {pl.items.map(item => (
-                      <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(255,255,255,0.75)" }}>
+                      <div key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(11, 11, 11, 0.95)" }}>
                         <span style={{ color: pl.color, flexShrink: 0, marginTop: 1 }}>✓</span>{item}
                       </div>
                     ))}
@@ -1178,7 +1178,7 @@ function SubPage({ setPage }) {
           <div className="glass-sub" style={{ borderRadius: 24, padding: "36px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
             <div>
               <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 26 }}>Ready to subscribe?</h3>
-              <p style={{ color: "rgba(255,255,255,0.5)", marginTop: 4 }}>Free delivery · Pause anytime · No contract</p>
+              <p style={{ color: "rgba(11, 11, 11, 0.95)", marginTop: 4 }}>Free delivery · Pause anytime · No contract</p>
             </div>
             <div style={{ display: "flex", gap: 12 }}>
               <Btn variant="sub" onClick={() => { setPage("login"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 28px" }}>Subscribe Now →</Btn>
@@ -1198,7 +1198,7 @@ function SubPage({ setPage }) {
                   <div style={{ fontSize: 36, marginBottom: 12 }}>{ic}</div>
                   <div className="tg-sub" style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 36, marginBottom: 6 }}>{n}</div>
                   <h4 style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>{t}</h4>
-                  <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, lineHeight: 1.7 }}>{d}</p>
+                  <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 13, lineHeight: 1.7 }}>{d}</p>
                 </div>
               ))}
             </div>
@@ -1243,7 +1243,7 @@ function ContactPage() {
           {/* Info */}
           <div>
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 38, marginBottom: 16 }}>Let's Talk<br /><span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Farm Fresh</span></h2>
-            <p style={{ color: "rgba(255,255,255,0.55)", marginBottom: 40, lineHeight: 1.8 }}>Have a question, want to visit the farm, or ready to place your first order? We're available Monday–Saturday, 6AM–9PM.</p>
+            <p style={{ color: "rgba(11, 11, 11, 0.95)", marginBottom: 40, lineHeight: 1.8 }}>Have a question, want to visit the farm, or ready to place your first order? We're available Monday–Saturday, 6AM–9PM.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {[
                 ["📞", "rgba(0,180,216,0.15)", "rgba(0,180,216,0.3)", "#00b4d8", "Phone", "+91 8618854283", "Mon–Sat, 6AM–9PM"],
@@ -1255,9 +1255,9 @@ function ContactPage() {
                   onClick={() => createSound("click")}>
                   <div style={{ width: 46, height: 46, borderRadius: 12, background: bg, border: `1px solid ${br}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{ic}</div>
                   <div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 2 }}>{label}</div>
+                    <div style={{ fontSize: 11, color: "rgba(11,11,11,0.95)", marginBottom: 2 }}>{label}</div>
                     <div style={{ fontWeight: 700, fontSize: 15, color }}>{val}</div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{sub}</div>
+                    <div style={{ fontSize: 12, color: "rgba(11,11,11,0.95)" }}>{sub}</div>
                   </div>
                 </div>
               ))}
@@ -1273,11 +1273,11 @@ function ContactPage() {
               </div>
             )}
             <div className="contact-form-fields" style={{ display: "grid", gap: 14, marginBottom: 14 }}>
-              <div><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Full Name *</label><input placeholder="Your name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-              <div><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Phone *</label><input placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} /></div>
+              <div><label style={{ display: "block", fontSize: 13, color: "rgba(11, 11, 11, 0.95)", marginBottom: 6 }}>Full Name *</label><input placeholder="Your name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
+              <div><label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Phone *</label><input placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} /></div>
             </div>
-            <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Email</label><input type="email" placeholder="your@email.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
-            <div style={{ marginBottom: 28 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Message</label><textarea placeholder="I'd like to order..." rows={4} style={{ resize: "vertical" }} value={form.msg} onChange={e => setForm(f => ({ ...f, msg: e.target.value }))} /></div>
+            <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Email</label><input type="email" placeholder="your@email.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
+            <div style={{ marginBottom: 28 }}><label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Message</label><textarea placeholder="I'd like to order..." rows={4} style={{ resize: "vertical" }} value={form.msg} onChange={e => setForm(f => ({ ...f, msg: e.target.value }))} /></div>
             <div style={{ display: "flex", gap: 10 }}>
               <Btn variant="gold" onClick={submit} style={{ flex: 1, justifyContent: "center", fontSize: 15, padding: "13px" }}>Send Message →</Btn>
               <a href="https://wa.me/918618854283" target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
@@ -1309,7 +1309,7 @@ function CartPage({ cart, setCart, setPage }) {
         {cart.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <div style={{ fontSize: 80, marginBottom: 20 }}>🛒</div>
-            <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 28, color: "rgba(255,255,255,0.6)", marginBottom: 12 }}>Your cart is empty</h3>
+            <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 28, color: "rgba(11,11,11,0.95)", marginBottom: 12 }}>Your cart is empty</h3>
             <Btn variant="gold" onClick={() => setPage("products")} style={{ fontSize: 15, padding: "13px 28px", marginTop: 10 }}>Browse Products →</Btn>
           </div>
         ) : (
@@ -1320,12 +1320,12 @@ function CartPage({ cart, setCart, setPage }) {
                   <img src={item.img} alt={item.name} style={{ width: 70, height: 70, objectFit: "cover", borderRadius: 12 }} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{item.name}</div>
-                    <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13 }}>₹{item.price}/{item.unit}</div>
+                    <div style={{ color: "rgba(11,11,11,0.95)", fontSize: 13 }}>₹{item.price}/{item.unit}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <button onClick={() => update(item.id, -1)} style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.07)", color: "#fff", cursor: "pointer", fontSize: 18 }}>−</button>
+                    <button onClick={() => update(item.id, -1)} style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid rgba(11,11,11,0.95)", background: "rgba(255,255,255,0.07)", color: "#000", cursor: "pointer", fontSize: 18 }}>−</button>
                     <span style={{ fontWeight: 700, width: 24, textAlign: "center" }}>{item.qty}</span>
-                    <button onClick={() => update(item.id, 1)} style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.07)", color: "#fff", cursor: "pointer", fontSize: 18 }}>+</button>
+                    <button onClick={() => update(item.id, 1)} style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid rgba(11,11,11,0.95)", background: "rgba(255,255,255,0.07)", color: "#000", cursor: "pointer", fontSize: 18 }}>+</button>
                   </div>
                   <div className="tg-gold" style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 20, width: 70, textAlign: "right" }}>₹{item.price * item.qty}</div>
                 </div>
@@ -1335,7 +1335,7 @@ function CartPage({ cart, setCart, setPage }) {
               <div className="cart-summary glass" style={{ borderRadius: 22, padding: "26px", position: "sticky", top: 100 }}>
                 <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 22, marginBottom: 22 }}>Order Summary</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(255,255,255,0.6)", fontSize: 14 }}><span>Subtotal</span><span>₹{total}</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(104, 24, 24, 0.6)", fontSize: 14 }}><span>Subtotal</span><span>₹{total}</span></div>
                   <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(255,255,255,0.6)", fontSize: 14 }}><span>Delivery</span><span style={{ color: "#39d353" }}>Free</span></div>
                   <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(249,199,79,0.4),transparent)" }} />
                   <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 22 }}><span>Total</span><span className="tg-gold">₹{total}</span></div>
@@ -1470,11 +1470,11 @@ function LoginPage({ setPage }) {
     </span>
   ))}
 </h1>
-          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, lineHeight: 1.8, marginBottom: 32 }}>
+          <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 15, lineHeight: 1.8, marginBottom: 32 }}>
             {mode === "login" ? "Log in to manage your subscriptions, track orders, and enjoy member benefits." : "Create your account to start receiving fresh dairy every morning."}
           </p>
           {["🥛 Exclusive member discounts", "🚚 Priority delivery slots", "📊 Order history & tracking", "🔔 Restock notifications"].map(i => (
-            <div key={i} style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, marginBottom: 8 }}>{i}</div>
+            <div key={i} style={{ color: "rgba(11,11,11,0.95)", fontSize: 14, marginBottom: 8 }}>{i}</div>
           ))}
         </div>
         <div className="glass" style={{ borderRadius: 28, padding: "38px" }}>
@@ -1483,16 +1483,16 @@ function LoginPage({ setPage }) {
               <button key={m} onClick={() => { createSound("nav"); setMode(m); setError(""); }} style={{
                 flex: 1, padding: "10px", border: "none", cursor: "pointer", borderRadius: 9, fontSize: 14, fontWeight: 600, fontFamily: "'Syne',sans-serif",
                 background: mode === m ? "linear-gradient(135deg,#39d353,#16a34a)" : "transparent",
-                color: mode === m ? "#fff" : "rgba(255,255,255,0.5)", transition: "all .3s",
+                color: mode === m ? "#000" : "rgba(11,11,11,0.95)", transition: "all .3s",
               }}>{m === "login" ? "Log In" : "Sign Up"}</button>
             ))}
           </div>
           {mode === "signup" && <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Full Name</label><input placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} /></div>}
-          <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Email Address</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
+          <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 1, color: "rgba(11, 11, 11, 0.95)", marginBottom: 6 }}>Email Address</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
           {mode === "signup" && <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX" value={phone} onChange={e => setPhone(e.target.value)} /></div>}
           <div style={{ marginBottom: 22 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <label style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Password</label>
+              <label style={{ fontSize: 15, color: "rgba(11, 11, 11, 0.95)" }}>Password</label>
               {mode === "login" && <span style={{ fontSize: 12, color: "#39d353", cursor: "pointer" }}>Forgot password?</span>}
             </div>
             <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
@@ -1616,7 +1616,7 @@ function HomeSections({ setPage, addToCart }) {
               {pl.name}
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}>
-              <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#fff" }}>
+              <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#000" }}>
                 ₹{pl.price.toLocaleString()}
               </span>
               <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>/{pl.period}</span>
@@ -1698,10 +1698,10 @@ function Footer({ setPage }) {
               <div style={{ width: 38, height: 38, borderRadius: 9, background: "linear-gradient(135deg,#f9c74f,#f3722c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🌿</div>
               <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 17 }}><span className="tg-gold">CNN</span> Farm Hub</span>
             </div>
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 14, lineHeight: 1.8, marginBottom: 20 }}>Farm-fresh A2 dairy delivered to your doorstep every morning. Pure. Natural. Trusted since 2009.</p>
+            <p style={{ color: "rgba(101, 15, 15, 0.45)", fontSize: 14, lineHeight: 1.8, marginBottom: 20 }}>Farm-fresh A2 dairy delivered to your doorstep every morning. Pure. Natural. Trusted since 2009.</p>
             <div style={{ display: "flex", gap: 10 }}>
               {["📘", "📷", "🐦", "📱"].map((ic, i) => (
-                <button key={i} onClick={() => createSound("click")} style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.35)", color: "#fff", cursor: "pointer", fontSize: 16 }}>{ic}</button>
+                <button key={i} onClick={() => createSound("click")} style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.35)", color: "#000", cursor: "pointer", fontSize: 16 }}>{ic}</button>
               ))}
             </div>
           </div>
@@ -1710,7 +1710,7 @@ function Footer({ setPage }) {
           <div>
             <h4 style={{ fontWeight: 700, fontSize: 14, color: "#7c3aed", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Quick Links</h4>
             {["home", "products", "farm", "families", "subscription", "contact"].map(l => (
-              <div key={l} onClick={() => go(l)} style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginBottom: 10, cursor: "pointer", textTransform: "capitalize", transition: "color .25s" }}
+              <div key={l} onClick={() => go(l)} style={{ color: "rgba(194, 55, 55, 0.5)", fontSize: 14, marginBottom: 10, cursor: "pointer", textTransform: "capitalize", transition: "color .25s" }}
                 onMouseEnter={e => e.target.style.color = "#a78bfa"}
                 onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.5)"}>{l === "farm" ? "Our Farm" : l}</div>
             ))}
