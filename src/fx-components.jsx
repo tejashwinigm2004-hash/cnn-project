@@ -23,19 +23,30 @@ export function WordReveal({ text, className = "", style = {} }) {
 
 // ── MARQUEE BAND ────────────────────────────────────────
 export function MarqueeBand() {
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      @keyframes marqueeScroll {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   const items = ["🌿 100% Organic","🐄 A2 Gir Cows","🥛 Zero Preservatives","🚚 6AM Delivery","⭐ 500+ Families","🏆 Est. 2009","🌾 45 Acres Farm","💚 Vedic Farming"];
   const doubled = [...items, ...items];
   return (
     <div style={{ overflow: "hidden", background: "linear-gradient(90deg,rgba(249,199,79,0.08),rgba(57,211,83,0.08))", borderTop: "1px solid rgba(249,199,79,0.2)", borderBottom: "1px solid rgba(249,199,79,0.2)", padding: "10px 0" }}>
       <div style={{ display: "flex", gap: 48, animation: "marqueeScroll 22s linear infinite", whiteSpace: "nowrap", width: "max-content" }}>
         {doubled.map((item, i) => (
-          <span key={i} style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: 1 }}>{item}</span>
+          <span key={i} style={{ fontSize: 13, fontWeight: 700, color: "rgba(10,10,10,0.75)", letterSpacing: 1 }}>{item}</span>
         ))}
       </div>
     </div>
   );
 }
-
 // ── SCROLL REVEAL ────────────────────────────────────────
 export function ScrollReveal({ children, delay = 0 }) {
   const ref = useRef();

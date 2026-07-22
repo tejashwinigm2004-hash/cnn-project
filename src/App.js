@@ -258,7 +258,7 @@ function Btn({ children, onClick, style = {}, className = "", variant = "gold", 
     farm: { background: "linear-gradient(135deg,#00b4d8,#0077b6)", color: "#000", boxShadow: "0 6px 24px rgba(0,180,216,0.28)" },
     sub: { background: "linear-gradient(135deg,#39d353,#00b894)", color: "#020f05", boxShadow: "0 6px 24px rgba(57,211,83,0.28)" },
     family: { background: "linear-gradient(135deg,#ff9a9e,#e84393)", color: "#000", boxShadow: "0 6px 24px rgba(255,154,158,0.28)" },
-    ghost: { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "#000" },
+    ghost: { background: "rgba(77, 12, 168, 0.04)", border: "1px solid rgba(255,255,255,0.15)", color: "#000" },
     outline: { background: "transparent", border: "2px solid rgba(57,211,83,0.55)", color: "#39d353" },
     orange: { background: "linear-gradient(135deg,#ff6b35,#f7931e)", color: "#000", boxShadow: "0 6px 24px rgba(255,107,53,0.28)" },
     purple: { background: "linear-gradient(135deg,#7c3aed,#a78bfa)", color: "#000", boxShadow: "0 6px 24px rgba(124,58,237,0.3)" },
@@ -493,7 +493,7 @@ function Nav({ page, setPage, cart }) {
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
       padding: scrolled ? "10px 0" : "18px 0",
-      background: scrolled ? "rgba(246, 242, 242, 0.94)" : "transparent",
+      background: scrolled ? "rgba(252, 249, 249, 0.94)" : "transparent",
       backdropFilter: scrolled ? "blur(24px)" : "none",
       borderBottom: scrolled ? "1px solid rgba(255,255,255,0.07)" : "none",
       transition: "all .4s cubic-bezier(.22,1,.36,1)",
@@ -661,6 +661,10 @@ function Hero({ setPage }) {
         from { width:0; opacity:0; }
         to   { width:100%; opacity:1; }
       }
+      @keyframes floatText {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-6px); }
+      }
     `;
     document.head.appendChild(style);
     return () => document.head.removeChild(style);
@@ -675,21 +679,20 @@ function Hero({ setPage }) {
             opacity: 0,
             fontStyle: 'italic',
             fontSize: '55%',
-            color: 'rgba(11,11,11,0.95)',
-            animation: `itFadeUp .4s ease ${(baseDelay + i * 0.055).toFixed(3)}s forwards`
+            color: '#0a0a0a',
+            animation: `itFadeUp .4s ease ${(baseDelay + i * 0.055).toFixed(3)}s forwards, floatText 3s ease-in-out ${(baseDelay + i * 0.055 + 0.4).toFixed(3)}s infinite`
           }}>{c}</span>
     );
 
   return (
     <section style={{
       minHeight: "100vh", display: "flex", alignItems: "center",
-      background: `radial-gradient(ellipse 70% 60% at 15% 45%,rgba(20,10,5,0.9) 0%,transparent 65%),
-        radial-gradient(ellipse 50% 40% at 80% 20%,rgba(249,199,79,0.07) 0%,transparent 55%),
+      background: `radial-gradient(ellipse 50% 40% at 80% 20%,rgba(249,199,79,0.07) 0%,transparent 55%),
         radial-gradient(ellipse 60% 35% at 65% 80%,rgba(57,211,83,0.07) 0%,transparent 55%), #fff`,
       position: "relative", overflow: "hidden",
     }}>
       {/* Blob */}
-      <div className="blob" style={{ position: "absolute", top: "-10%", right: "-5%", width: 500, height: 500, background: "radial-gradient(circle,rgba(237, 232, 232, 0.08) 0%,transparent 70%)", pointerEvents: "none" }} />
+      <div className="blob" style={{ position: "absolute", top: "-10%", right: "-5%", width: 500, height: 500, background: "radial-gradient(circle,rgba(124,58,237,0.06) 0%,transparent 70%)", pointerEvents: "none" }} />
       <div className="blob" style={{ position: "absolute", bottom: "-15%", left: "-8%", width: 420, height: 420, background: "radial-gradient(circle,rgba(57,211,83,0.07) 0%,transparent 70%)", pointerEvents: "none", animationDelay: "-5s" }} />
 
       <div className="hero-grid" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "1fr", gap: 60, alignItems: "center", paddingTop: 100, paddingBottom: 80 }}>
@@ -697,7 +700,7 @@ function Hero({ setPage }) {
         <div style={{ animation: "pageSlide .7s cubic-bezier(.22,1,.36,1) forwards" }}>
           <Badge label="🌿 Organic · A2 · Farm Fresh" color="#39d353" />
 
-          <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(38px,6vw,72px)", lineHeight: 1.1, margin: "22px 0 22px", perspective: 1000 }}>
+          <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(38px,6vw,72px)", lineHeight: 1.1, margin: "22px 0 22px", perspective: 1000, color: "#0a0a0a" }}>
 
             {/* Line 1: Pure Dairy From Heart — all in one line */}
             <span style={{
@@ -708,18 +711,18 @@ function Hero({ setPage }) {
               fontSize: 'clamp(24px, 5.5vw, 72px)',
               gap: '0.22em',
             }}>
-              <span style={{ display:'inline-block', opacity:0, animation:'slamDown .5s cubic-bezier(.6,-.3,.4,1.4) .1s forwards', color:'#000' }}>Pure</span>
-              <span style={{ display:'inline-block', opacity:0, animation:'slideBlur .65s cubic-bezier(.22,1,.36,1) .55s forwards', color:'#000' }}>Dairy</span>
+              <span style={{ display:'inline-block', opacity:0, animation:'slamDown .5s cubic-bezier(.6,-.3,.4,1.4) .1s forwards, floatText 3s ease-in-out .6s infinite', color:'#0a0a0a' }}>Pure</span>
+              <span style={{ display:'inline-block', opacity:0, animation:'slideBlur .65s cubic-bezier(.22,1,.36,1) .55s forwards, floatText 3s ease-in-out 1.2s infinite', color:'#0a0a0a' }}>Dairy</span>
               <span style={{
                 display:'inline-block', opacity:0,
-                animation:'zoomSettle .6s cubic-bezier(.22,1,.36,1) 1.05s forwards',
+                animation:'zoomSettle .6s cubic-bezier(.22,1,.36,1) 1.05s forwards, floatText 3s ease-in-out 1.65s infinite',
                 background:'linear-gradient(135deg,#ffe066 0%,#f9c74f 30%,#ffaa00 65%,#f9c74f 85%,#ffe066 100%)',
                 backgroundSize:'300% auto',
                 WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
               }}>From</span>
               <span style={{
                 display:'inline-block', opacity:0, transformOrigin:'50% 100%',
-                animation:'flipUp .65s cubic-bezier(.22,1,.36,1) 1.5s forwards, glowPulse 2.5s ease-in-out 2.3s infinite',
+                animation:'flipUp .65s cubic-bezier(.22,1,.36,1) 1.5s forwards, glowPulse 2.5s ease-in-out 2.3s infinite, floatText 3s ease-in-out 2.15s infinite',
                 background:'linear-gradient(135deg,#ffe066 0%,#f9c74f 30%,#ffaa00 65%,#f9c74f 85%,#ffe066 100%)',
                 backgroundSize:'300% auto',
                 WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
@@ -741,7 +744,7 @@ function Hero({ setPage }) {
 
           </h1>
 
-          <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 17, lineHeight: 1.8, marginBottom: 36, maxWidth: 460 }}>
+          <p style={{ color: "#0a0a0a", fontSize: 17, lineHeight: 1.8, marginBottom: 36, maxWidth: 460 }}>
             Pure dairy, delivered fresh. Milk, ghee, paneer & more — straight from our farm to your doorstep every morning at 6AM. Serving all across Karnataka, because every family deserves the best.
           </p>
           <div className="hero-btns" style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 48 }}>
@@ -756,8 +759,8 @@ function Hero({ setPage }) {
           <div className="hero-stats" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 20 }}>
             {stats.map(s => (
               <div key={s.l}>
-                <div className="tg-gold" style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 900 }}>{s.v}</div>
-                <div style={{ fontSize: 11, color: "rgba(11, 11, 11, 0.95)", marginTop: 2 }}>{s.l}</div>
+                <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 900, background: "linear-gradient(135deg,#f9c74f,#ffaa00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{s.v}</div>
+                <div style={{ fontSize: 11, color: "#0a0a0a", marginTop: 2 }}>{s.l}</div>
               </div>
             ))}
           </div>
@@ -875,7 +878,6 @@ function ProductCard({ p, addToCart }) {
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────
    PRODUCTS PAGE (full catalog)
    Uses the existing PRODUCTS array already
@@ -951,11 +953,9 @@ function FarmPage() {
         </div>
       </div>
     </div>
-
       {/* page background now plain white, matches other pages */}
       <div style={{ background: "#fff", padding: "70px 24px 100px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-
           {/* Story */}
           <div className="farm-story-grid" style={{ display: "grid", gap: 60, alignItems: "center", marginBottom: 80 }}>
             <div>
@@ -1023,13 +1023,11 @@ At CNN Farm Hub, we follow sustainable farming practices that prioritize the hea
               <Btn variant="farm" style={{ fontSize: 15, padding: "13px 28px" }} onClick={() => {}}>Book Farm Visit →</Btn>
             </div>
           </div>
-
         </div>
       </div>
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────
    FAMILIES PAGE
 ───────────────────────────────────────────── */
@@ -1053,7 +1051,6 @@ function FamiliesPage({ setPage }) {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <SectionHead badge="Testimonials" badgeColor="#ff9a9e" title="Loved by 500+ Families" titleClass="tg-family"
             sub="Real stories from families who switched to CNN Farm Hub and never looked back." />
-
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 28, marginBottom: 70 }}>
             {FAMILIES.map((f, i) => (
               <div key={i}
@@ -1413,9 +1410,15 @@ function CartPage({ cart, setCart, setPage }) {
   };
 
   return (
-    <div style={{ paddingTop: 100, minHeight: "100vh", padding: "100px 24px 100px" }}>
+    <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff", padding: "100px 24px 100px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 48, marginBottom: 40 }}>Your <span className="tg-gold">Cart</span></h1>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 48, marginBottom: 40 }}>
+          Your{" "}
+          <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            Cart
+          </span>
+        </h1>
+
         {cart.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <div style={{ fontSize: 80, marginBottom: 20 }}>🛒</div>
@@ -1426,34 +1429,97 @@ function CartPage({ cart, setCart, setPage }) {
           <div className="cart-grid" style={{ display: "grid", gap: 30 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {cart.map(item => (
-                <div key={item.id} className="glass" style={{ borderRadius: 18, padding: "20px 22px", display: "flex", gap: 16, alignItems: "center" }}>
+                <div
+                  key={item.id}
+                  style={{
+                    borderRadius: 18,
+                    padding: "20px 22px",
+                    display: "flex",
+                    gap: 16,
+                    alignItems: "center",
+                    background: "#f5f3ff",
+                    border: "1px solid rgba(124,58,237,0.15)",
+                  }}
+                >
                   <img src={item.img} alt={item.name} style={{ width: 70, height: 70, objectFit: "cover", borderRadius: 12 }} />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{item.name}</div>
-                    <div style={{ color: "rgba(11,11,11,0.95)", fontSize: 13 }}>₹{item.price}/{item.unit}</div>
+                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4, color: "#0a0a0a" }}>{item.name}</div>
+                    <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 13 }}>₹{item.price}/{item.unit}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <button onClick={() => update(item.id, -1)} style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid rgba(11,11,11,0.95)", background: "rgba(255,255,255,0.07)", color: "#000", cursor: "pointer", fontSize: 18 }}>−</button>
-                    <span style={{ fontWeight: 700, width: 24, textAlign: "center" }}>{item.qty}</span>
-                    <button onClick={() => update(item.id, 1)} style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid rgba(11,11,11,0.95)", background: "rgba(255,255,255,0.07)", color: "#000", cursor: "pointer", fontSize: 18 }}>+</button>
+                    <button
+                      onClick={() => update(item.id, -1)}
+                      style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid rgba(124,58,237,0.25)", background: "#fff", color: "#0a0a0a", cursor: "pointer", fontSize: 18 }}
+                    >
+                      −
+                    </button>
+                    <span style={{ fontWeight: 700, width: 24, textAlign: "center", color: "#0a0a0a" }}>{item.qty}</span>
+                    <button
+                      onClick={() => update(item.id, 1)}
+                      style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid rgba(124,58,237,0.25)", background: "#fff", color: "#0a0a0a", cursor: "pointer", fontSize: 18 }}
+                    >
+                      +
+                    </button>
                   </div>
-                  <div className="tg-gold" style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 20, width: 70, textAlign: "right" }}>₹{item.price * item.qty}</div>
+                  <div
+                    style={{
+                      fontFamily: "'Playfair Display',serif",
+                      fontWeight: 900,
+                      fontSize: 20,
+                      width: 70,
+                      textAlign: "right",
+                      background: "linear-gradient(135deg,#7c3aed,#a78bfa)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
+                  >
+                    ₹{item.price * item.qty}
+                  </div>
                 </div>
               ))}
             </div>
+
             <div>
-              <div className="cart-summary glass" style={{ borderRadius: 22, padding: "26px", position: "sticky", top: 100 }}>
-                <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 22, marginBottom: 22 }}>Order Summary</h3>
+              <div
+                className="cart-summary"
+                style={{
+                  borderRadius: 22,
+                  padding: "26px",
+                  position: "sticky",
+                  top: 100,
+                  background: "#f5f3ff",
+                  border: "1px solid rgba(124,58,237,0.15)",
+                }}
+              >
+                <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 22, marginBottom: 22, color: "#0a0a0a" }}>Order Summary</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(104, 24, 24, 0.6)", fontSize: 14 }}><span>Subtotal</span><span>₹{total}</span></div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(255,255,255,0.6)", fontSize: 14 }}><span>Delivery</span><span style={{ color: "#39d353" }}>Free</span></div>
-                  <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(249,199,79,0.4),transparent)" }} />
-                  <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 22 }}><span>Total</span><span className="tg-gold">₹{total}</span></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(11,11,11,0.7)", fontSize: 14 }}>
+                    <span>Subtotal</span><span>₹{total}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(11,11,11,0.7)", fontSize: 14 }}>
+                    <span>Delivery</span><span style={{ color: "#16a34a" }}>Free</span>
+                  </div>
+                  <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(124,58,237,0.3),transparent)" }} />
+                  <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 22, color: "#0a0a0a" }}>
+                    <span>Total</span>
+                    <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>₹{total}</span>
+                  </div>
                 </div>
                 <Btn variant="gold" onClick={() => { createSound("success"); alert("Order placed! We'll confirm via WhatsApp."); }} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
                   Checkout →
                 </Btn>
-                <div className="glass-sub" style={{ borderRadius: 9, padding: "10px 13px", marginTop: 14, textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.55)" }}>
+                <div
+                  style={{
+                    borderRadius: 9,
+                    padding: "10px 13px",
+                    marginTop: 14,
+                    textAlign: "center",
+                    fontSize: 12,
+                    color: "rgba(11,11,11,0.55)",
+                    background: "#fff",
+                    border: "1px solid rgba(124,58,237,0.15)",
+                  }}
+                >
                   🔒 Secured by Razorpay · SSL Encrypted
                 </div>
               </div>
@@ -1464,7 +1530,6 @@ function CartPage({ cart, setCart, setPage }) {
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────
    LOGIN PAGE
 ───────────────────────────────────────────── */
@@ -1478,146 +1543,248 @@ function LoginPage({ setPage }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
- 
-  const handleSubmit = async () => {
-  setError("");
-  setSuccess("");
-  setLoading(true);
-  try {
-    const url = mode === "login"
-      ? `${API_URL}/api/auth/login`
-      : `${API_URL}/api/auth/signup`;
- 
-    const body = mode === "login"
-      ? { email, password }
-      : { name, email, phone, password };
- 
-    const res = await axios.post(url, body, { withCredentials: true });
- 
-    console.log("Response:", res.data);
- 
-    // The JWT is no longer handled here — the server sets it as an
-    // httpOnly cookie directly on the response, so the browser stores
-    // it automatically and JS never sees the token itself.
-    // We keep only non-sensitive user info (name/email) for display.
-    login(res.data.user);
- 
-    if (mode === "signup") {
-      setSuccess("🎉 Registered successfully! Redirecting...");
-      await new Promise(r => setTimeout(r, 1500));
-    }
- 
-    createSound("success");
-    setPage("home");
-    window.scrollTo(0, 0);
- 
-  } catch (err) {
-    console.error("Status:", err.response?.status);
-    console.error("Error data:", err.response?.data);
-    setError(err.response?.data?.message || "Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-};
-  return (
-    <div style={{ paddingTop: 80, minHeight: "100vh", display: "flex", alignItems: "center" }}>
-      {/* Animation keyframes for the heading — added, nothing else changed */}
-      <style>{`
-  @keyframes wordFloat {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
 
-  @keyframes writeIn {
-    0% {
-      opacity: 0;
-      transform: translateY(10px) scale(0.8);
+  const handleSubmit = async () => {
+    setError("");
+    setSuccess("");
+    setLoading(true);
+    try {
+      const url = mode === "login"
+        ? `${API_URL}/api/auth/login`
+        : `${API_URL}/api/auth/signup`;
+
+      const body = mode === "login"
+        ? { email, password }
+        : { name, email, phone, password };
+
+      const res = await axios.post(url, body, { withCredentials: true });
+
+      console.log("Response:", res.data);
+
+      login(res.data.user);
+
+      if (mode === "signup") {
+        setSuccess("🎉 Registered successfully! Redirecting...");
+        await new Promise(r => setTimeout(r, 1500));
+      }
+
+      createSound("success");
+      setPage("home");
+      window.scrollTo(0, 0);
+
+    } catch (err) {
+      console.error("Status:", err.response?.status);
+      console.error("Error data:", err.response?.data);
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
-    100% {
-      opacity: 1;
-      transform: translateY(0px) scale(1);
-    }
-  }
-`}</style>
-      <div className="login-grid" style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px", display: "grid", gap: 60, alignItems: "center" }}>
-        <div className="login-left">
-         <h1 style={{
-  fontFamily: "'Playfair Display',serif",
-  fontWeight: 900,
-  fontSize: "clamp(32px,5vw,52px)",
-  marginBottom: 14,
-}}>
-  {(mode === "login" ? "Welcome Back" : "Join the Farm").split(" ").map((word, i) => (
-    <span
-      key={`line1-${i}`}
-      style={{
-        display: "inline-block",
-        marginRight: "0.3em",
-        opacity: 0,
-        animation: `writeIn 0.5s ease-out ${i * 0.2}s forwards, wordFloat 2.5s ease-in-out ${i * 0.15 + 1}s infinite`,
-      }}
-    >
-      {word}
-    </span>
-  ))}
-  <br />
-  {(mode === "login" ? "CNN Family" : "Family").split(" ").map((word, i) => (
-    <span
-      key={`line2-${i}`}
-      style={{
-        display: "inline-block",
-        marginRight: "0.3em",
-        color: "#f9c74f",
-        opacity: 0,
-        animation: `writeIn 0.5s ease-out ${(i + 2) * 0.2}s forwards, wordFloat 2.5s ease-in-out ${(i + 4) * 0.15 + 1}s infinite`,
-      }}
-    >
-      {word}
-    </span>
-  ))}
-</h1>
-          <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 15, lineHeight: 1.8, marginBottom: 32 }}>
-            {mode === "login" ? "Log in to manage your subscriptions, track orders, and enjoy member benefits." : "Create your account to start receiving fresh dairy every morning."}
-          </p>
-          {["🥛 Exclusive member discounts", "🚚 Priority delivery slots", "📊 Order history & tracking", "🔔 Restock notifications"].map(i => (
-            <div key={i} style={{ color: "rgba(11,11,11,0.95)", fontSize: 14, marginBottom: 8 }}>{i}</div>
-          ))}
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 10,
+    border: "1px solid rgba(124,58,237,0.2)",
+    background: "#fff",
+    color: "#0a0a0a",
+    fontSize: 14,
+    outline: "none",
+    boxSizing: "border-box",
+  };
+
+  return (
+    <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff" }}>
+      <style>{`
+        @keyframes wordFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        @keyframes writeIn {
+          0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+          100% { opacity: 1; transform: translateY(0px) scale(1); }
+        }
+      `}</style>
+
+      {/* Header strip, matching Contact page's hero band */}
+      <div style={{ height: 240, overflow: "hidden", position: "relative" }}>
+        <img
+          src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1400&q=80"
+          alt="Dairy farm"
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(5,5,5,0.2),rgba(5,5,5,0.9))", display: "flex", alignItems: "flex-end", padding: "clamp(16px,4vw,40px) clamp(16px,5vw,60px)" }}>
+          <div>
+            <Badge label={mode === "login" ? "Welcome Back" : "Join Us"} color="#f9c74f" />
+            <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(28px,5vw,56px)", marginTop: 12 }}>
+              {(mode === "login" ? "Welcome Back" : "Join the Farm").split(" ").map((word, i) => (
+                <span
+                  key={`line1-${i}`}
+                  style={{
+                    display: "inline-block",
+                    marginRight: "0.3em",
+                    opacity: 0,
+                    color: "#fff",
+                    animation: `writeIn 0.5s ease-out ${i * 0.2}s forwards, wordFloat 2.5s ease-in-out ${i * 0.15 + 1}s infinite`,
+                  }}
+                >
+                  {word}
+                </span>
+              ))}
+              <br />
+              {(mode === "login" ? "CNN Family" : "Family").split(" ").map((word, i) => (
+                <span
+                  key={`line2-${i}`}
+                  style={{
+                    display: "inline-block",
+                    marginRight: "0.3em",
+                    opacity: 0,
+                    background: "linear-gradient(135deg,#f9c74f,#facc15)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    animation: `writeIn 0.5s ease-out ${(i + 2) * 0.2}s forwards, wordFloat 2.5s ease-in-out ${(i + 4) * 0.15 + 1}s infinite`,
+                  }}
+                >
+                  {word}
+                </span>
+              ))}
+            </h1>
+          </div>
         </div>
-        <div className="glass" style={{ borderRadius: 28, padding: "38px" }}>
-          <div style={{ display: "flex", gap: 0, marginBottom: 30, background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: 4 }}>
-            {["login", "signup"].map(m => (
-              <button key={m} onClick={() => { createSound("nav"); setMode(m); setError(""); }} style={{
-                flex: 1, padding: "10px", border: "none", cursor: "pointer", borderRadius: 9, fontSize: 14, fontWeight: 600, fontFamily: "'Syne',sans-serif",
-                background: mode === m ? "linear-gradient(135deg,#39d353,#16a34a)" : "transparent",
-                color: mode === m ? "#000" : "rgba(11,11,11,0.95)", transition: "all .3s",
-              }}>{m === "login" ? "Log In" : "Sign Up"}</button>
-            ))}
-          </div>
-          {mode === "signup" && <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Full Name</label><input placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} /></div>}
-          <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 1, color: "rgba(11, 11, 11, 0.95)", marginBottom: 6 }}>Email Address</label><input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} /></div>
-          {mode === "signup" && <div style={{ marginBottom: 14 }}><label style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX" value={phone} onChange={e => setPhone(e.target.value)} /></div>}
-          <div style={{ marginBottom: 22 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <label style={{ fontSize: 15, color: "rgba(11, 11, 11, 0.95)" }}>Password</label>
-              {mode === "login" && <span style={{ fontSize: 12, color: "#39d353", cursor: "pointer" }}>Forgot password?</span>}
+      </div>
+
+      {/* Body, matching Contact page's white background + lavender box */}
+      <div style={{ background: "#fff", padding: "70px 24px 100px" }}>
+        <div className="login-grid" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gap: 48, alignItems: "center" }}>
+          {/* Info side */}
+          <div>
+            <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 38, marginBottom: 16 }}>
+              {mode === "login" ? "Good to" : "Happy to"}<br />
+              <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                {mode === "login" ? "See You" : "Have You"}
+              </span>
+            </h2>
+            <p style={{ color: "rgba(11, 11, 11, 0.95)", marginBottom: 40, lineHeight: 1.8 }}>
+              {mode === "login"
+                ? "Log in to manage your subscriptions, track orders, and enjoy member benefits."
+                : "Create your account to start receiving fresh dairy every morning."}
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {[
+                ["🥛", "rgba(0,180,216,0.15)", "rgba(0,180,216,0.3)", "#00b4d8", "Member Perks", "Exclusive discounts", "On every subscription"],
+                ["🚚", "rgba(249,199,79,0.15)", "rgba(249,199,79,0.3)", "#f9c74f", "Delivery", "Priority delivery slots", "Choose your preferred time"],
+                ["📊", "rgba(124,58,237,0.15)", "rgba(124,58,237,0.3)", "#a78bfa", "Tracking", "Order history & tracking", "Everything in one place"],
+                ["🔔", "rgba(57,211,83,0.15)", "rgba(57,211,83,0.3)", "#39d353", "Alerts", "Restock notifications", "Never run out of milk"],
+              ].map(([ic, bg, br, color, label, val, sub]) => (
+                <div
+                  key={label}
+                  style={{
+                    borderRadius: 16,
+                    padding: "18px 20px",
+                    display: "flex",
+                    gap: 14,
+                    alignItems: "center",
+                    background: "#f5f3ff",
+                    border: "1px solid rgba(124,58,237,0.15)",
+                  }}
+                >
+                  <div style={{ width: 46, height: 46, borderRadius: 12, background: bg, border: `1px solid ${br}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+                    {ic}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: "rgba(11,11,11,0.95)", marginBottom: 2 }}>{label}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color }}>{val}</div>
+                    <div style={{ fontSize: 12, color: "rgba(11,11,11,0.95)" }}>{sub}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
           </div>
-          {error && <div style={{ color: "#ff4444", fontSize: 13, marginBottom: 14, textAlign: "center" }}>{error}</div>}
-          <Btn variant="gold" onClick={handleSubmit} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
-            {loading ? "Please wait..." : mode === "login" ? "Log In →" : "Create Account →"}
-          </Btn>
-          <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(249,199,79,0.4),transparent)", margin: "22px 0" }} />
-          <Btn variant="ghost" onClick={() => {}} style={{ width: "100%", fontSize: 14, padding: "12px", display: "block", textAlign: "center" }}>📱 Continue with Phone OTP</Btn>
+
+          {/* Form side */}
+          <div
+            style={{
+              borderRadius: 28,
+              padding: "36px",
+              background: "#f5f3ff",
+              border: "1px solid rgba(124,58,237,0.15)",
+            }}
+          >
+            <div style={{ display: "flex", gap: 0, marginBottom: 30, background: "#fff", borderRadius: 12, padding: 4, border: "1px solid rgba(124,58,237,0.15)" }}>
+              {["login", "signup"].map(m => (
+                <button
+                  key={m}
+                  onClick={() => { createSound("nav"); setMode(m); setError(""); }}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    border: "none",
+                    cursor: "pointer",
+                    borderRadius: 9,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    fontFamily: "'Syne',sans-serif",
+                    background: mode === m ? "linear-gradient(135deg,#7c3aed,#a78bfa)" : "transparent",
+                    color: mode === m ? "#fff" : "rgba(11,11,11,0.95)",
+                    transition: "all .3s",
+                  }}
+                >
+                  {m === "login" ? "Log In" : "Sign Up"}
+                </button>
+              ))}
+            </div>
+
+            {success && (
+              <div style={{ background: "rgba(57,211,83,0.12)", border: "1px solid rgba(57,211,83,0.35)", borderRadius: 12, padding: "13px 17px", marginBottom: 20, color: "#1a8a3d", fontWeight: 600 }}>
+                {success}
+              </div>
+            )}
+
+            {mode === "signup" && (
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Full Name</label>
+                <input placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
+              </div>
+            )}
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Email Address</label>
+              <input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
+            </div>
+
+            {mode === "signup" && (
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Phone</label>
+                <input type="tel" placeholder="+91 XXXXX XXXXX" value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} />
+              </div>
+            )}
+
+            <div style={{ marginBottom: 22 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <label style={{ fontSize: 13, color: "rgba(11,11,11,0.95)" }}>Password</label>
+                {mode === "login" && <span style={{ fontSize: 12, color: "#7c3aed", cursor: "pointer" }}>Forgot password?</span>}
+              </div>
+              <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
+            </div>
+
+            {error && <div style={{ color: "#dc2626", fontSize: 13, marginBottom: 14, textAlign: "center" }}>{error}</div>}
+
+            <Btn variant="gold" onClick={handleSubmit} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
+              {loading ? "Please wait..." : mode === "login" ? "Log In →" : "Create Account →"}
+            </Btn>
+
+            <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(124,58,237,0.3),transparent)", margin: "22px 0" }} />
+
+            <Btn variant="ghost" onClick={() => {}} style={{ width: "100%", fontSize: 14, padding: "12px", display: "block", textAlign: "center" }}>
+              📱 Continue with Phone OTP
+            </Btn>
+          </div>
         </div>
       </div>
     </div>
   );
-}/* ─────────────────────────────────────────────
+}
+/* ─────────────────────────────────────────────
    HOME SECTIONS (Products preview + Families preview)
 ───────────────────────────────────────────── */
 function HomeSections({ setPage, addToCart }) {
@@ -1640,25 +1807,73 @@ function HomeSections({ setPage, addToCart }) {
 
      {/* Farm strip */}
 <section style={{ position: "relative", height: 440, overflow: "hidden" }}>
-  <div style={{ width: "90%", height: "100%", margin: "0 auto", position: "relative" }}>
+  <div
+    style={{
+      width: "90%",
+      height: "100%",
+      margin: "0 auto",
+      position: "relative",
+      borderRadius: 24,
+      overflow: "hidden",
+      boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+      border: "1px solid rgba(255,255,255,0.08)",
+    }}
+  >
     <img
       src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1400&q=80"
       alt="Farm"
-      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
     />
-  </div>
-  <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px" }}>
-    <div style={{ textAlign: "center", maxWidth: 500 }}>
-      <Badge label="Est. 2009 · Karnataka" color="#00b4d8" />
-      <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(22px,5vw,48px)", margin: "20px 0 16px", color: "#fff" }}>
-        <span className="tg-farm">15 Years of Pure</span><br />Farming Tradition
-      </h2>
-      <p style={{ color: "rgba(255,255,255,0.8)", marginBottom: 30, lineHeight: 1.8, fontSize: "clamp(13px,3vw,16px)" }}>80+ Gir cows. 45 acres of organic land. Vedic farming methods. Every drop tells a story.</p>
-      <Btn variant="farm" onClick={() => { setPage("farm"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 28px" }}>Discover Our Farm →</Btn>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,0.65)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0 16px",
+      }}
+    >
+      <div style={{ textAlign: "center", maxWidth: 500 }}>
+        <Badge label="Est. 2009 · Karnataka" color="#00b4d8" />
+        <h2
+          style={{
+            fontFamily: "'Playfair Display',serif",
+            fontWeight: 900,
+            fontSize: "clamp(22px,5vw,48px)",
+            margin: "20px 0 16px",
+            color: "#fff",
+          }}
+        >
+          <span className="tg-farm">15 Years of Pure</span>
+          <br />
+          Farming Tradition
+        </h2>
+        <p
+          style={{
+            color: "rgba(255,255,255,0.8)",
+            marginBottom: 30,
+            lineHeight: 1.8,
+            fontSize: "clamp(13px,3vw,16px)",
+          }}
+        >
+          80+ Gir cows. 45 acres of organic land. Vedic farming methods. Every drop tells a story.
+        </p>
+        <Btn
+          variant="farm"
+          onClick={() => {
+            setPage("farm");
+            window.scrollTo(0, 0);
+          }}
+          style={{ fontSize: 15, padding: "13px 28px" }}
+        >
+          Discover Our Farm →
+        </Btn>
+      </div>
     </div>
   </div>
 </section>
-
       {/* Subscription preview */}
 <section className="section-pad" style={{ background: "#fff", padding: "90px 24px", position: "relative", overflow: "hidden" }}>
   <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
@@ -1929,7 +2144,6 @@ function Toast({ msg, onDone }) {
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────
    <FloatingParticles />
 ───────────────────────────────────────────── */
