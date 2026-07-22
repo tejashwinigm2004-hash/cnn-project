@@ -1104,7 +1104,52 @@ function FamiliesPage({ setPage }) {
 function SubPage({ setPage }) {
   const [selected, setSelected] = useState("premium");
   const [freq, setFreq] = useState("monthly");
-
+ 
+  const handleSubscribe = async () => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/payment/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: selected }),
+      });
+      const order = await res.json();
+ 
+      if (!res.ok) {
+        alert(order.message || "Could not create order");
+        return;
+      }
+ 
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "CNN Farm Hub",
+        description: `${selected} subscription`,
+        order_id: order.id,
+        handler: async function (response) {
+          const verifyRes = await fetch(`${process.env.REACT_APP_API_URL}/api/payment/verify-payment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          });
+          const result = await verifyRes.json();
+          if (result.verified) {
+            alert("Subscription payment successful! 🎉");
+          } else {
+            alert("Payment verification failed.");
+          }
+        },
+        theme: { color: "#39d353" },
+      };
+ 
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert("Something went wrong starting the payment.");
+    }
+  };
+ 
   return (
     <div style={{ paddingTop: 100 }}>
       <div style={{ height: 260, overflow: "hidden", position: "relative" }}>
@@ -1118,13 +1163,13 @@ function SubPage({ setPage }) {
           </div>
         </div>
       </div>
-
+ 
       {/* page background now plain white, matches Contact page */}
       <div style={{ background: "#fff", padding: "70px 24px 100px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <SectionHead badge="Farm to Doorstep" badgeColor="#39d353" title="Pick Your Plan" titleClass="tg-sub"
             sub="Fresh dairy every morning. Pause or cancel anytime. No hidden charges." />
-
+ 
           {/* Frequency */}
           <div style={{
             display: "flex", justifyContent: "center", gap: 0, marginBottom: 48,
@@ -1140,7 +1185,7 @@ function SubPage({ setPage }) {
               }}>{f}</button>
             ))}
           </div>
-
+ 
           {/* Plans */}
           <div className="sub-plans-grid" style={{ display: "grid", gap: 24, marginBottom: 70 }}>
             {PLANS.map(pl => (
@@ -1179,7 +1224,7 @@ function SubPage({ setPage }) {
               </div>
             ))}
           </div>
-
+ 
           {/* CTA bar */}
           <div style={{
             borderRadius: 24, padding: "36px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20,
@@ -1191,11 +1236,11 @@ function SubPage({ setPage }) {
               <p style={{ color: "rgba(11, 11, 11, 0.95)", marginTop: 4 }}>Free delivery · Pause anytime · No contract</p>
             </div>
             <div style={{ display: "flex", gap: 12 }}>
-              <Btn variant="sub" onClick={() => { setPage("login"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 28px" }}>Subscribe Now →</Btn>
+              <Btn variant="sub" onClick={handleSubscribe} style={{ fontSize: 15, padding: "13px 28px" }}>Subscribe Now →</Btn>
               <Btn variant="ghost" onClick={() => {}} style={{ fontSize: 15, padding: "13px 22px" }}>📱 WhatsApp</Btn>
             </div>
           </div>
-
+ 
           {/* How it works */}
           <div style={{ marginTop: 70 }}>
             <SectionHead badge="How it Works" badgeColor="#39d353" title="Simple as Fresh Milk" titleClass="tg-sub" />
