@@ -37,7 +37,7 @@ const authLimiter = rateLimit({
  
 app.use('/api/', limiter);
 app.use('/api/auth/', authLimiter);
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
  
 // Razorpay instance
 const razorpay = new Razorpay({
