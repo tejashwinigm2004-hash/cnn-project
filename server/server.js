@@ -12,9 +12,10 @@ app.set('trust proxy', 1); // Required so express-rate-limit reads the real clie
  
 const allowedOrigins = [
   'http://localhost:3000',                              // local website dev
-  'https://tejashwinigm2004-hash.github.io'              // deployed website (GitHub Pages)
+  'https://tejashwinigm2004-hash.github.io',             // deployed website (GitHub Pages)
+  'https://cnnfarmhub.shop',                             // custom domain
+  'https://www.cnnfarmhub.shop'                          // custom domain with www
 ];
- 
 app.use(cors({
   origin: allowedOrigins,
   credentials: true
