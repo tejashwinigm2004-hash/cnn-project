@@ -151,5 +151,13 @@ router.post('/announce', adminMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
- 
+ // ✅ GET ALL PRODUCTS (admin view)
+router.get('/products', adminMiddleware, async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
 module.exports = router;

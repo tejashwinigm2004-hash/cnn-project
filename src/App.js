@@ -1,4 +1,4 @@
-
+import AdminPage from './AdminPage';
 import axios from 'axios';
 import API_URL from './config';
 import logo from './logo.png';
@@ -430,12 +430,13 @@ function Nav({ page, setPage, cart }) {
     go("home");
   };
  
-  const links = ["home", "products", "farm", "families", "subscription", "contact"];
+  const links = user?.role === "admin"
+    ? ["home", "products", "farm", "families", "subscription", "contact", "admin"]
+    : ["home", "products", "farm", "families", "subscription", "contact"];
   const labels = {
     home: "Home", products: "Products", farm: "Our Farm",
-    families: "Families", subscription: "Subscribe", contact: "Contact"
+    families: "Families", subscription: "Subscribe", contact: "Contact", admin: "Admin"
   };
- 
   // NEW: dropdown config for each nav link
   const dropdowns = {
     products: [
@@ -1469,16 +1470,15 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        if (!cancelled) setCartState(data.items || []);
+        if (!cancelled) setCartState((data.items || []).filter(i => i.productId));
       } catch (err) {
         console.error("Failed to load cart:", err);
         if (!cancelled) setError("Couldn't load your cart. Please refresh.");
       }
     })();
     return () => { cancelled = true; };
-  }, [token]);
- 
-  const items = cart || [];
+  }, [token]); 
+  const items = (cart || []).filter(i => i.productId);
   const total = items.reduce((s, i) => s + (i.productId?.price || 0) * i.quantity, 0);
  
   // Set an exact quantity (backend handles removal if it drops to 0)
@@ -1497,7 +1497,7 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
         body: JSON.stringify({ productId, quantity: newQty }),
       });
       const data = await res.json();
-      setCartState(data.items || []);
+      setCartState((data.items || []).filter(i => i.productId));
     } catch (err) {
       console.error("Failed to update cart:", err);
       setError("Couldn't update your cart. Please try again.");
@@ -2447,15 +2447,18 @@ export default function App() {
     createSound("add");
  
     // Keep the local `cart` array (drives your nav badge) in sync with
-    // what's actually now in the database.
-    setCart(updatedCart.items.map(i => ({
-      id: i.productId._id,
-      name: i.productId.name,
-      price: i.productId.price,
-      img: i.productId.image,
-      unit: i.productId.unit,
-      qty: i.quantity,
-    })));
+   setCart(
+      updatedCart.items
+        .filter(i => i.productId) // skip items whose product was deleted
+        .map(i => ({
+          id: i.productId._id,
+          name: i.productId.name,
+          price: i.productId.price,
+          img: i.productId.image,
+          unit: i.productId.unit,
+          qty: i.quantity,
+        }))
+    );
  
     setToast(`🥛 ${product.name} added to cart!`);
   } catch (err) {
@@ -2482,6 +2485,7 @@ export default function App() {
       case "contact": return <ContactPage />;
       case "cart": return <CartPage cart={cart} setCart={setCart} setPage={navigate} />;
       case "login": return <LoginPage setPage={navigate} />;
+      case "admin": return <AdminPage />;
       default: return <Hero setPage={navigate} />;
     }
   };
