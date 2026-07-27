@@ -1,3 +1,5 @@
+const admin = require('../utils/firebaseAdmin');
+const crypto = require('crypto');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -59,6 +61,45 @@ router.post('/login', async (req, res) => {
     res.json({ token, user: { id: user._id, name: user.name, email, role: user.role } });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+// PHONE LOGIN/SIGNUP (via Firebase Phone Auth)
+// The frontend verifies the OTP with Firebase directly, then sends us the
+// resulting Firebase ID token here. We verify it server-side and never trust
+// a phone number the client just hands us directly.
+router.post('/phone-login', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ message: 'Missing idToken' });
+
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    const phone = decoded.phone_number;
+    if (!phone) return res.status(400).json({ message: 'No phone number on token' });
+
+    let user = await User.findOne({ phone });
+
+    if (!user) {
+      // First time this phone number has logged in — create an account.
+      // Random password since they authenticate via OTP, not a password.
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      user = new User({
+        name: 'Farm Hub Customer',
+        email: `${phone.replace(/\D/g, '')}@phoneuser.cnnfarmhub.shop`, // placeholder, unique per phone
+        password: hashedPassword,
+        phone,
+      });
+      await user.save();
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+    setAuthCookie(res, token);
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+  } catch (err) {
+    console.error('Phone login failed:', err.message);
+    res.status(401).json({ message: 'Phone verification failed', error: err.message });
   }
 });
 

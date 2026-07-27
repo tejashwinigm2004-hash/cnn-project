@@ -1,3 +1,5 @@
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { auth } from "./firebaseConfig";
 import AdminPage from './AdminPage';
 import axios from 'axios';
 import API_URL from './config';
@@ -1232,8 +1234,19 @@ function SubPage({ setPage }) {
             </div>
             <div style={{ display: "flex", gap: 12 }}>
               <Btn variant="sub" onClick={handleSubscribe} style={{ fontSize: 15, padding: "13px 28px" }}>Subscribe Now →</Btn>
-              <Btn variant="ghost" onClick={() => {}} style={{ fontSize: 15, padding: "13px 22px" }}>📱 WhatsApp</Btn>
-            </div>
+<Btn
+                variant="ghost"
+                onClick={() => {
+                  const plan = PLANS.find(p => p.id === selected);
+                  const message = encodeURIComponent(
+                    `Hi! I'm interested in the ${plan?.name || "subscription"} plan (₹${plan?.price || ""}/${plan?.period || "month"}). Can you help me get started?`
+                  );
+                  window.open(`https://wa.me/918618854283?text=${message}`, "_blank");
+                }}
+                style={{ fontSize: 15, padding: "13px 22px" }}
+              >
+                📱 WhatsApp
+              </Btn>            </div>
           </div>
  
           {/* How it works */}
@@ -1752,6 +1765,16 @@ function LoginPage({ setPage }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
 
+  // ── Phone OTP state ──
+  const [showOtp, setShowOtp] = useState(false);
+  const [otpStep, setOtpStep] = useState("phone"); // "phone" | "code"
+  const [otpPhone, setOtpPhone] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const confirmationResultRef = useRef(null);
+  const recaptchaVerifierRef = useRef(null);
+
   const handleSubmit = async () => {
     setError("");
     setSuccess("");
@@ -1767,9 +1790,7 @@ function LoginPage({ setPage }) {
 
       const res = await axios.post(url, body, { withCredentials: true });
 
-      console.log("Response:", res.data);
-
-login(res.data.user, res.data.token);
+      login(res.data.user, res.data.token);
       if (mode === "signup") {
         setSuccess("🎉 Registered successfully! Redirecting...");
         await new Promise(r => setTimeout(r, 1500));
@@ -1780,90 +1801,101 @@ login(res.data.user, res.data.token);
       window.scrollTo(0, 0);
 
     } catch (err) {
-      console.error("Status:", err.response?.status);
-      console.error("Error data:", err.response?.data);
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSendOtp = async () => {
+    setOtpError("");
+    if (!otpPhone || otpPhone.replace(/\D/g, "").length < 10) {
+      setOtpError("Please enter a valid phone number");
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const formattedPhone = otpPhone.startsWith("+") ? otpPhone : `+91${otpPhone.replace(/\D/g, "")}`;
+
+      if (!recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, "recaptcha-container", {
+          size: "invisible",
+        });
+      }
+
+      const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, recaptchaVerifierRef.current);
+      confirmationResultRef.current = confirmationResult;
+      setOtpStep("code");
+    } catch (err) {
+      console.error("Send OTP failed:", err);
+      setOtpError(err.message || "Couldn't send OTP. Please try again.");
+      if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+        recaptchaVerifierRef.current = null;
+      }
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setOtpError("");
+    if (!otpCode || otpCode.length < 6) {
+      setOtpError("Please enter the 6-digit code");
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const result = await confirmationResultRef.current.confirm(otpCode);
+      const idToken = await result.user.getIdToken();
+
+      const res = await axios.post(`${API_URL}/api/auth/phone-login`, { idToken }, { withCredentials: true });
+
+      login(res.data.user, res.data.token);
+      createSound("success");
+      setPage("home");
+      window.scrollTo(0, 0);
+    } catch (err) {
+      console.error("Verify OTP failed:", err);
+      setOtpError(err.response?.data?.message || err.message || "Invalid or expired code");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const inputStyle = {
-    width: "100%",
-    padding: "12px 14px",
-    borderRadius: 10,
-    border: "1px solid rgba(124,58,237,0.2)",
-    background: "#fff",
-    color: "#0a0a0a",
-    fontSize: 14,
-    outline: "none",
-    boxSizing: "border-box",
+    width: "100%", padding: "12px 14px", borderRadius: 10,
+    border: "1px solid rgba(124,58,237,0.2)", background: "#fff",
+    color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
   };
 
   return (
     <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff" }}>
       <style>{`
-        @keyframes wordFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes writeIn {
-          0% { opacity: 0; transform: translateY(10px) scale(0.8); }
-          100% { opacity: 1; transform: translateY(0px) scale(1); }
-        }
+        @keyframes wordFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        @keyframes writeIn { 0% { opacity: 0; transform: translateY(10px) scale(0.8); } 100% { opacity: 1; transform: translateY(0px) scale(1); } }
       `}</style>
 
-      {/* Header strip, matching Contact page's hero band */}
       <div style={{ height: 240, overflow: "hidden", position: "relative" }}>
-        <img
-          src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1400&q=80"
-          alt="Dairy farm"
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
+        <img src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1400&q=80" alt="Dairy farm" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(5,5,5,0.2),rgba(5,5,5,0.9))", display: "flex", alignItems: "flex-end", padding: "clamp(16px,4vw,40px) clamp(16px,5vw,60px)" }}>
           <div>
             <Badge label={mode === "login" ? "Welcome Back" : "Join Us"} color="#f9c74f" />
             <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(28px,5vw,56px)", marginTop: 12 }}>
               {(mode === "login" ? "Welcome Back" : "Join the Farm").split(" ").map((word, i) => (
-                <span
-                  key={`line1-${i}`}
-                  style={{
-                    display: "inline-block",
-                    marginRight: "0.3em",
-                    opacity: 0,
-                    color: "#fff",
-                    animation: `writeIn 0.5s ease-out ${i * 0.2}s forwards, wordFloat 2.5s ease-in-out ${i * 0.15 + 1}s infinite`,
-                  }}
-                >
-                  {word}
-                </span>
+                <span key={`line1-${i}`} style={{ display: "inline-block", marginRight: "0.3em", opacity: 0, color: "#fff", animation: `writeIn 0.5s ease-out ${i * 0.2}s forwards, wordFloat 2.5s ease-in-out ${i * 0.15 + 1}s infinite` }}>{word}</span>
               ))}
               <br />
               {(mode === "login" ? "CNN Family" : "Family").split(" ").map((word, i) => (
-                <span
-                  key={`line2-${i}`}
-                  style={{
-                    display: "inline-block",
-                    marginRight: "0.3em",
-                    opacity: 0,
-                    background: "linear-gradient(135deg,#f9c74f,#facc15)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    animation: `writeIn 0.5s ease-out ${(i + 2) * 0.2}s forwards, wordFloat 2.5s ease-in-out ${(i + 4) * 0.15 + 1}s infinite`,
-                  }}
-                >
-                  {word}
-                </span>
+                <span key={`line2-${i}`} style={{ display: "inline-block", marginRight: "0.3em", opacity: 0, background: "linear-gradient(135deg,#f9c74f,#facc15)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: `writeIn 0.5s ease-out ${(i + 2) * 0.2}s forwards, wordFloat 2.5s ease-in-out ${(i + 4) * 0.15 + 1}s infinite` }}>{word}</span>
               ))}
             </h1>
           </div>
         </div>
       </div>
 
-      {/* Body, matching Contact page's white background + lavender box */}
       <div style={{ background: "#fff", padding: "70px 24px 100px" }}>
         <div className="login-grid" style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gap: 48, alignItems: "center" }}>
-          {/* Info side */}
           <div>
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 38, marginBottom: 16 }}>
               {mode === "login" ? "Good to" : "Happy to"}<br />
@@ -1872,9 +1904,7 @@ login(res.data.user, res.data.token);
               </span>
             </h2>
             <p style={{ color: "rgba(11, 11, 11, 0.95)", marginBottom: 40, lineHeight: 1.8 }}>
-              {mode === "login"
-                ? "Log in to manage your subscriptions, track orders, and enjoy member benefits."
-                : "Create your account to start receiving fresh dairy every morning."}
+              {mode === "login" ? "Log in to manage your subscriptions, track orders, and enjoy member benefits." : "Create your account to start receiving fresh dairy every morning."}
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {[
@@ -1883,21 +1913,8 @@ login(res.data.user, res.data.token);
                 ["📊", "rgba(124,58,237,0.15)", "rgba(124,58,237,0.3)", "#a78bfa", "Tracking", "Order history & tracking", "Everything in one place"],
                 ["🔔", "rgba(57,211,83,0.15)", "rgba(57,211,83,0.3)", "#39d353", "Alerts", "Restock notifications", "Never run out of milk"],
               ].map(([ic, bg, br, color, label, val, sub]) => (
-                <div
-                  key={label}
-                  style={{
-                    borderRadius: 16,
-                    padding: "18px 20px",
-                    display: "flex",
-                    gap: 14,
-                    alignItems: "center",
-                    background: "#f5f3ff",
-                    border: "1px solid rgba(124,58,237,0.15)",
-                  }}
-                >
-                  <div style={{ width: 46, height: 46, borderRadius: 12, background: bg, border: `1px solid ${br}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
-                    {ic}
-                  </div>
+                <div key={label} style={{ borderRadius: 16, padding: "18px 20px", display: "flex", gap: 14, alignItems: "center", background: "#f5f3ff", border: "1px solid rgba(124,58,237,0.15)" }}>
+                  <div style={{ width: 46, height: 46, borderRadius: 12, background: bg, border: `1px solid ${br}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{ic}</div>
                   <div>
                     <div style={{ fontSize: 11, color: "rgba(11,11,11,0.95)", marginBottom: 2 }}>{label}</div>
                     <div style={{ fontWeight: 700, fontSize: 15, color }}>{val}</div>
@@ -1908,83 +1925,98 @@ login(res.data.user, res.data.token);
             </div>
           </div>
 
-          {/* Form side */}
-          <div
-            style={{
-              borderRadius: 28,
-              padding: "36px",
-              background: "#f5f3ff",
-              border: "1px solid rgba(124,58,237,0.15)",
-            }}
-          >
-            <div style={{ display: "flex", gap: 0, marginBottom: 30, background: "#fff", borderRadius: 12, padding: 4, border: "1px solid rgba(124,58,237,0.15)" }}>
-              {["login", "signup"].map(m => (
-                <button
-                  key={m}
-                  onClick={() => { createSound("nav"); setMode(m); setError(""); }}
-                  style={{
-                    flex: 1,
-                    padding: "10px",
-                    border: "none",
-                    cursor: "pointer",
-                    borderRadius: 9,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    fontFamily: "'Syne',sans-serif",
-                    background: mode === m ? "linear-gradient(135deg,#7c3aed,#a78bfa)" : "transparent",
-                    color: mode === m ? "#fff" : "rgba(11,11,11,0.95)",
-                    transition: "all .3s",
-                  }}
-                >
-                  {m === "login" ? "Log In" : "Sign Up"}
-                </button>
-              ))}
-            </div>
+          <div style={{ borderRadius: 28, padding: "36px", background: "#f5f3ff", border: "1px solid rgba(124,58,237,0.15)" }}>
+            {!showOtp ? (
+              <>
+                <div style={{ display: "flex", gap: 0, marginBottom: 30, background: "#fff", borderRadius: 12, padding: 4, border: "1px solid rgba(124,58,237,0.15)" }}>
+                  {["login", "signup"].map(m => (
+                    <button key={m} onClick={() => { createSound("nav"); setMode(m); setError(""); }} style={{ flex: 1, padding: "10px", border: "none", cursor: "pointer", borderRadius: 9, fontSize: 14, fontWeight: 600, fontFamily: "'Syne',sans-serif", background: mode === m ? "linear-gradient(135deg,#7c3aed,#a78bfa)" : "transparent", color: mode === m ? "#fff" : "rgba(11,11,11,0.95)", transition: "all .3s" }}>
+                      {m === "login" ? "Log In" : "Sign Up"}
+                    </button>
+                  ))}
+                </div>
 
-            {success && (
-              <div style={{ background: "rgba(57,211,83,0.12)", border: "1px solid rgba(57,211,83,0.35)", borderRadius: 12, padding: "13px 17px", marginBottom: 20, color: "#1a8a3d", fontWeight: 600 }}>
-                {success}
-              </div>
+                {success && <div style={{ background: "rgba(57,211,83,0.12)", border: "1px solid rgba(57,211,83,0.35)", borderRadius: 12, padding: "13px 17px", marginBottom: 20, color: "#1a8a3d", fontWeight: 600 }}>{success}</div>}
+
+                {mode === "signup" && (
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Full Name</label>
+                    <input placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
+                  </div>
+                )}
+
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Email Address</label>
+                  <input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
+                </div>
+
+                {mode === "signup" && (
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Phone</label>
+                    <input type="tel" placeholder="+91 XXXXX XXXXX" value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} />
+                  </div>
+                )}
+
+                <div style={{ marginBottom: 22 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                    <label style={{ fontSize: 13, color: "rgba(11,11,11,0.95)" }}>Password</label>
+                    {mode === "login" && <span style={{ fontSize: 12, color: "#7c3aed", cursor: "pointer" }}>Forgot password?</span>}
+                  </div>
+                  <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
+                </div>
+
+                {error && <div style={{ color: "#dc2626", fontSize: 13, marginBottom: 14, textAlign: "center" }}>{error}</div>}
+
+                <Btn variant="gold" onClick={handleSubmit} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
+                  {loading ? "Please wait..." : mode === "login" ? "Log In →" : "Create Account →"}
+                </Btn>
+
+                <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(124,58,237,0.3),transparent)", margin: "22px 0" }} />
+
+                <Btn variant="ghost" onClick={() => { setShowOtp(true); setOtpStep("phone"); setOtpError(""); }} style={{ width: "100%", fontSize: 14, padding: "12px", display: "block", textAlign: "center" }}>
+                  📱 Continue with Phone OTP
+                </Btn>
+              </>
+            ) : (
+              <>
+                <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 22, marginBottom: 20, textAlign: "center" }}>
+                  {otpStep === "phone" ? "Log in with Phone" : "Enter the Code"}
+                </h3>
+
+                {otpStep === "phone" ? (
+                  <>
+                    <div style={{ marginBottom: 18 }}>
+                      <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Phone Number</label>
+                      <input type="tel" placeholder="+91 XXXXX XXXXX" value={otpPhone} onChange={e => setOtpPhone(e.target.value)} style={inputStyle} />
+                    </div>
+                    {otpError && <div style={{ color: "#dc2626", fontSize: 13, marginBottom: 14, textAlign: "center" }}>{otpError}</div>}
+                    <Btn variant="gold" onClick={handleSendOtp} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
+                      {otpLoading ? "Sending..." : "Send Code →"}
+                    </Btn>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ fontSize: 13, color: "rgba(11,11,11,0.7)", marginBottom: 18, textAlign: "center" }}>We sent a 6-digit code to {otpPhone}</p>
+                    <div style={{ marginBottom: 18 }}>
+                      <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Verification Code</label>
+                      <input type="text" inputMode="numeric" maxLength={6} placeholder="123456" value={otpCode} onChange={e => setOtpCode(e.target.value.replace(/\D/g, ""))} style={{ ...inputStyle, letterSpacing: 4, textAlign: "center", fontSize: 20 }} />
+                    </div>
+                    {otpError && <div style={{ color: "#dc2626", fontSize: 13, marginBottom: 14, textAlign: "center" }}>{otpError}</div>}
+                    <Btn variant="gold" onClick={handleVerifyOtp} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
+                      {otpLoading ? "Verifying..." : "Verify & Log In →"}
+                    </Btn>
+                  </>
+                )}
+
+                <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(124,58,237,0.3),transparent)", margin: "22px 0" }} />
+
+                <Btn variant="ghost" onClick={() => { setShowOtp(false); setOtpStep("phone"); setOtpPhone(""); setOtpCode(""); setOtpError(""); }} style={{ width: "100%", fontSize: 14, padding: "12px", display: "block", textAlign: "center" }}>
+                  ← Back to Email Login
+                </Btn>
+              </>
             )}
 
-            {mode === "signup" && (
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Full Name</label>
-                <input placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} style={inputStyle} />
-              </div>
-            )}
-
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Email Address</label>
-              <input type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
-            </div>
-
-            {mode === "signup" && (
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Phone</label>
-                <input type="tel" placeholder="+91 XXXXX XXXXX" value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} />
-              </div>
-            )}
-
-            <div style={{ marginBottom: 22 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <label style={{ fontSize: 13, color: "rgba(11,11,11,0.95)" }}>Password</label>
-                {mode === "login" && <span style={{ fontSize: 12, color: "#7c3aed", cursor: "pointer" }}>Forgot password?</span>}
-              </div>
-              <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
-            </div>
-
-            {error && <div style={{ color: "#dc2626", fontSize: 13, marginBottom: 14, textAlign: "center" }}>{error}</div>}
-
-            <Btn variant="gold" onClick={handleSubmit} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
-              {loading ? "Please wait..." : mode === "login" ? "Log In →" : "Create Account →"}
-            </Btn>
-
-            <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(124,58,237,0.3),transparent)", margin: "22px 0" }} />
-
-            <Btn variant="ghost" onClick={() => {}} style={{ width: "100%", fontSize: 14, padding: "12px", display: "block", textAlign: "center" }}>
-              📱 Continue with Phone OTP
-            </Btn>
+            <div id="recaptcha-container"></div>
           </div>
         </div>
       </div>
@@ -2263,8 +2295,16 @@ function Footer({ setPage }) {
               <div key={v} style={{ display: "flex", gap: 8, color: "rgba(255,255,255,0.5)", fontSize: 13, marginBottom: 10 }}><span>{ic}</span><span>{v}</span></div>
             ))}
             <div style={{ marginTop: 18 }}>
-              <Btn variant="sub"  onClick={() => window.open("https://wa.me/918618854283", "_blank")} style={{ fontSize: 13, padding: "10px 18px" }}>📱 WhatsApp Order</Btn>
-            </div>
+<Btn
+                variant="sub"
+                onClick={() => {
+                  const message = encodeURIComponent("Hi! I'd like to place an order with CNN Farm Hub.");
+                  window.open(`https://wa.me/918618854283?text=${message}`, "_blank");
+                }}
+                style={{ fontSize: 13, padding: "10px 18px" }}
+              >
+                📱 WhatsApp Order
+              </Btn>            </div>
           </div>
         </div>
 
