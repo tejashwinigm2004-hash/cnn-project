@@ -596,11 +596,11 @@ function Nav({ page, setPage, cart }) {
           padding: "20px 24px", borderTop: "1px solid rgba(255,255,255,0.08)",
           animation: "slideDown .3s ease",
         }}>
-          {links.map(l => (
+         {links.map(l => (
             <div key={l} onClick={() => go(l)} style={{
               padding: "12px 0", cursor: "pointer",
-              borderBottom: "1px solid rgba(255,255,255,0.06)",
-              color: page === l ? "#f9c74f" : "rgba(255,255,255,0.8)", fontWeight: 600,
+              borderBottom: "1px solid rgba(0,0,0,0.08)",
+              color: page === l ? "#f9c74f" : "#0b0b0b", fontWeight: 600,
             }}>
               {labels[l]}
             </div>
