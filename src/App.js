@@ -2385,20 +2385,33 @@ export default function App() {
   const [PRODUCTS, setPRODUCTS] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
  
-  useEffect(() => {
-    (async () => {
+ useEffect(() => {
+    let cancelled = false;
+
+    const loadProducts = async (attempt = 1) => {
       try {
         const res = await fetch(`${API_URL}/api/products`);
         if (!res.ok) throw new Error(`Failed to load products (${res.status})`);
         const data = await res.json();
         const normalized = data.map(p => ({ ...p, id: p._id, img: p.image }));
-        setPRODUCTS(normalized);
+        if (!cancelled) {
+          setPRODUCTS(normalized);
+          setProductsLoading(false);
+        }
       } catch (err) {
-        console.error("Failed to load products:", err);
-      } finally {
-        setProductsLoading(false);
+        console.error(`Failed to load products (attempt ${attempt}):`, err);
+        // Render free tier can take 30-60s to wake up from sleep — retry a few times
+        // with increasing delay instead of giving up after one failed attempt.
+        if (attempt < 5 && !cancelled) {
+          setTimeout(() => loadProducts(attempt + 1), attempt * 4000);
+        } else if (!cancelled) {
+          setProductsLoading(false);
+        }
       }
-    })();
+    };
+
+    loadProducts();
+    return () => { cancelled = true; };
   }, []);
   const [toast, setToast] = useState(null);
 
