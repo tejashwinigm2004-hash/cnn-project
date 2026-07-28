@@ -1,13 +1,21 @@
 const nodemailer = require("nodemailer");
-
+const dns = require("dns");
+ 
+// Force IPv4 first — on some hosts (e.g. Render), Node tries Gmail's IPv6
+// address first and it's unreachable, causing ENETUNREACH errors even
+// though credentials are correct. Preferring IPv4 avoids that entirely.
+dns.setDefaultResultOrder("ipv4first");
+ 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for port 465
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
-
+ 
 const sendWelcomeEmail = async (toEmail, userName) => {
   const mailOptions = {
     from: `"CNN Farm Hub" <${process.env.EMAIL_USER}>`,
@@ -34,7 +42,7 @@ const sendWelcomeEmail = async (toEmail, userName) => {
     console.error("Email error:", err.message);
   }
 };
-
+ 
 const sendOrderConfirmationEmail = async (toEmail, userName, order) => {
   const itemsList = order.items.map(item => `
     <tr>
@@ -43,7 +51,7 @@ const sendOrderConfirmationEmail = async (toEmail, userName, order) => {
       <td style="padding: 8px; border-bottom: 1px solid #eee;">₹${item.price}</td>
     </tr>
   `).join('');
-
+ 
   const mailOptions = {
     from: `"CNN Farm Hub" <${process.env.EMAIL_USER}>`,
     to: toEmail,
@@ -82,6 +90,7 @@ const sendOrderConfirmationEmail = async (toEmail, userName, order) => {
     console.error("Order email error:", err.message);
   }
 };
+ 
 const sendBookingNotificationEmail = async (booking) => {
   const mailOptions = {
     from: `"CNN Farm Hub" <${process.env.EMAIL_USER}>`,
@@ -124,5 +133,5 @@ const sendBookingNotificationEmail = async (booking) => {
     console.error("Booking email error:", err.message);
   }
 };
-
+ 
 module.exports = { sendWelcomeEmail, sendOrderConfirmationEmail, sendBookingNotificationEmail };
