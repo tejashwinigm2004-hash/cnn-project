@@ -1,7 +1,8 @@
 const admin = require('firebase-admin');
- 
+const { initializeApp, getApps, cert } = require('firebase-admin/app');
+
 let serviceAccount;
- 
+
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   // Production (Render): credentials stored as a JSON string in an env var
   serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -9,18 +10,16 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   // Local dev: fall back to the local file (kept out of git via .gitignore)
   serviceAccount = require('../firebase-service-account.json');
 }
- 
-// Guard against re-initializing on hot reloads, without relying on admin.apps
-// (which behaves inconsistently across firebase-admin versions).
-try {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+
+// Use the modular initializeApp/getApps/cert functions (stable in firebase-admin v13+),
+// instead of the old admin.initializeApp/admin.credential.cert namespace API which is
+// no longer reliably available on the default export.
+if (!getApps().length) {
+  initializeApp({
+    credential: cert(serviceAccount),
   });
-} catch (err) {
-  // Ignore "already exists" errors from re-initialization; rethrow anything else.
-  if (!/already exists/i.test(err.message)) {
-    throw err;
-  }
 }
- 
+
+// Keep exporting the top-level `admin` object so any code elsewhere that does
+// admin.auth(), admin.messaging(), etc. continues to work unchanged.
 module.exports = admin;
