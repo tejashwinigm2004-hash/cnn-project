@@ -96,10 +96,10 @@ const PLANS = [
   { id: "family", name: "Family", price: 5600, period: "month", color: "#f9c74f", items: ["2L A2 Milk Daily", "1Kg Ghee Monthly", "500g Paneer Twice/Week", "Seasonal Products", "Doorstep Delivery 5AM", "WhatsApp Bot Ordering", "Monthly Farm Visit"], popular: false },
 ];
 const FAMILIES = [
-  { name: "Raghavendra Family", location: "Indiranagar, Bangalore", since: "2021", img: "https://images.unsplash.com/photo-1511895426328-dc8714191011?w=300&q=80", quote: "Our kids love the A2 milk! We can taste the difference from store-bought dairy. Worth every rupee." },
-  { name: "Priya & Suresh Kumar", location: "HSR Layout, Bangalore", since: "2022", img: "https://images.unsplash.com/photo-1484665987578-db5ac5dce2fb?w=300&q=80", quote: "The ghee is absolutely divine. We use it for everything — pooja, cooking, even skin care!" },
-  { name: "Meenakshi Iyer", location: "Koramangala, Bangalore", since: "2023", img: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&q=80", quote: "Fresh paneer every week without stepping out. The subscription model changed our kitchen routine." },
-  { name: "Arjun & Deepa Nair", location: "Whitefield, Bangalore", since: "2020", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&q=80", quote: "Been with CNN Farm Hub for 4 years! They feel like family. Best decision we ever made." },
+  { name: "Raghavendra Family", location: "Indiranagar, Bangalore", since: "2021", img: "https://images.unsplash.com/photo-1542644416-2289c587843e?w=400&q=80&crop=faces&fit=crop", quote: "Our kids love the A2 milk! We can taste the difference from store-bought dairy. Worth every rupee." },
+  { name: "Priya & Suresh Kumar", location: "HSR Layout, Bangalore", since: "2022", img: "https://images.unsplash.com/photo-1533777419517-3e4017e2e15a?w=400&q=80&crop=faces&fit=crop", quote: "The ghee is absolutely divine. We use it for everything — pooja, cooking, even skin care!" },
+  { name: "Meenakshi Iyer", location: "Koramangala, Bangalore", since: "2023", img: "https://images.unsplash.com/photo-1589169011402-8b2cbd1ee593?w=400&q=80&crop=faces&fit=crop", quote: "Fresh paneer every week without stepping out. The subscription model changed our kitchen routine." },
+  { name: "Arjun & Deepa Nair", location: "Whitefield, Bangalore", since: "2020", img: "https://images.unsplash.com/photo-1659352790654-058e9077a4f4?w=400&q=80&crop=faces&fit=crop", quote: "Been with CNN Farm Hub for 4 years! They feel like family. Best decision we ever made." },
 ];
 const TIMELINE = [
   { year: "2021", title: "Farm Founded", text: "Started with 5 Gir cows on 2 acres of organic land in Karnataka.", color: "#39d353" },
