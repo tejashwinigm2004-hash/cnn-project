@@ -11,13 +11,21 @@ const app = express();
 app.set('trust proxy', 1); // Required so express-rate-limit reads the real client IP behind Render's proxy
  
 const allowedOrigins = [
-  'http://localhost:3000',                              // local website dev
-  'https://tejashwinigm2004-hash.github.io',             // deployed website (GitHub Pages)
-  'https://cnnfarmhub.shop',                             // custom domain
-  'https://www.cnnfarmhub.shop'                          // custom domain with www
+  'https://tejashwinigm2004-hash.github.io',
+  'https://cnnfarmhub.shop',
+  'http://cnnfarmhub.shop',
+  'https://www.cnnfarmhub.shop',
+  'http://www.cnnfarmhub.shop'
 ];
+ 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
  
