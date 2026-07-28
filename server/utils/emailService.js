@@ -10,6 +10,9 @@ const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true, // true for port 465
+  family: 4, // force IPv4 explicitly — dns.setDefaultResultOrder alone isn't
+             // enough on some hosts (e.g. Render), since nodemailer's socket
+             // connection can bypass Node's global DNS default order.
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
