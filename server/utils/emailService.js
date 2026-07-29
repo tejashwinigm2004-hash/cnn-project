@@ -136,5 +136,33 @@ const sendBookingNotificationEmail = async (booking) => {
     console.error("Booking email error:", err.message);
   }
 };
+
+const sendPasswordResetEmail = async (toEmail, userName, resetLink) => {
+  const mailOptions = {
+    from: `"CNN Farm Hub" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject: "Reset Your CNN Farm Hub Password 🔑",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="color: #2e7d32;">Password Reset Request</h2>
+        <p style="color: #555;">Hi ${userName}, we received a request to reset your password.</p>
+        <p style="color: #555;">Click the button below to set a new password. This link will expire in 30 minutes.</p>
+        <a href="${resetLink}" 
+           style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #2e7d32; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+          Reset Password
+        </a>
+        <p style="color: #999; font-size: 13px; margin-top: 20px;">If you didn't request this, you can safely ignore this email — your password won't change.</p>
+        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
+        <p style="color: #aaa; font-size: 12px;">CNN Farm Hub | Fresh from our farm, daily.</p>
+      </div>
+    `,
+  };
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent:", result.response);
+  } catch (err) {
+    console.error("Password reset email error:", err.message);
+  }
+};
  
-module.exports = { sendWelcomeEmail, sendOrderConfirmationEmail, sendBookingNotificationEmail };
+module.exports = { sendWelcomeEmail, sendOrderConfirmationEmail, sendBookingNotificationEmail, sendPasswordResetEmail };

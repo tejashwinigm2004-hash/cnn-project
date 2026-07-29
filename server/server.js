@@ -15,7 +15,8 @@ const allowedOrigins = [
   'https://cnnfarmhub.shop',
   'http://cnnfarmhub.shop',
   'https://www.cnnfarmhub.shop',
-  'http://www.cnnfarmhub.shop'
+  'http://www.cnnfarmhub.shop',
+  'http://localhost:3000'
 ];
  
 app.use(cors({

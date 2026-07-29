@@ -5,8 +5,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { sendWelcomeEmail } = require("../utils/emailService");
-
+const { sendWelcomeEmail, sendPasswordResetEmail } = require("../utils/emailService");
 // Helper to set the httpOnly cookie consistently
 const setAuthCookie = (res, token) => {
   res.cookie('token', token, {
@@ -59,6 +58,71 @@ router.post('/login', async (req, res) => {
 
     setAuthCookie(res, token);
     res.json({ token, user: { id: user._id, name: user.name, email, role: user.role } });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+// FORGOT PASSWORD — generates a reset token and emails a reset link
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    // Always respond the same way whether or not the email exists,
+    // so we don't leak which emails are registered.
+    if (!user) {
+      return res.json({ message: 'If that email exists, a reset link has been sent.' });
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+    await user.save();
+
+    const resetLink = `${process.env.CLIENT_URL || 'https://cnnfarmhub.shop'}/?resetToken=${rawToken}`;
+
+    try {
+      await sendPasswordResetEmail(user.email, user.name, resetLink);
+    } catch (emailErr) {
+      console.error("Password reset email failed:", emailErr.message);
+    }
+
+    res.json({ message: 'If that email exists, a reset link has been sent.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// RESET PASSWORD — verifies the token and sets a new password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: 'Token and new password are required' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Reset link is invalid or has expired' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Password reset successful. You can now log in.' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

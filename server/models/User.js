@@ -6,8 +6,10 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   phone: { type: String },
   address: { type: String },
- role: { type: String, default: 'user' },
-  pushToken: { type: String }
+  role: { type: String, default: 'user' },
+  pushToken: { type: String },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -1756,6 +1756,10 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
 ───────────────────────────────────────────── */
 function LoginPage({ setPage }) {
   const [mode, setMode] = useState("login");
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState("");
   const { login } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -1804,6 +1808,23 @@ function LoginPage({ setPage }) {
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotSubmit = async () => {
+    setForgotMsg("");
+    if (!forgotEmail) {
+      setForgotMsg("Please enter your email address");
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/auth/forgot-password`, { email: forgotEmail });
+      setForgotMsg(res.data.message || "If that email exists, a reset link has been sent.");
+    } catch (err) {
+      setForgotMsg(err.response?.data?.message || "Something went wrong. Please try again.");
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -1926,7 +1947,23 @@ function LoginPage({ setPage }) {
           </div>
 
           <div style={{ borderRadius: 28, padding: "36px", background: "#f5f3ff", border: "1px solid rgba(124,58,237,0.15)" }}>
-            {!showOtp ? (
+            {showForgot ? (
+              <>
+                <h3 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 20, marginBottom: 10 }}>Reset your password</h3>
+                <p style={{ fontSize: 13, color: "rgba(11,11,11,0.7)", marginBottom: 20 }}>Enter your account email and we'll send you a link to reset your password.</p>
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Email Address</label>
+                  <input type="email" placeholder="you@email.com" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} style={inputStyle} />
+                </div>
+                {forgotMsg && <div style={{ fontSize: 13, marginBottom: 16, textAlign: "center", color: forgotMsg.toLowerCase().includes("sent") ? "#1a8a3d" : "#dc2626" }}>{forgotMsg}</div>}
+                <Btn variant="gold" onClick={handleForgotSubmit} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
+                  {forgotLoading ? "Sending..." : "Send Reset Link →"}
+                </Btn>
+                <div style={{ textAlign: "center", marginTop: 18 }}>
+                  <span onClick={() => { setShowForgot(false); setForgotMsg(""); }} style={{ fontSize: 13, color: "#7c3aed", cursor: "pointer" }}>← Back to Log In</span>
+                </div>
+              </>
+            ) : !showOtp ? (
               <>
                 <div style={{ display: "flex", gap: 0, marginBottom: 30, background: "#fff", borderRadius: 12, padding: 4, border: "1px solid rgba(124,58,237,0.15)" }}>
                   {["login", "signup"].map(m => (
@@ -1960,8 +1997,7 @@ function LoginPage({ setPage }) {
                 <div style={{ marginBottom: 22 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                     <label style={{ fontSize: 13, color: "rgba(11,11,11,0.95)" }}>Password</label>
-                    {mode === "login" && <span style={{ fontSize: 12, color: "#7c3aed", cursor: "pointer" }}>Forgot password?</span>}
-                  </div>
+{mode === "login" && <span onClick={() => { setShowForgot(true); setForgotEmail(email); setForgotMsg(""); }} style={{ fontSize: 12, color: "#7c3aed", cursor: "pointer" }}>Forgot password?</span>}                  </div>
                   <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} style={inputStyle} />
                 </div>
 
@@ -2419,13 +2455,102 @@ function Particles() {
 /* ─────────────────────────────────────────────
    ROOT APP
 ───────────────────────────────────────────── */
+function ResetPasswordPage({ token, setPage }) {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const inputStyle = {
+    width: "100%", padding: "12px 14px", borderRadius: 10,
+    border: "1px solid rgba(124,58,237,0.2)", background: "#fff",
+    color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
+  };
+
+  const handleReset = async () => {
+    setError("");
+    setSuccess("");
+
+    if (!token) {
+      setError("This reset link is invalid or missing a token.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/auth/reset-password`, { token, newPassword });
+      setSuccess(res.data.message || "Password reset successful. You can now log in.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ paddingTop: 140, minHeight: "100vh", background: "#fff", display: "flex", justifyContent: "center" }}>
+      <div style={{ maxWidth: 420, width: "100%", padding: "0 24px" }}>
+        <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 32, marginBottom: 10 }}>
+          Set a new password
+        </h2>
+
+        {!success ? (
+          <>
+            <p style={{ fontSize: 13, color: "rgba(11,11,11,0.7)", marginBottom: 24 }}>
+              Enter a new password for your account below.
+            </p>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>New Password</label>
+              <input type="password" placeholder="••••••••" value={newPassword} onChange={e => setNewPassword(e.target.value)} style={inputStyle} />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 13, color: "rgba(11,11,11,0.95)", marginBottom: 6 }}>Confirm Password</label>
+              <input type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} style={inputStyle} />
+            </div>
+            {error && <div style={{ fontSize: 13, marginBottom: 16, textAlign: "center", color: "#dc2626" }}>{error}</div>}
+            <Btn variant="gold" onClick={handleReset} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
+              {loading ? "Resetting..." : "Reset Password →"}
+            </Btn>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 14, marginBottom: 20, textAlign: "center", color: "#1a8a3d" }}>{success}</div>
+            <Btn variant="gold" onClick={() => setPage("login")} style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center" }}>
+              Go to Login →
+            </Btn>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [page, setPage] = useState("home");
+  const [resetToken, setResetToken] = useState(null);
   const [cart, setCart] = useState([]);
   const [PRODUCTS, setPRODUCTS] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
- 
- useEffect(() => {
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get("resetToken");
+    if (tokenFromUrl) {
+      setResetToken(tokenFromUrl);
+      setPage("resetPassword");
+    }
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
 
     const loadProducts = async (attempt = 1) => {
@@ -2453,6 +2578,7 @@ export default function App() {
     loadProducts();
     return () => { cancelled = true; };
   }, []);
+
   const [toast, setToast] = useState(null);
 
   // Inject CSS once
@@ -2538,6 +2664,7 @@ export default function App() {
       case "contact": return <ContactPage />;
       case "cart": return <CartPage cart={cart} setCart={setCart} setPage={navigate} />;
       case "login": return <LoginPage setPage={navigate} />;
+      case "resetPassword": return <ResetPasswordPage token={resetToken} setPage={navigate} />;
       case "admin": return <AdminPage />;
       default: return <Hero setPage={navigate} />;
     }
@@ -2563,7 +2690,7 @@ export default function App() {
         </PageWrapper>
       </div>
 
-      {!["cart", "login"].includes(page) && <Footer setPage={navigate} />}
+      {!["cart", "login", "resetPassword"].includes(page) && <Footer setPage={navigate} />}
       <BottomSwitcher page={page} setPage={navigate} />
 
       {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
