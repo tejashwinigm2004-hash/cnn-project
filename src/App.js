@@ -336,6 +336,7 @@ function Nav({ page, setPage, cart }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [openDropdown, setOpenDropdown] = useState(null); // NEW
+  const [accountOpen, setAccountOpen] = useState(false); // NEW: account icon dropdown
  
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -481,6 +482,7 @@ function Nav({ page, setPage, cart }) {
   useEffect(() => {
     const handler = (e) => {
       if (!e.target.closest(".nav-link-wrap")) setOpenDropdown(null);
+      if (!e.target.closest(".account-wrap")) setAccountOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -559,20 +561,12 @@ function Nav({ page, setPage, cart }) {
  
         {/* Right: Login/Logout + Cart + Hamburger */}
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {user ? (
-            <>
-              <span style={{ color: "#f9c74f", fontSize: 13, fontWeight: 600 }}>
-                Hi, {user.name?.split(" ")[0] || "there"}
-              </span>
-              <Btn variant="ghost" onClick={handleLogout} style={{ padding: "8px 16px", fontSize: 13 }}>
-                Logout
-              </Btn>
-            </>
-          ) : (
+          {!user && (
             <Btn variant="ghost" onClick={() => go("login")} style={{ padding: "8px 16px", fontSize: 13 }}>
               Login
             </Btn>
           )}
+
           <Btn variant="gold" onClick={() => go("cart")} style={{ padding: "8px 16px", fontSize: 13 }}>
             🛒 Cart {cart.length > 0 && (
               <span style={{ background: "#ff3b30", borderRadius: "50%", padding: "1px 6px", fontSize: 11, marginLeft: 4 }}>
@@ -580,6 +574,65 @@ function Nav({ page, setPage, cart }) {
               </span>
             )}
           </Btn>
+
+          {user && (
+            <div className="account-wrap" style={{ position: "relative" }}>
+              <button
+                onClick={() => { createSound("nav"); setAccountOpen(v => !v); }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  border: "none", cursor: "pointer", background: "transparent",
+                  padding: "4px 6px 4px 4px", borderRadius: 20,
+                  boxShadow: accountOpen ? "0 0 0 2px rgba(249,199,79,0.5)" : "none",
+                }}
+                aria-label="Account menu"
+              >
+                <span style={{
+                  width: 34, height: 34, borderRadius: "50%",
+                  background: "linear-gradient(135deg,#f9c74f,#f3722c)",
+                  color: "#0b0b0b", fontWeight: 700, fontSize: 14,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}>
+                  {(user.name?.[0] || "U").toUpperCase()}
+                </span>
+              </button>
+
+              {accountOpen && (
+                <div className="glass" style={{
+                  position: "absolute", top: "calc(100% + 10px)", right: 0,
+                  minWidth: 200, borderRadius: 12, padding: "10px 0",
+                  background: "rgba(252,249,249,0.98)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
+                  border: "1px solid rgba(0,0,0,0.06)",
+                  animation: "slideDown .2s ease", zIndex: 1100,
+                }}>
+                  <div style={{ padding: "6px 16px 10px", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "#0b0b0b" }}>
+                      {user.name || "there"}
+                    </div>
+                    {user.email && (
+                      <div style={{ fontSize: 12, color: "rgba(11,11,11,0.6)", marginTop: 2 }}>
+                        {user.email}
+                      </div>
+                    )}
+                  </div>
+                  <div
+                    onClick={() => { setAccountOpen(false); handleLogout(); }}
+                    style={{
+                      padding: "10px 16px", cursor: "pointer", fontSize: 13, fontWeight: 600,
+                      color: "#c0392b",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(0,0,0,0.04)"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    Logout
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {isMobile && (
             <button onClick={() => { createSound("nav"); setMobileOpen(v => !v); }} style={{
               background: "none", border: "none", color: "#000", fontSize: 22, cursor: "pointer",
