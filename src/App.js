@@ -618,6 +618,17 @@ function Nav({ page, setPage, cart }) {
                     )}
                   </div>
                   <div
+                    onClick={() => { setAccountOpen(false); go("account"); }}
+                    style={{
+                      padding: "10px 16px", cursor: "pointer", fontSize: 13, fontWeight: 600,
+                      color: "#0b0b0b",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(0,0,0,0.04)"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    Profile
+                  </div>
+                  <div
                     onClick={() => { setAccountOpen(false); handleLogout(); }}
                     style={{
                       padding: "10px 16px", cursor: "pointer", fontSize: 13, fontWeight: 600,
@@ -929,6 +940,86 @@ function ProductsPage({ addToCart, PRODUCTS }) {
           {PRODUCTS.map((p) => (
             <ProductCard key={p.id} p={p} addToCart={addToCart} />
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+/* ─────────────────────────────────────────────
+   PROFILE PAGE (user account details)
+───────────────────────────────────────────── */
+function ProfilePage({ setPage }) {
+  const { user, logout } = useAuth();
+
+  if (!user) {
+    return (
+      <div style={{ paddingTop: 140, textAlign: "center", paddingBottom: 80 }}>
+        <p style={{ marginBottom: 20 }}>Please log in to view your account.</p>
+        <Btn variant="orange" onClick={() => setPage("login")}>Go to Login</Btn>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ paddingTop: 120, paddingBottom: 80, background: "#fff", minHeight: "70vh" }}>
+      <div style={{ maxWidth: 600, margin: "0 auto", padding: "0 24px" }}>
+        <SectionHead
+          badge="Your Account"
+          badgeColor="#ff6b35"
+          title="My Profile"
+          titleClass="tg-gold"
+          sub="Your account details on file with CNN Farm Hub."
+        />
+
+        <div style={{
+          marginTop: 40, background: "#f5f3ff", borderRadius: 20,
+          border: "1px solid rgba(255,107,53,0.2)", padding: "32px 28px",
+        }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: "50%",
+            background: "linear-gradient(135deg,#f9c74f,#f3722c)",
+            color: "#0b0b0b", fontWeight: 800, fontSize: 28,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 24px",
+          }}>
+            {(user.name?.[0] || "U").toUpperCase()}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            <div>
+              <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4 }}>Name</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#0a0a0a" }}>{user.name || "—"}</div>
+            </div>
+            <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 18 }}>
+              <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4 }}>Email</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#0a0a0a" }}>{user.email || "—"}</div>
+            </div>
+            {user.phone && (
+              <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 18 }}>
+                <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4 }}>Phone</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#0a0a0a" }}>{user.phone}</div>
+              </div>
+            )}
+            {user.role && (
+              <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 18 }}>
+                <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4 }}>Account Type</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#0a0a0a", textTransform: "capitalize" }}>{user.role}</div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
+            <Btn variant="ghost" onClick={() => setPage("cart")} style={{ flex: 1, fontSize: 13, padding: "11px" }}>
+              View Cart
+            </Btn>
+            <Btn
+              variant="orange"
+              onClick={() => { logout(); setPage("home"); }}
+              style={{ flex: 1, fontSize: 13, padding: "11px" }}
+            >
+              Logout
+            </Btn>
+          </div>
         </div>
       </div>
     </div>
@@ -2709,6 +2800,7 @@ export default function App() {
       case "login": return <LoginPage setPage={navigate} />;
       case "resetPassword": return <ResetPasswordPage token={resetToken} setPage={navigate} />;
       case "admin": return <AdminPage />;
+      case "account": return <ProfilePage setPage={navigate} />;
       default: return <Hero setPage={navigate} />;
     }
   };
