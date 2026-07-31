@@ -946,10 +946,102 @@ function ProductsPage({ addToCart, PRODUCTS }) {
   );
 }
 /* ─────────────────────────────────────────────
-   PROFILE PAGE (user account details)
+   PROFILE PAGE (full account settings — web)
 ───────────────────────────────────────────── */
+const genAddrId = () => Math.random().toString(36).slice(2, 10);
+
+const LANGUAGES_WEB = [
+  { code: "en", label: "English" },
+  { code: "kn", label: "ಕನ್ನಡ (Kannada)" },
+  { code: "hi", label: "हिन्दी (Hindi)" },
+];
+
+const DELIVERY_TIME_OPTIONS_WEB = [
+  { value: "morning", label: "☀️ Morning" },
+  { value: "evening", label: "🌙 Evening" },
+];
+
+function ToggleSwitch({ checked, onChange }) {
+  return (
+    <div
+      onClick={() => onChange(!checked)}
+      style={{
+        width: 46, height: 26, borderRadius: 20, cursor: "pointer",
+        background: checked ? "#f3722c" : "#ddd",
+        position: "relative", transition: "background .2s ease", flexShrink: 0,
+      }}
+    >
+      <div style={{
+        width: 20, height: 20, borderRadius: "50%", background: "#fff",
+        position: "absolute", top: 3, left: checked ? 23 : 3,
+        transition: "left .2s ease", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+      }} />
+    </div>
+  );
+}
+
+function ProfileSectionCard({ children, style = {} }) {
+  return (
+    <div style={{
+      background: "#fff", borderRadius: 16, padding: "20px 22px",
+      border: "1px solid rgba(0,0,0,0.07)", marginBottom: 16,
+      boxShadow: "0 2px 10px rgba(0,0,0,0.03)", ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
 function ProfilePage({ setPage }) {
   const { user, logout } = useAuth();
+
+  const profileInputStyle = {
+    width: "100%", padding: "11px 14px", borderRadius: 10,
+    border: "1px solid rgba(0,0,0,0.12)", background: "#faf9f9",
+    color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
+    marginBottom: 10,
+  };
+
+  // Profile edit
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  // Phone
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [newPhone, setNewPhone] = useState("");
+  const [savingPhone, setSavingPhone] = useState(false);
+
+  // Avatar photo (local preview only — TODO: wire to real upload endpoint)
+  const [photoUrl, setPhotoUrl] = useState(user?.photoUrl || null);
+
+  // Addresses
+  const [addresses, setAddresses] = useState(user?.addresses || []);
+  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [addressLabel, setAddressLabel] = useState("");
+  const [addressText, setAddressText] = useState("");
+  const [addressInstructions, setAddressInstructions] = useState("");
+  const [savingAddress, setSavingAddress] = useState(false);
+
+  // Delivery time
+  const [deliveryTime, setDeliveryTime] = useState(user?.deliveryTime || "morning");
+  const [showDeliveryTimePicker, setShowDeliveryTimePicker] = useState(false);
+
+  // Notifications
+  const [notificationsEnabled, setNotificationsEnabled] = useState(user?.notificationsEnabled ?? true);
+
+  // Language
+  const [language, setLanguage] = useState(user?.language || "en");
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+
+  // Password
+  const [editingPassword, setEditingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [savingPassword, setSavingPassword] = useState(false);
 
   if (!user) {
     return (
@@ -960,67 +1052,440 @@ function ProfilePage({ setPage }) {
     );
   }
 
+  const isAdmin = user.role === "admin";
+  const currentLanguageLabel = LANGUAGES_WEB.find(l => l.code === language)?.label || "English";
+  const currentDeliveryTimeLabel = DELIVERY_TIME_OPTIONS_WEB.find(o => o.value === deliveryTime)?.label || "☀️ Morning";
+
+  const handleSaveProfile = async () => {
+    if (!name.trim() || !email.trim()) {
+      alert("Name and email are required.");
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      // TODO: connect to API — e.g. axios.put(`${API_URL}/api/auth/profile`, { name, email })
+      setEditingProfile(false);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleSavePhone = async () => {
+    if (!newPhone.trim() || newPhone.trim().length < 10) {
+      alert("Please enter a valid phone number.");
+      return;
+    }
+    setSavingPhone(true);
+    try {
+      // TODO: connect to API — typically needs OTP verification
+      setPhone(newPhone.trim());
+      setEditingPhone(false);
+      setNewPhone("");
+    } finally {
+      setSavingPhone(false);
+    }
+  };
+
+  const handlePickPhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPhotoUrl(reader.result);
+      // TODO: connect to API — upload `file` and store the returned public URL
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoUrl(null);
+    // TODO: connect to API — e.g. axios.delete(`${API_URL}/api/auth/avatar`)
+  };
+
+  const startAddAddress = () => {
+    setEditingAddressId("new");
+    setAddressLabel(""); setAddressText(""); setAddressInstructions("");
+  };
+  const startEditAddress = (addr) => {
+    setEditingAddressId(addr.id);
+    setAddressLabel(addr.label); setAddressText(addr.address); setAddressInstructions(addr.instructions || "");
+  };
+  const cancelAddressEdit = () => {
+    setEditingAddressId(null);
+    setAddressLabel(""); setAddressText(""); setAddressInstructions("");
+  };
+
+  const handleSaveAddress = async () => {
+    if (!addressLabel.trim() || !addressText.trim()) {
+      alert("Please add a label (e.g. Home) and the address.");
+      return;
+    }
+    setSavingAddress(true);
+    try {
+      let updated;
+      if (editingAddressId === "new") {
+        updated = [...addresses, {
+          id: genAddrId(), label: addressLabel.trim(), address: addressText.trim(),
+          instructions: addressInstructions.trim(), isDefault: addresses.length === 0,
+        }];
+      } else {
+        updated = addresses.map(a => a.id === editingAddressId
+          ? { ...a, label: addressLabel.trim(), address: addressText.trim(), instructions: addressInstructions.trim() }
+          : a);
+      }
+      // TODO: connect to API — e.g. axios.put(`${API_URL}/api/auth/addresses`, { addresses: updated })
+      setAddresses(updated);
+      cancelAddressEdit();
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  const handleDeleteAddress = (id) => {
+    if (!window.confirm("Remove this address?")) return;
+    let updated = addresses.filter(a => a.id !== id);
+    if (updated.length > 0 && !updated.some(a => a.isDefault)) {
+      updated = updated.map((a, i) => i === 0 ? { ...a, isDefault: true } : a);
+    }
+    // TODO: connect to API
+    setAddresses(updated);
+  };
+
+  const handleSetDefaultAddress = (id) => {
+    setAddresses(addresses.map(a => ({ ...a, isDefault: a.id === id })));
+    // TODO: connect to API
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert("Please fill in all password fields.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      alert("New password and confirmation do not match.");
+      return;
+    }
+    setSavingPassword(true);
+    try {
+      // TODO: connect to API — e.g. axios.post(`${API_URL}/api/auth/change-password`, { currentPassword, newPassword })
+      alert("Password updated.");
+      setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
+      setEditingPassword(false);
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
+  const handleReferFriend = () => {
+    const referralCode = user.email ? user.email.split("@")[0].toUpperCase() : "FRIEND";
+    const message = `Join CNN Farm Hub and get fresh dairy delivered daily! Use my code ${referralCode} to sign up: https://cnnfarmhub.shop`;
+    if (navigator.share) {
+      navigator.share({ text: message }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(message);
+      alert("Referral message copied to clipboard!");
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    if (!window.confirm("This will permanently delete your account and all associated data. This cannot be undone. Continue?")) return;
+    if (!window.confirm("Are you absolutely sure? This is your final confirmation.")) return;
+    // TODO: connect to API — e.g. axios.delete(`${API_URL}/api/auth/account`)
+    logout();
+    setPage("home");
+  };
+
+  const labelStyle = { fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.03em" };
+  const sectionTitleStyle = { fontSize: 15, fontWeight: 800, color: "#0a0a0a" };
+  const linkStyle = { color: "#f3722c", fontWeight: 700, fontSize: 13, cursor: "pointer", background: "none", border: "none" };
+  const groupTitleStyle = { fontSize: 12.5, fontWeight: 800, color: "rgba(11,11,11,0.5)", textTransform: "uppercase", letterSpacing: "0.05em", margin: "28px 0 12px" };
+  const menuItemStyle = { display: "flex", alignItems: "center", gap: 14, padding: "15px 18px", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)" };
+
   return (
-    <div style={{ paddingTop: 120, paddingBottom: 80, background: "#fff", minHeight: "70vh" }}>
-      <div style={{ maxWidth: 600, margin: "0 auto", padding: "0 24px" }}>
+    <div style={{ paddingTop: 110, paddingBottom: 80, background: "#fbf3f3", minHeight: "100vh" }}>
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 24px" }}>
         <SectionHead
-          badge="Your Account"
-          badgeColor="#ff6b35"
-          title="My Profile"
-          titleClass="tg-gold"
-          sub="Your account details on file with CNN Farm Hub."
+          badge="Your Account" badgeColor="#ff6b35" title="My Profile" titleClass="tg-gold"
+          sub="Manage your details, delivery preferences, and account settings."
         />
 
+        {/* PROFILE CARD */}
         <div style={{
-          marginTop: 40, background: "#f5f3ff", borderRadius: 20,
-          border: "1px solid rgba(255,107,53,0.2)", padding: "32px 28px",
+          marginTop: 36, background: "#fff", borderRadius: 20,
+          border: "1px solid rgba(255,107,53,0.15)", padding: "32px 28px",
+          textAlign: "center", marginBottom: 16,
         }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: "50%",
-            background: "linear-gradient(135deg,#f9c74f,#f3722c)",
-            color: "#0b0b0b", fontWeight: 800, fontSize: 28,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 24px",
-          }}>
-            {(user.name?.[0] || "U").toUpperCase()}
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <div>
-              <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4 }}>Name</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#0a0a0a" }}>{user.name || "—"}</div>
-            </div>
-            <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 18 }}>
-              <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4 }}>Email</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#0a0a0a" }}>{user.email || "—"}</div>
-            </div>
-            {user.phone && (
-              <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 18 }}>
-                <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4 }}>Phone</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: "#0a0a0a" }}>{user.phone}</div>
+          <div style={{ position: "relative", width: 84, height: 84, margin: "0 auto 8px" }}>
+            {photoUrl ? (
+              <img src={photoUrl} alt="Profile" style={{ width: 84, height: 84, borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(243,114,44,0.3)" }} />
+            ) : (
+              <div style={{
+                width: 84, height: 84, borderRadius: "50%",
+                background: "linear-gradient(135deg,#f9c74f,#f3722c)",
+                color: "#0b0b0b", fontWeight: 800, fontSize: 30,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                {(user.name?.[0] || "U").toUpperCase()}
               </div>
             )}
-            {user.role && (
-              <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 18 }}>
-                <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginBottom: 4 }}>Account Type</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: "#0a0a0a", textTransform: "capitalize" }}>{user.role}</div>
+            <label style={{
+              position: "absolute", bottom: -2, right: -2, width: 28, height: 28, borderRadius: "50%",
+              background: "#f3722c", display: "flex", alignItems: "center", justifyContent: "center",
+              border: "2px solid #fff", cursor: "pointer", fontSize: 13,
+            }}>
+              ✎
+              <input type="file" accept="image/*" onChange={handlePickPhoto} style={{ display: "none" }} />
+            </label>
+          </div>
+          {photoUrl && (
+            <div onClick={handleRemovePhoto} style={{ ...linkStyle, color: "#c0392b", marginBottom: 10, fontSize: 12 }}>
+              Remove photo
+            </div>
+          )}
+
+          {!editingProfile ? (
+            <>
+              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: 20, marginTop: 6 }}>{user.name || "Friend"}</div>
+              <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 14, marginTop: 2 }}>{user.email}</div>
+              {!!phone && <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 14 }}>{phone}</div>}
+              {isAdmin && (
+                <span style={{
+                  display: "inline-block", marginTop: 10, background: "rgba(243,114,44,0.12)",
+                  border: "1px solid rgba(243,114,44,0.3)", borderRadius: 20, padding: "4px 12px",
+                  fontSize: 11, fontWeight: 800, letterSpacing: "0.04em", color: "#f3722c",
+                }}>ADMIN</span>
+              )}
+              <div style={{ marginTop: 14 }}>
+                <button onClick={() => setEditingProfile(true)} style={linkStyle}>Edit Profile</button>
               </div>
-            )}
+            </>
+          ) : (
+            <div style={{ textAlign: "left", marginTop: 16 }}>
+              <input style={profileInputStyle} placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} />
+              <input style={profileInputStyle} placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 4 }}>
+                <button onClick={() => { setEditingProfile(false); setName(user.name || ""); setEmail(user.email || ""); }} style={{ ...linkStyle, color: "rgba(11,11,11,0.6)" }}>Cancel</button>
+                <Btn variant="orange" onClick={handleSaveProfile} disabled={savingProfile} style={{ padding: "9px 18px", fontSize: 13 }}>
+                  {savingProfile ? "Saving…" : "Save"}
+                </Btn>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* PHONE */}
+        <ProfileSectionCard>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={sectionTitleStyle}>📱 Phone Number</span>
+            {!editingPhone && <button onClick={() => { setEditingPhone(true); setNewPhone(phone); }} style={linkStyle}>Change</button>}
+          </div>
+          {!editingPhone ? (
+            <div style={{ color: "rgba(11,11,11,0.65)", fontSize: 14, marginTop: 8 }}>{phone || "No phone number saved"}</div>
+          ) : (
+            <div style={{ marginTop: 12 }}>
+              <input style={profileInputStyle} placeholder="New Phone Number" value={newPhone} onChange={e => setNewPhone(e.target.value)} />
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                <button onClick={() => { setEditingPhone(false); setNewPhone(""); }} style={{ ...linkStyle, color: "rgba(11,11,11,0.6)" }}>Cancel</button>
+                <Btn variant="orange" onClick={handleSavePhone} disabled={savingPhone} style={{ padding: "9px 18px", fontSize: 13 }}>
+                  {savingPhone ? "Saving…" : "Save"}
+                </Btn>
+              </div>
+            </div>
+          )}
+        </ProfileSectionCard>
+
+        {/* ADDRESSES */}
+        <ProfileSectionCard>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={sectionTitleStyle}>📍 Delivery Addresses</span>
+            {editingAddressId === null && <button onClick={startAddAddress} style={linkStyle}>+ Add</button>}
           </div>
 
-          <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
-            <Btn variant="ghost" onClick={() => setPage("cart")} style={{ flex: 1, fontSize: 13, padding: "11px" }}>
-              View Cart
-            </Btn>
-            <Btn
-              variant="orange"
-              onClick={() => { logout(); setPage("home"); }}
-              style={{ flex: 1, fontSize: 13, padding: "11px" }}
-            >
-              Logout
-            </Btn>
+          {addresses.length === 0 && editingAddressId === null && (
+            <div style={{ fontSize: 13, color: "rgba(11,11,11,0.5)", marginTop: 8 }}>No addresses saved yet.</div>
+          )}
+
+          {addresses.map(addr => editingAddressId === addr.id ? (
+            <div key={addr.id} style={{ marginTop: 14 }}>
+              <input style={profileInputStyle} placeholder="Label (e.g. Home, Work)" value={addressLabel} onChange={e => setAddressLabel(e.target.value)} />
+              <textarea style={{ ...profileInputStyle, minHeight: 60, resize: "vertical" }} placeholder="Full Address" value={addressText} onChange={e => setAddressText(e.target.value)} />
+              <input style={profileInputStyle} placeholder="Delivery instructions (optional)" value={addressInstructions} onChange={e => setAddressInstructions(e.target.value)} />
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                <button onClick={cancelAddressEdit} style={{ ...linkStyle, color: "rgba(11,11,11,0.6)" }}>Cancel</button>
+                <Btn variant="orange" onClick={handleSaveAddress} disabled={savingAddress} style={{ padding: "9px 18px", fontSize: 13 }}>
+                  {savingAddress ? "Saving…" : "Save"}
+                </Btn>
+              </div>
+            </div>
+          ) : (
+            <div key={addr.id} style={{ borderTop: "1px solid rgba(0,0,0,0.07)", paddingTop: 14, marginTop: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                <span style={{ fontWeight: 800, fontSize: 14 }}>{addr.label}</span>
+                {addr.isDefault && (
+                  <span style={{ background: "rgba(243,114,44,0.12)", borderRadius: 8, padding: "2px 8px", fontSize: 9, fontWeight: 800, color: "#f3722c", letterSpacing: "0.03em" }}>DEFAULT</span>
+                )}
+              </div>
+              <div style={{ fontSize: 14, color: "rgba(11,11,11,0.65)" }}>{addr.address}</div>
+              {addr.instructions && <div style={{ fontSize: 12.5, color: "rgba(11,11,11,0.45)", marginTop: 2 }}>Note: {addr.instructions}</div>}
+              <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+                {!addr.isDefault && <button onClick={() => handleSetDefaultAddress(addr.id)} style={linkStyle}>Set as default</button>}
+                <button onClick={() => startEditAddress(addr)} style={linkStyle}>Edit</button>
+                <button onClick={() => handleDeleteAddress(addr.id)} style={{ ...linkStyle, color: "#c0392b" }}>Delete</button>
+              </div>
+            </div>
+          ))}
+
+          {editingAddressId === "new" && (
+            <div style={{ marginTop: 14 }}>
+              <input style={profileInputStyle} placeholder="Label (e.g. Home, Work)" value={addressLabel} onChange={e => setAddressLabel(e.target.value)} />
+              <textarea style={{ ...profileInputStyle, minHeight: 60, resize: "vertical" }} placeholder="Full Address" value={addressText} onChange={e => setAddressText(e.target.value)} />
+              <input style={profileInputStyle} placeholder="Delivery instructions (optional)" value={addressInstructions} onChange={e => setAddressInstructions(e.target.value)} />
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                <button onClick={cancelAddressEdit} style={{ ...linkStyle, color: "rgba(11,11,11,0.6)" }}>Cancel</button>
+                <Btn variant="orange" onClick={handleSaveAddress} disabled={savingAddress} style={{ padding: "9px 18px", fontSize: 13 }}>
+                  {savingAddress ? "Saving…" : "Save"}
+                </Btn>
+              </div>
+            </div>
+          )}
+        </ProfileSectionCard>
+
+        {/* DELIVERY TIME */}
+        <ProfileSectionCard>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} onClick={() => setShowDeliveryTimePicker(v => !v)}>
+            <span style={sectionTitleStyle}>🕐 Delivery Time Preference</span>
+            <span style={{ fontSize: 13, color: "rgba(11,11,11,0.6)" }}>{currentDeliveryTimeLabel} {showDeliveryTimePicker ? "▲" : "▼"}</span>
+          </div>
+          {showDeliveryTimePicker && (
+            <div style={{ marginTop: 10 }}>
+              {DELIVERY_TIME_OPTIONS_WEB.map(opt => (
+                <div key={opt.value} onClick={() => { setDeliveryTime(opt.value); setShowDeliveryTimePicker(false); }}
+                  style={{ display: "flex", justifyContent: "space-between", padding: "11px 4px", borderTop: "1px solid rgba(0,0,0,0.06)", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+                  {opt.label}
+                  {deliveryTime === opt.value && <span style={{ color: "#f3722c", fontWeight: 800 }}>✓</span>}
+                </div>
+              ))}
+            </div>
+          )}
+        </ProfileSectionCard>
+
+        {/* SETTINGS */}
+        <div style={groupTitleStyle}>Settings</div>
+
+        <ProfileSectionCard>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} onClick={() => setShowLanguagePicker(v => !v)}>
+            <span style={sectionTitleStyle}>🌐 App Language</span>
+            <span style={{ fontSize: 13, color: "rgba(11,11,11,0.6)" }}>{currentLanguageLabel} {showLanguagePicker ? "▲" : "▼"}</span>
+          </div>
+          {showLanguagePicker && (
+            <div style={{ marginTop: 10 }}>
+              {LANGUAGES_WEB.map(lang => (
+                <div key={lang.code} onClick={() => { setLanguage(lang.code); setShowLanguagePicker(false); }}
+                  style={{ display: "flex", justifyContent: "space-between", padding: "11px 4px", borderTop: "1px solid rgba(0,0,0,0.06)", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+                  {lang.label}
+                  {language === lang.code && <span style={{ color: "#f3722c", fontWeight: 800 }}>✓</span>}
+                </div>
+              ))}
+            </div>
+          )}
+        </ProfileSectionCard>
+
+        <ProfileSectionCard>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={sectionTitleStyle}>🔔 Push Notifications</span>
+            <ToggleSwitch checked={notificationsEnabled} onChange={setNotificationsEnabled} />
+          </div>
+          <div style={{ fontSize: 13, color: "rgba(11,11,11,0.5)", marginTop: 6 }}>Get updates on orders, delivery, and offers.</div>
+        </ProfileSectionCard>
+
+        {/* PAYMENT METHODS */}
+        <ProfileSectionCard>
+          <span style={sectionTitleStyle}>💳 Payment Methods</span>
+          <div style={{ fontSize: 13, color: "rgba(11,11,11,0.5)", marginTop: 6 }}>No payment methods saved yet.</div>
+          <div style={{ marginTop: 10 }}>
+            <button onClick={() => alert("Add payment method flow goes here.")} style={linkStyle}>+ Add Payment Method</button>
+          </div>
+        </ProfileSectionCard>
+
+        {/* PASSWORD */}
+        <ProfileSectionCard>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={sectionTitleStyle}>🔒 Password</span>
+            {!editingPassword && <button onClick={() => setEditingPassword(true)} style={linkStyle}>Change</button>}
+          </div>
+          {editingPassword && (
+            <div style={{ marginTop: 12 }}>
+              <input type="password" style={profileInputStyle} placeholder="Current Password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} />
+              <input type="password" style={profileInputStyle} placeholder="New Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
+              <input type="password" style={profileInputStyle} placeholder="Confirm New Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                <button onClick={() => { setEditingPassword(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }} style={{ ...linkStyle, color: "rgba(11,11,11,0.6)" }}>Cancel</button>
+                <Btn variant="orange" onClick={handleChangePassword} disabled={savingPassword} style={{ padding: "9px 18px", fontSize: 13 }}>
+                  {savingPassword ? "Saving…" : "Update"}
+                </Btn>
+              </div>
+            </div>
+          )}
+        </ProfileSectionCard>
+
+        {/* GENERAL MENU */}
+        <div style={groupTitleStyle}>General</div>
+        <div style={{ background: "#fff", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,0,0,0.07)", marginBottom: 16 }}>
+          <div style={menuItemStyle} onClick={() => setPage("cart")}>
+            <span>📦</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>My Orders</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
+          </div>
+          <div style={menuItemStyle} onClick={() => setPage("subscription")}>
+            <span>🔄</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>Manage Subscription</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
+          </div>
+          <div style={menuItemStyle} onClick={() => setPage("contact")}>
+            <span>💬</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>Contact Us</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
+          </div>
+          <div style={menuItemStyle} onClick={() => setPage("contact")}>
+            <span>❓</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>Help</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
+          </div>
+          <div style={{ ...menuItemStyle, borderBottom: "none" }} onClick={handleReferFriend}>
+            <span>🎁</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>Refer a Friend</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
           </div>
         </div>
+
+        {/* LEGAL */}
+        <div style={groupTitleStyle}>Legal</div>
+        <div style={{ background: "#fff", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,0,0,0.07)", marginBottom: 16 }}>
+          <div style={menuItemStyle} onClick={() => window.open("https://cnnfarmhub.shop/terms", "_blank")}>
+            <span>📄</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>Terms and Conditions</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
+          </div>
+          <div style={{ ...menuItemStyle, borderBottom: "none" }} onClick={() => window.open("https://cnnfarmhub.shop/privacy", "_blank")}>
+            <span>🔐</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>Privacy Policy</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
+          </div>
+        </div>
+
+        {isAdmin && (
+          <div style={{ background: "#fff", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,0,0,0.07)", marginBottom: 16 }}>
+            <div style={{ ...menuItemStyle, borderBottom: "none" }} onClick={() => setPage("admin")}>
+              <span>🛡️</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>Admin Dashboard</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
+            </div>
+          </div>
+        )}
+
+        <Btn
+          variant="ghost"
+          onClick={() => { logout(); setPage("home"); }}
+          style={{ width: "100%", padding: "14px", fontSize: 14, background: "rgba(255,68,68,0.08)", border: "1px solid rgba(255,68,68,0.25)", color: "#c0392b", marginBottom: 24 }}
+        >
+          🚪 Logout
+        </Btn>
+
+        {/* DANGER ZONE */}
+        <div style={groupTitleStyle}>Danger Zone</div>
+        <button
+          onClick={handleDeleteAccount}
+          style={{
+            width: "100%", padding: "14px", borderRadius: 14, background: "#fbf3f3",
+            border: "1px solid #c0392b", color: "#c0392b", fontWeight: 800, fontSize: 13.5, cursor: "pointer",
+          }}
+        >
+          Delete My Account
+        </button>
       </div>
     </div>
   );
