@@ -823,82 +823,53 @@ function Hero({ setPage }) {
    PRODUCTS PAGE
 ───────────────────────────────────────────── */
 function ProductCard({ p, addToCart }) {
-  const [hover, setHover] = useState(false);
   const [added, setAdded] = useState(false);
 
   return (
     <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       style={{
-        borderRadius: 20,
+        borderRadius: 24,
         overflow: "hidden",
-        cursor: "pointer",
-        transition: "all .4s cubic-bezier(.25,.46,.45,.94)",
         width: "100%",
-        maxWidth: 300,
+        maxWidth: 340,
         display: "flex",
         flexDirection: "column",
         margin: "0 auto",
-        background: "#f5f3ff",
-        border: "1px solid rgba(255,107,53,0.2)",
+        background: "#fff",
+        border: "1px solid rgba(0,0,0,0.06)",
+        boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+        transition: "transform .3s ease, box-shadow .3s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.boxShadow = "0 14px 30px rgba(0,0,0,0.1)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "none";
+        e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.06)";
       }}
     >
-      <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 3", overflow: "hidden" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", overflow: "hidden", background: "#f5f3ff" }}>
         <img
           src={p.img}
           alt={p.name}
-          className="product-img"
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform .5s ease" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         />
-        <div
-          className="shimmer-layer"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "40%",
-            height: "100%",
-            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)",
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        />
-        <div
-          className="desc-overlay"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
-            transform: "translateY(100%)",
-            transition: "transform 0.4s ease",
-            padding: "14px 16px",
-            zIndex: 3,
-          }}
-        >
-          <p style={{ color: "#fff", fontSize: 12, margin: 0 }}>{p.desc}</p>
-        </div>
-        <div style={{ position: "absolute", top: 14, left: 14 }}>
+        <div style={{ position: "absolute", top: 16, left: 16 }}>
           <Badge label={p.badge} color={p.badgeColor} />
-        </div>
-        <div style={{ position: "absolute", top: 14, right: 14, background: "rgba(0,0,0,0.7)", borderRadius: 8, padding: "4px 10px", fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
-          {p.category}
         </div>
       </div>
 
-      <div style={{ padding: "16px 18px 20px", display: "flex", flexDirection: "column", flex: 1 }}>
-        <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 17, marginBottom: 8, color: "#0a0a0a" }}>{p.name}</h3>
-        <p style={{ color: "rgba(11, 11, 11, 0.95)", fontSize: 13, lineHeight: 1.6, marginBottom: 14, minHeight: 42 }}>{p.desc}</p>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
-          <Stars n={p.stars} />
-          <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 12 }}>({p.reviews})</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
-          <div>
-            <span className="tg-gold price-val" style={{ fontFamily: "'Playfair Display',serif", fontSize: 20, fontWeight: 900 }}>₹{p.price}</span>
-            <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 12, marginLeft: 6 }}>/{p.unit}</span>
+      <div style={{ padding: "16px 16px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
+        <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: 15, marginBottom: 4, color: "#0a0a0a", lineHeight: 1.25 }}>
+          {p.name}
+        </h3>
+        <span style={{ color: "rgba(11,11,11,0.55)", fontSize: 11, marginBottom: 12 }}>{p.category}</span>
+
+        <div style={{ marginTop: "auto" }}>
+          <div style={{ marginBottom: 10 }}>
+            <span className="tg-gold price-val" style={{ fontFamily: "'Playfair Display',serif", fontSize: 17, fontWeight: 900 }}>₹{p.price}</span>
+            <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 11, marginLeft: 4 }}>/{p.unit}</span>
           </div>
           <Btn
             variant="orange"
@@ -909,16 +880,9 @@ function ProductCard({ p, addToCart }) {
               spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
               addRipple(btn, e);
               setAdded(true);
-              const priceEl = btn.closest(".glass-product")?.querySelector(".price-val");
-              if (priceEl) {
-                priceEl.classList.add("pop");
-                setTimeout(() => priceEl.classList.remove("pop"), 500);
-              }
-              setTimeout(() => {
-                setAdded(false);
-              }, 900);
+              setTimeout(() => setAdded(false), 900);
             }}
-            style={{ padding: "9px 18px", fontSize: 13, position: "relative", overflow: "hidden" }}
+            style={{ padding: "9px 14px", fontSize: 12.5, position: "relative", overflow: "hidden", width: "100%" }}
             className={added ? "success" : ""}
           >
             {added ? "✓ Added!" : "Add +"}
@@ -936,7 +900,7 @@ function ProductCard({ p, addToCart }) {
 function ProductsPage({ addToCart, PRODUCTS }) {
   return (
     <div style={{ paddingTop: 100, paddingBottom: 60, background: "#fff" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
+      <div style={{ maxWidth: 1600, margin: "0 auto", padding: "0 24px" }}>
         <SectionHead
           badge="Farm Fresh"
           badgeColor="#ff6b35"
@@ -944,15 +908,24 @@ function ProductsPage({ addToCart, PRODUCTS }) {
           titleClass="tg-gold"
           sub="Pure A2 dairy, ghee & artisan products made with zero additives and maximum love."
         />
-        <div
-          className="products-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))",
-            gap: 24,
-            marginTop: 44,
-          }}
-        >
+        <style>{`
+          .products-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 18px;
+            margin-top: 44px;
+          }
+          @media (max-width: 1400px) {
+            .products-grid { grid-template-columns: repeat(6, 1fr); }
+          }
+          @media (max-width: 1100px) {
+            .products-grid { grid-template-columns: repeat(4, 1fr); }
+          }
+          @media (max-width: 700px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+          }
+        `}</style>
+        <div className="products-grid">
           {PRODUCTS.map((p) => (
             <ProductCard key={p.id} p={p} addToCart={addToCart} />
           ))}
@@ -2121,11 +2094,28 @@ function HomeSections({ setPage, addToCart, PRODUCTS }) {
     <MarqueeBand />
       {/* Products preview */}
       <section className="section-pad" style={{ background: "#fff", padding: "90px 24px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1600, margin: "0 auto" }}>
           <SectionHead badge="Farm Fresh" badgeColor="#ff6b35" title="Our Products" titleClass="tg-gold"
             sub="Pure A2 dairy, ghee & artisan products made with zero additives and maximum love." />
-          <div className="products-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 24, marginBottom: 44 }}>
-            {PRODUCTS.slice(0, 3).map(p => <ProductCard key={p.id} p={p} addToCart={addToCart} />)}
+          <style>{`
+            .home-products-grid {
+              display: grid;
+              grid-template-columns: repeat(8, 1fr);
+              gap: 18px;
+              margin-bottom: 44px;
+            }
+            @media (max-width: 1400px) {
+              .home-products-grid { grid-template-columns: repeat(6, 1fr); }
+            }
+            @media (max-width: 1100px) {
+              .home-products-grid { grid-template-columns: repeat(4, 1fr); }
+            }
+            @media (max-width: 700px) {
+              .home-products-grid { grid-template-columns: repeat(2, 1fr); }
+            }
+          `}</style>
+          <div className="home-products-grid">
+            {PRODUCTS.slice(0, 8).map(p => <ProductCard key={p.id} p={p} addToCart={addToCart} />)}
           </div>
           <div style={{ textAlign: "center" }}>
             <Btn variant="orange" onClick={() => { setPage("products"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 30px" }}>View All Products →</Btn>
