@@ -141,7 +141,6 @@ body{font-family:'Syne',sans-serif;background:var(--bg);color:#000;overflow-x:hi
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(249,199,79,0.4)}50%{box-shadow:0 0 0 18px rgba(249,199,79,0)}}
 @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes chatGreetingFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes slideDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes bgFlash{0%{background:rgba(255,255,255,0.12)}100%{background:transparent}}
 @keyframes bgFlash{0%{background:rgba(255,255,255,0.12)}100%{background:transparent}}
@@ -759,7 +758,32 @@ function Hero({ setPage }) {
       <div className="hero-grid" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "1fr", gap: 60, alignItems: "center", paddingTop: 100, paddingBottom: 80 }}>
         {/* Left */}
         <div style={{ animation: "pageSlide .7s cubic-bezier(.22,1,.36,1) forwards" }}>
-          <Badge label="🌿 Organic · A2 · Farm Fresh" color="#39d353" />
+          <div
+            onClick={() => setPage("products")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 16,
+              background: "#faf3e0",
+              border: "1.5px solid #2e7d32",
+              borderRadius: 18,
+              padding: "14px 22px",
+              cursor: "pointer",
+              maxWidth: 620,
+            }}
+          >
+            <span style={{ fontSize: 26, lineHeight: 1, whiteSpace: "nowrap" }}>🥛🧈🧀</span>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: 15, color: "#2e7d32", letterSpacing: "0.01em" }}>
+                Explore Our Farm Range: Pure Dairy,
+              </div>
+              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: 15, color: "#2e7d32", letterSpacing: "0.01em" }}>
+                Fresh Vegetables & Fruits.
+              </div>
+            </div>
+            <span style={{ fontSize: 26, lineHeight: 1, whiteSpace: "nowrap" }}>🥕🍅🍎🍌</span>
+          </div>
 
           <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(38px,6vw,72px)", lineHeight: 1.1, margin: "22px 0 22px", perspective: 1000, color: "#0a0a0a" }}>
 
@@ -2259,47 +2283,29 @@ function ChatBubble({ page, setPage }) {
   if (page === "chatbot") return null;
 
   return (
-    <div style={{ position: "fixed", bottom: 100, right: 24, zIndex: 1002, display: "flex", alignItems: "center", gap: 10 }}>
-      <div
-        onClick={() => setPage("chatbot")}
-        style={{
-          background: "#fff",
-          border: "1px solid rgba(124,58,237,0.15)",
-          borderRadius: 16,
-          borderBottomRightRadius: 4,
-          padding: "10px 16px",
-          fontSize: 13.5,
-          fontWeight: 700,
-          color: "#0a0a0a",
-          boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-          cursor: "pointer",
-          whiteSpace: "nowrap",
-          animation: "chatGreetingFloat 2.4s ease-in-out infinite",
-        }}
-      >
-        Hi, need help? 👋
-      </div>
-      <button
-        onClick={() => setPage("chatbot")}
-        aria-label="Open CNN Assistant chat"
-        style={{
-          width: 58,
-          height: 58,
-          borderRadius: "50%",
-          border: "none",
-          cursor: "pointer",
-          background: "linear-gradient(135deg,#f9c74f,#f3722c)",
-          boxShadow: "0 8px 24px rgba(243,114,44,0.4)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 26,
-          flexShrink: 0,
-        }}
-      >
-        💬
-      </button>
-    </div>
+    <button
+      onClick={() => setPage("chatbot")}
+      aria-label="Open CNN Assistant chat"
+      style={{
+        position: "fixed",
+        bottom: 100,
+        right: 24,
+        zIndex: 1002,
+        width: 58,
+        height: 58,
+        borderRadius: "50%",
+        border: "none",
+        cursor: "pointer",
+        background: "linear-gradient(135deg,#f9c74f,#f3722c)",
+        boxShadow: "0 8px 24px rgba(243,114,44,0.4)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 26,
+      }}
+    >
+      💬
+    </button>
   );
 }
 /* ─────────────────────────────────────────────
