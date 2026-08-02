@@ -2462,6 +2462,117 @@ function ChatbotPage({ setPage }) {
 }
 
  
+function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, deliverySlot, setDeliverySlot }) {
+  const { user } = useAuth();
+  const savedAddresses = user?.addresses || [];
+
+  const [selectedId, setSelectedId] = useState(null); // id of a saved address, or "new"
+  const [addressText, setAddressText] = useState(deliveryAddress || "");
+  const [slot, setSlot] = useState(deliverySlot || "morning");
+  const [error, setError] = useState(null);
+
+  const handleContinue = () => {
+    if (!addressText.trim()) {
+      setError("Please enter a delivery address before continuing.");
+      return;
+    }
+    setDeliveryAddress(addressText.trim());
+    setDeliverySlot(slot);
+    setPage("cart");
+  };
+
+  const inputStyle = {
+    width: "100%", padding: "12px 14px", borderRadius: 10,
+    border: "1px solid rgba(0,0,0,0.12)", background: "#faf9f9",
+    color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
+    marginBottom: 12,
+  };
+
+  return (
+    <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff", padding: "100px 24px 100px" }}>
+      <div style={{ maxWidth: 600, margin: "0 auto" }}>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, marginBottom: 10 }}>
+          Delivery{" "}
+          <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            Details
+          </span>
+        </h1>
+        <p style={{ color: "rgba(11,11,11,0.6)", fontSize: 14, marginBottom: 30 }}>
+          Tell us where and when to deliver your order.
+        </p>
+
+        {error && (
+          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", borderRadius: 12, padding: "12px 16px", marginBottom: 20, fontSize: 14 }}>
+            {error}
+          </div>
+        )}
+
+        {savedAddresses.length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 10 }}>Saved addresses</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {savedAddresses.map(addr => (
+                <div
+                  key={addr.id}
+                  onClick={() => { setSelectedId(addr.id); setAddressText(addr.address); setError(null); }}
+                  style={{
+                    borderRadius: 12, padding: "14px 16px", cursor: "pointer",
+                    border: selectedId === addr.id ? "2px solid #7c3aed" : "1px solid rgba(0,0,0,0.1)",
+                    background: selectedId === addr.id ? "#f5f3ff" : "#fff",
+                  }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0a0a0a" }}>{addr.label}</div>
+                  <div style={{ fontSize: 13, color: "rgba(11,11,11,0.6)", marginTop: 2 }}>{addr.address}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 10 }}>
+          {savedAddresses.length > 0 ? "Or enter a different address" : "Delivery address"}
+        </div>
+        <textarea
+          style={{ ...inputStyle, minHeight: 80, resize: "vertical" }}
+          placeholder="Full delivery address"
+          value={addressText}
+          onChange={e => { setAddressText(e.target.value); setSelectedId(null); setError(null); }}
+        />
+
+        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", margin: "8px 0 10px" }}>Delivery slot</div>
+        <div style={{ display: "flex", gap: 10, marginBottom: 26 }}>
+          {[{ value: "morning", label: "☀️ Morning" }, { value: "evening", label: "🌙 Evening" }].map(opt => (
+            <div
+              key={opt.value}
+              onClick={() => setSlot(opt.value)}
+              style={{
+                flex: 1, textAlign: "center", padding: "12px", borderRadius: 10, cursor: "pointer",
+                border: slot === opt.value ? "2px solid #7c3aed" : "1px solid rgba(0,0,0,0.1)",
+                background: slot === opt.value ? "#f5f3ff" : "#fff",
+                fontWeight: 700, fontSize: 14, color: "#0a0a0a",
+              }}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: 12 }}>
+          <button
+            onClick={() => setPage("cart")}
+            style={{ flex: 1, padding: "13px", borderRadius: 10, border: "1px solid rgba(0,0,0,0.15)", background: "#fff", color: "rgba(11,11,11,0.7)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+          >
+            Back to Cart
+          </button>
+          <Btn variant="gold" onClick={handleContinue} style={{ flex: 2, fontSize: 15, padding: "13px", textAlign: "center" }}>
+            Continue →
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CartPage({ setPage, deliveryAddress, deliverySlot }) {
   const { user } = useAuth();
   const token = localStorage.getItem("token"); // NOTE: confirm your login flow actually sets this - see note below
@@ -2716,13 +2827,54 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
                     <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>₹{total}</span>
                   </div>
                 </div>
+
+                <div
+                  style={{
+                    borderRadius: 12,
+                    padding: "12px 14px",
+                    marginBottom: 16,
+                    background: "#fff",
+                    border: "1px solid rgba(124,58,237,0.15)",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(11,11,11,0.5)", textTransform: "uppercase", marginBottom: 4 }}>
+                        Deliver to
+                      </div>
+                      {deliveryAddress ? (
+                        <>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "#0a0a0a" }}>{deliveryAddress}</div>
+                          <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)", marginTop: 2 }}>
+                            {deliverySlot === "evening" ? "🌙 Evening" : "☀️ Morning"} delivery
+                          </div>
+                        </>
+                      ) : (
+                        <div style={{ fontSize: 13, color: "rgba(11,11,11,0.5)" }}>No address selected yet</div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setPage("delivery-details")}
+                      style={{ background: "none", border: "none", color: "#7c3aed", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                    >
+                      {deliveryAddress ? "Change" : "Add"}
+                    </button>
+                  </div>
+                </div>
+
                 <Btn
                   variant="gold"
-                  onClick={handleCheckout}
+                  onClick={() => {
+                    if (!deliveryAddress) {
+                      setPage("delivery-details");
+                      return;
+                    }
+                    handleCheckout();
+                  }}
                   disabled={paying}
                   style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center", opacity: paying ? 0.7 : 1 }}
                 >
-                  {paying ? "Processing…" : "Checkout →"}
+                  {paying ? "Processing…" : deliveryAddress ? "Checkout →" : "Add Delivery Address →"}
                 </Btn>
                 <div
                   style={{
@@ -3552,6 +3704,8 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [PRODUCTS, setPRODUCTS] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [deliveryAddress, setDeliveryAddress] = useState(null);
+  const [deliverySlot, setDeliverySlot] = useState("morning");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -3674,7 +3828,24 @@ export default function App() {
       case "families": return <FamiliesPage setPage={navigate} />;
       case "subscription": return <SubPage setPage={navigate} />;
       case "contact": return <ContactPage />;
-      case "cart": return <CartPage cart={cart} setCart={setCart} setPage={navigate} />;
+      case "cart": return (
+        <CartPage
+          cart={cart}
+          setCart={setCart}
+          setPage={navigate}
+          deliveryAddress={deliveryAddress}
+          deliverySlot={deliverySlot}
+        />
+      );
+      case "delivery-details": return (
+        <DeliveryDetailsPage
+          setPage={navigate}
+          deliveryAddress={deliveryAddress}
+          setDeliveryAddress={setDeliveryAddress}
+          deliverySlot={deliverySlot}
+          setDeliverySlot={setDeliverySlot}
+        />
+      );
       case "orders": return <OrdersPage setPage={navigate} />;
       case "chatbot": return <ChatbotPage setPage={navigate} />;      case "login": return <LoginPage setPage={navigate} />;
       case "resetPassword": return <ResetPasswordPage token={resetToken} setPage={navigate} />;
