@@ -8,6 +8,19 @@ import farmRangeBanner from './banner.jpeg';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CustomCursor, GrainOverlay, WordReveal, MarqueeBand, ScrollReveal, StatCounter, FloatingParticles } from './fx-components';
 import { useAuth } from "./context/AuthContext";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+// Fix Leaflet's default marker icon paths, which break under webpack/CRA bundling
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
 /* ─────────────────────────────────────────────
    SOUND ENGINE  (Web Audio API — no files needed)
@@ -2463,22 +2476,133 @@ function ChatbotPage({ setPage }) {
 }
 
  
-function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, deliverySlot, setDeliverySlot }) {
+function DeliveryDetailsPage({ setPage, deliveryInfo, setDeliveryInfo }) {
   const { user } = useAuth();
-  const savedAddresses = user?.addresses || [];
 
-  const [selectedId, setSelectedId] = useState(null); // id of a saved address, or "new"
-  const [addressText, setAddressText] = useState(deliveryAddress || "");
-  const [slot, setSlot] = useState(deliverySlot || "morning");
+  const [name, setName] = useState(deliveryInfo?.name || user?.name || "");
+  const [contact, setContact] = useState(deliveryInfo?.contact || user?.phone || "");
+  const [house, setHouse] = useState(deliveryInfo?.house || "");
+  const [room, setRoom] = useState(deliveryInfo?.room || "");
+  const [address, setAddress] = useState(deliveryInfo?.address || "");
+  const [slot, setSlot] = useState(deliveryInfo?.slot || "morning");
   const [error, setError] = useState(null);
 
-  const handleContinue = () => {
-    if (!addressText.trim()) {
-      setError("Please enter a delivery address before continuing.");
+  // --- Map picker state ---
+  const DEFAULT_CENTER = [12.9716, 77.5946]; // Bengaluru, KA — fallback center
+  const [coords, setCoords] = useState(deliveryInfo?.coords || null);
+  const [geoStatus, setGeoStatus] = useState(null); // null | "locating" | "geocoding" | "error"
+  const mapDivRef = useRef(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+
+  // Reverse-geocode lat/lng -> address text using OpenStreetMap's free Nominatim API
+  const reverseGeocode = async (lat, lng) => {
+    setGeoStatus("geocoding");
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+      );
+      const data = await res.json();
+      if (data?.display_name) {
+        setAddress(data.display_name);
+      }
+    } catch {
+      // Silently ignore — user can still type the address manually
+    } finally {
+      setGeoStatus(null);
+    }
+  };
+
+  const placeMarker = (lat, lng, { pan } = { pan: false }) => {
+    setCoords({ lat, lng });
+    if (mapRef.current) {
+      if (markerRef.current) {
+        markerRef.current.setLatLng([lat, lng]);
+      } else {
+        markerRef.current = L.marker([lat, lng], { draggable: true }).addTo(mapRef.current);
+        markerRef.current.on("dragend", (e) => {
+          const { lat: dLat, lng: dLng } = e.target.getLatLng();
+          setCoords({ lat: dLat, lng: dLng });
+          reverseGeocode(dLat, dLng);
+        });
+      }
+      if (pan) mapRef.current.setView([lat, lng], 16);
+    }
+  };
+
+  // Initialize the Leaflet map once on mount
+  useEffect(() => {
+    if (mapRef.current || !mapDivRef.current) return;
+    const startCenter = coords ? [coords.lat, coords.lng] : DEFAULT_CENTER;
+    const map = L.map(mapDivRef.current).setView(startCenter, coords ? 16 : 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(map);
+    mapRef.current = map;
+
+    if (coords) {
+      placeMarker(coords.lat, coords.lng);
+    }
+
+    map.on("click", (e) => {
+      placeMarker(e.latlng.lat, e.latlng.lng);
+      reverseGeocode(e.latlng.lat, e.latlng.lng);
+    });
+
+    // Leaflet sometimes mis-measures its container size if it was hidden/animated on mount
+    const invalidateTimer = setTimeout(() => {
+      if (mapRef.current === map) map.invalidateSize();
+    }, 200);
+
+    return () => {
+      clearTimeout(invalidateTimer);
+      map.remove();
+      if (mapRef.current === map) mapRef.current = null;
+      markerRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setError("Location access isn't supported on this browser.");
       return;
     }
-    setDeliveryAddress(addressText.trim());
-    setDeliverySlot(slot);
+    setGeoStatus("locating");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        placeMarker(latitude, longitude, { pan: true });
+        reverseGeocode(latitude, longitude);
+        setGeoStatus(null);
+      },
+      () => {
+        setGeoStatus(null);
+        setError("Couldn't get your location. Please allow location access or drop a pin manually.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleSaveAndContinue = () => {
+    if (!name.trim() || !contact.trim() || !house.trim() || !address.trim()) {
+      setError("Please fill in Name, Contact, House/Apartment, and Address before continuing.");
+      return;
+    }
+    if (!/^[0-9]{10}$/.test(contact.trim())) {
+      setError("Please enter a valid 10-digit contact number.");
+      return;
+    }
+    setDeliveryInfo({
+      name: name.trim(),
+      contact: contact.trim(),
+      house: house.trim(),
+      room: room.trim(),
+      address: address.trim(),
+      slot,
+      coords,
+    });
     setPage("cart");
   };
 
@@ -2486,8 +2610,10 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
     width: "100%", padding: "12px 14px", borderRadius: 10,
     border: "1px solid rgba(0,0,0,0.12)", background: "#faf9f9",
     color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
-    marginBottom: 12,
+    marginBottom: 14,
   };
+
+  const labelStyle = { fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 6, display: "block" };
 
   return (
     <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff", padding: "100px 24px 100px" }}>
@@ -2508,39 +2634,80 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
           </div>
         )}
 
-        {savedAddresses.length > 0 && (
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 10 }}>Saved addresses</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {savedAddresses.map(addr => (
-                <div
-                  key={addr.id}
-                  onClick={() => { setSelectedId(addr.id); setAddressText(addr.address); setError(null); }}
-                  style={{
-                    borderRadius: 12, padding: "14px 16px", cursor: "pointer",
-                    border: selectedId === addr.id ? "2px solid #7c3aed" : "1px solid rgba(0,0,0,0.1)",
-                    background: selectedId === addr.id ? "#f5f3ff" : "#fff",
-                  }}
-                >
-                  <div style={{ fontWeight: 700, fontSize: 14, color: "#0a0a0a" }}>{addr.label}</div>
-                  <div style={{ fontSize: 13, color: "rgba(11,11,11,0.6)", marginTop: 2 }}>{addr.address}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 10 }}>
-          {savedAddresses.length > 0 ? "Or enter a different address" : "Delivery address"}
-        </div>
-        <textarea
-          style={{ ...inputStyle, minHeight: 80, resize: "vertical" }}
-          placeholder="Full delivery address"
-          value={addressText}
-          onChange={e => { setAddressText(e.target.value); setSelectedId(null); setError(null); }}
+        <label style={labelStyle}>Full Name</label>
+        <input
+          style={inputStyle}
+          placeholder="e.g. Tejashwini G M"
+          value={name}
+          onChange={e => { setName(e.target.value); setError(null); }}
         />
 
-        <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", margin: "8px 0 10px" }}>Delivery slot</div>
+        <label style={labelStyle}>Contact Number</label>
+        <input
+          style={inputStyle}
+          placeholder="10-digit mobile number"
+          value={contact}
+          maxLength={10}
+          inputMode="numeric"
+          onChange={e => { setContact(e.target.value.replace(/[^0-9]/g, "")); setError(null); }}
+        />
+
+        <label style={labelStyle}>Pin your location on the map</label>
+        <div style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "rgba(11,11,11,0.5)" }}>
+            Tap the map or drag the pin — we'll fill in the address for you.
+          </span>
+          <button
+            type="button"
+            onClick={handleUseMyLocation}
+            disabled={geoStatus === "locating"}
+            style={{
+              background: "none", border: "1px solid #7c3aed", color: "#7c3aed",
+              borderRadius: 8, padding: "6px 10px", fontSize: 12, fontWeight: 700,
+              cursor: "pointer", whiteSpace: "nowrap", marginLeft: 8,
+              opacity: geoStatus === "locating" ? 0.6 : 1,
+            }}
+          >
+            {geoStatus === "locating" ? "Locating…" : "📍 Use my location"}
+          </button>
+        </div>
+        <div
+          ref={mapDivRef}
+          style={{
+            width: "100%", height: 260, borderRadius: 12, marginBottom: 8,
+            border: "1px solid rgba(0,0,0,0.12)", overflow: "hidden",
+          }}
+        />
+        {geoStatus === "geocoding" && (
+          <div style={{ fontSize: 12, color: "rgba(11,11,11,0.5)", marginBottom: 10 }}>Finding address for this location…</div>
+        )}
+        {!geoStatus && <div style={{ marginBottom: 10 }} />}
+
+        <label style={labelStyle}>House Name / Apartment</label>
+        <input
+          style={inputStyle}
+          placeholder="e.g. Green Valley Apartments"
+          value={house}
+          onChange={e => { setHouse(e.target.value); setError(null); }}
+        />
+
+        <label style={labelStyle}>Room / Flat No.</label>
+        <input
+          style={inputStyle}
+          placeholder="e.g. 204, Block B"
+          value={room}
+          onChange={e => { setRoom(e.target.value); setError(null); }}
+        />
+
+        <label style={labelStyle}>Address</label>
+        <textarea
+          style={{ ...inputStyle, minHeight: 80, resize: "vertical" }}
+          placeholder="Street, area, city, pincode (auto-filled from the map, editable)"
+          value={address}
+          onChange={e => { setAddress(e.target.value); setError(null); }}
+        />
+
+        <label style={labelStyle}>Delivery slot</label>
         <div style={{ display: "flex", gap: 10, marginBottom: 26 }}>
           {[{ value: "morning", label: "☀️ Morning" }, { value: "evening", label: "🌙 Evening" }].map(opt => (
             <div
@@ -2565,8 +2732,8 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
           >
             Back to Cart
           </button>
-          <Btn variant="gold" onClick={handleContinue} style={{ flex: 2, fontSize: 15, padding: "13px", textAlign: "center" }}>
-            Continue →
+          <Btn variant="gold" onClick={handleSaveAndContinue} style={{ flex: 2, fontSize: 15, padding: "13px", textAlign: "center" }}>
+            Save & Continue →
           </Btn>
         </div>
       </div>
@@ -3705,8 +3872,18 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [PRODUCTS, setPRODUCTS] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
-  const [deliveryAddress, setDeliveryAddress] = useState(null);
-  const [deliverySlot, setDeliverySlot] = useState("morning");
+  const [deliveryInfo, setDeliveryInfo] = useState(null);
+
+  // Formatted single-line address string for display and for the order payload —
+  // keeps CartPage/backend unchanged while the form itself captures structured fields.
+  const deliveryAddress = deliveryInfo
+    ? [
+        deliveryInfo.house + (deliveryInfo.room ? `, ${deliveryInfo.room}` : ""),
+        deliveryInfo.address,
+        `${deliveryInfo.name} (${deliveryInfo.contact})`,
+      ].join(" — ")
+    : null;
+  const deliverySlot = deliveryInfo?.slot || "morning";
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -3841,10 +4018,8 @@ export default function App() {
       case "delivery-details": return (
         <DeliveryDetailsPage
           setPage={navigate}
-          deliveryAddress={deliveryAddress}
-          setDeliveryAddress={setDeliveryAddress}
-          deliverySlot={deliverySlot}
-          setDeliverySlot={setDeliverySlot}
+          deliveryInfo={deliveryInfo}
+          setDeliveryInfo={setDeliveryInfo}
         />
       );
       case "orders": return <OrdersPage setPage={navigate} />;
