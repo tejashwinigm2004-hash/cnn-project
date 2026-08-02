@@ -127,7 +127,7 @@ const CSS = `
   --glass-b: rgba(255,255,255,0.09);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:hidden;width:100%}
 body{font-family:'Syne',sans-serif;background:var(--bg);color:#000;overflow-x:hidden}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:var(--bg)}
@@ -2465,12 +2465,12 @@ function ChatbotPage({ setPage }) {
 function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, deliverySlot, setDeliverySlot }) {
   const { user } = useAuth();
   const savedAddresses = user?.addresses || [];
-
+ 
   const [selectedId, setSelectedId] = useState(null); // id of a saved address, or "new"
   const [addressText, setAddressText] = useState(deliveryAddress || "");
   const [slot, setSlot] = useState(deliverySlot || "morning");
   const [error, setError] = useState(null);
-
+ 
   const handleContinue = () => {
     if (!addressText.trim()) {
       setError("Please enter a delivery address before continuing.");
@@ -2480,14 +2480,14 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
     setDeliverySlot(slot);
     setPage("cart");
   };
-
+ 
   const inputStyle = {
     width: "100%", padding: "12px 14px", borderRadius: 10,
     border: "1px solid rgba(0,0,0,0.12)", background: "#faf9f9",
     color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
     marginBottom: 12,
   };
-
+ 
   return (
     <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff", padding: "100px 24px 100px" }}>
       <div style={{ maxWidth: 600, margin: "0 auto" }}>
@@ -2500,13 +2500,13 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
         <p style={{ color: "rgba(11,11,11,0.6)", fontSize: 14, marginBottom: 30 }}>
           Tell us where and when to deliver your order.
         </p>
-
+ 
         {error && (
           <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", borderRadius: 12, padding: "12px 16px", marginBottom: 20, fontSize: 14 }}>
             {error}
           </div>
         )}
-
+ 
         {savedAddresses.length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 10 }}>Saved addresses</div>
@@ -2528,7 +2528,7 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
             </div>
           </div>
         )}
-
+ 
         <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 10 }}>
           {savedAddresses.length > 0 ? "Or enter a different address" : "Delivery address"}
         </div>
@@ -2538,7 +2538,7 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
           value={addressText}
           onChange={e => { setAddressText(e.target.value); setSelectedId(null); setError(null); }}
         />
-
+ 
         <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", margin: "8px 0 10px" }}>Delivery slot</div>
         <div style={{ display: "flex", gap: 10, marginBottom: 26 }}>
           {[{ value: "morning", label: "☀️ Morning" }, { value: "evening", label: "🌙 Evening" }].map(opt => (
@@ -2556,7 +2556,7 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
             </div>
           ))}
         </div>
-
+ 
         <div style={{ display: "flex", gap: 12 }}>
           <button
             onClick={() => setPage("cart")}
@@ -2572,7 +2572,7 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
     </div>
   );
 }
-
+ 
 function CartPage({ setPage, deliveryAddress, deliverySlot }) {
   const { user } = useAuth();
   const token = localStorage.getItem("token"); // NOTE: confirm your login flow actually sets this - see note below
