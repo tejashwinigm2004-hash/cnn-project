@@ -2158,6 +2158,281 @@ function OrdersPage({ setPage }) {
     </div>
   );
 }
+/* ─────────────────────────────────────────────
+   CHATBOT — FAQ DATA (same content as mobile app)
+───────────────────────────────────────────── */
+const FAQS = [
+  {
+    q: "What time does delivery happen?",
+    a: "We deliver fresh dairy products every morning by 6 AM, straight from our farm to your doorstep.",
+    keywords: ["delivery", "time", "when", "morning", "deliver"],
+  },
+  {
+    q: "How do I track my order?",
+    a: 'Open "My Orders" from your Profile menu to see the status of all your past and current orders.',
+    keywords: ["track", "order", "status", "where"],
+  },
+  {
+    q: "Can I cancel or change my order?",
+    a: "You can remove items from your cart before placing the order. For changes after placing an order, please contact us via call or WhatsApp.",
+    keywords: ["cancel", "change", "modify", "edit"],
+  },
+  {
+    q: "What payment methods are accepted?",
+    a: "We accept secure online payments via Razorpay — cards, UPI, netbanking, and wallets are all supported.",
+    keywords: ["payment", "pay", "cash", "card", "upi", "money"],
+  },
+  {
+    q: "How do I add items to my cart?",
+    a: 'Browse our Products page and tap "Add to Cart" on any item you\'d like to order.',
+    keywords: ["cart", "add", "buy", "shop", "order"],
+  },
+  {
+    q: "Is the milk and dairy organic?",
+    a: "Yes! All our products are 100% organic, fresh, and free from preservatives — delivered directly from our farm.",
+    keywords: ["organic", "fresh", "quality", "preservative", "natural"],
+  },
+  {
+    q: "Do you deliver on Sundays or holidays?",
+    a: "Yes, we deliver every day including Sundays and most holidays, so your fresh dairy never skips a beat!",
+    keywords: ["sunday", "holiday", "everyday", "weekend"],
+  },
+  {
+    q: "How do I contact support directly?",
+    a: "You can reach us anytime via Call, WhatsApp, or Email from the Contact Us page — we usually respond quickly!",
+    keywords: ["contact", "support", "help", "call", "whatsapp", "email", "reach"],
+  },
+  {
+    q: "What if I'm not home for delivery?",
+    a: "No worries! Our delivery partner will try to leave your order safely at your doorstep, or you can coordinate a different time by contacting support.",
+    keywords: ["home", "absent", "miss", "not there", "away"],
+  },
+  {
+    q: "Do you offer discounts for bulk orders?",
+    a: "We're working on bulk order discounts! For large or recurring orders, contact us directly via WhatsApp or email and we'll be happy to help.",
+    keywords: ["discount", "bulk", "wholesale", "large order", "offer"],
+  },
+  {
+    q: "How do I book a discovery call?",
+    a: 'Head to the Contact page and use "Book a Call", then pick a date and time slot that works for you — we\'ll call you then!',
+    keywords: ["book", "call", "discovery", "schedule", "appointment"],
+  },
+  {
+    q: "Do you offer subscriptions?",
+    a: 'Yes! Check out the Subscribe page for our Family plans, with fresh dairy delivered on a recurring schedule.',
+    keywords: ["subscribe", "subscription", "recurring", "plan"],
+  },
+];
+ 
+const WELCOME_MESSAGE = {
+  id: "welcome",
+  fromBot: true,
+  text: "Hi! I'm here to help with questions about CNN Farm Hub. Tap a question below or type your own! 🌿",
+};
+ 
+const FALLBACK_TEXT =
+  "I'm not quite sure about that one. Try asking about delivery, orders, payments, or booking a call — or reach our team directly via Contact Us!";
+ 
+function findBestMatch(userText) {
+  const lowerText = userText.toLowerCase();
+  let bestMatch = null;
+  let bestScore = 0;
+ 
+  FAQS.forEach((faq) => {
+    let score = 0;
+    faq.keywords.forEach((kw) => {
+      if (lowerText.includes(kw)) score += 1;
+    });
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = faq;
+    }
+  });
+ 
+  return bestScore > 0 ? bestMatch : null;
+}
+ 
+/* ─────────────────────────────────────────────
+   FLOATING CHAT BUBBLE — shows on every page
+   except the chatbot page itself
+───────────────────────────────────────────── */
+function ChatBubble({ page, setPage }) {
+  if (page === "chatbot") return null;
+ 
+  return (
+    <button
+      onClick={() => setPage("chatbot")}
+      aria-label="Open CNN Assistant chat"
+      style={{
+        position: "fixed",
+        bottom: 100,
+        right: 24,
+        zIndex: 1002,
+        width: 58,
+        height: 58,
+        borderRadius: "50%",
+        border: "none",
+        cursor: "pointer",
+        background: "linear-gradient(135deg,#f9c74f,#f3722c)",
+        boxShadow: "0 8px 24px rgba(243,114,44,0.4)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 26,
+      }}
+    >
+      💬
+    </button>
+  );
+}
+ 
+/* ─────────────────────────────────────────────
+   CHATBOT PAGE
+───────────────────────────────────────────── */
+function ChatbotPage({ setPage }) {
+  const [messages, setMessages] = useState([WELCOME_MESSAGE]);
+  const [input, setInput] = useState("");
+  const [suggestedFaqs] = useState(FAQS.slice(0, 6));
+  const scrollRef = useRef(null);
+ 
+  const scrollToEnd = () => {
+    setTimeout(() => {
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    }, 100);
+  };
+ 
+  const sendUserMessage = (text) => {
+    if (!text.trim()) return;
+ 
+    const userMsg = { id: `u-${Date.now()}`, fromBot: false, text };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
+    scrollToEnd();
+ 
+    const match = findBestMatch(text);
+    const botText = match ? match.a : FALLBACK_TEXT;
+ 
+    setTimeout(() => {
+      const botMsg = { id: `b-${Date.now()}`, fromBot: true, text: botText };
+      setMessages((prev) => [...prev, botMsg]);
+      scrollToEnd();
+    }, 400);
+  };
+ 
+  const handleChipPress = (faq) => sendUserMessage(faq.q);
+ 
+  return (
+    <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff", padding: "100px 24px 120px" }}>
+      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 28 }}>
+          <button
+            onClick={() => setPage("home")}
+            style={{
+              width: 40, height: 40, borderRadius: "50%", border: "1px solid rgba(124,58,237,0.2)",
+              background: "#f5f3ff", cursor: "pointer", fontSize: 18, color: "#0a0a0a",
+            }}
+          >
+            ←
+          </button>
+          <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 32 }}>
+            CNN{" "}
+            <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              Assistant
+            </span>{" "}
+            🤖
+          </h1>
+        </div>
+ 
+        <div
+          ref={scrollRef}
+          style={{
+            background: "#f5f3ff",
+            border: "1px solid rgba(124,58,237,0.15)",
+            borderRadius: 20,
+            padding: 20,
+            maxHeight: 480,
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            marginBottom: 18,
+          }}
+        >
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              style={{
+                maxWidth: "85%",
+                alignSelf: msg.fromBot ? "flex-start" : "flex-end",
+                background: msg.fromBot ? "#fff" : "linear-gradient(135deg,#f9c74f,#f3722c)",
+                color: msg.fromBot ? "#0a0a0a" : "#0a0000",
+                borderRadius: 16,
+                borderTopLeftRadius: msg.fromBot ? 4 : 16,
+                borderTopRightRadius: msg.fromBot ? 16 : 4,
+                padding: "12px 16px",
+                fontSize: 14,
+                lineHeight: 1.5,
+                border: msg.fromBot ? "1px solid rgba(124,58,237,0.1)" : "none",
+              }}
+            >
+              {msg.text}
+            </div>
+          ))}
+ 
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6 }}>
+            {suggestedFaqs.map((faq, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleChipPress(faq)}
+                style={{
+                  background: "#fff",
+                  border: "1px solid rgba(243,114,44,0.3)",
+                  borderRadius: 20,
+                  padding: "8px 14px",
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  color: "#f3722c",
+                  cursor: "pointer",
+                }}
+              >
+                {faq.q}
+              </button>
+            ))}
+          </div>
+        </div>
+ 
+        <div style={{ display: "flex", gap: 10 }}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendUserMessage(input)}
+            placeholder="Type your question..."
+            style={{
+              flex: 1,
+              borderRadius: 24,
+              border: "1px solid rgba(124,58,237,0.2)",
+              padding: "14px 20px",
+              fontSize: 14,
+              outline: "none",
+            }}
+          />
+          <button
+            onClick={() => sendUserMessage(input)}
+            style={{
+              width: 48, height: 48, borderRadius: "50%", border: "none", cursor: "pointer",
+              background: "linear-gradient(135deg,#f9c74f,#f3722c)", color: "#0a0000",
+              fontSize: 20, fontWeight: 700,
+            }}
+          >
+            →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
  
 function CartPage({ setPage, deliveryAddress, deliverySlot }) {
   const { user } = useAuth();
@@ -3373,7 +3648,7 @@ export default function App() {
       case "contact": return <ContactPage />;
       case "cart": return <CartPage cart={cart} setCart={setCart} setPage={navigate} />;
       case "orders": return <OrdersPage setPage={navigate} />;
-      case "login": return <LoginPage setPage={navigate} />;
+      case "chatbot": return <ChatbotPage setPage={navigate} />;      case "login": return <LoginPage setPage={navigate} />;
       case "resetPassword": return <ResetPasswordPage token={resetToken} setPage={navigate} />;
       case "admin": return <AdminPage />;
       case "account": return <ProfilePage setPage={navigate} />;
@@ -3402,8 +3677,8 @@ export default function App() {
       </div>
 
       {!["cart", "login", "resetPassword"].includes(page) && <Footer setPage={navigate} />}
-      <BottomSwitcher page={page} setPage={navigate} />
-
+<BottomSwitcher page={page} setPage={navigate} />
+<ChatBubble page={page} setPage={navigate} />
       {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
 
       {/* Spacer for bottom switcher */}
