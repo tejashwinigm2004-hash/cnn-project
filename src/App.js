@@ -114,7 +114,7 @@ const TIMELINE = [
    GLOBAL STYLES (injected once)
 ───────────────────────────────────────────── */
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Syne:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 :root {
   --bg: #050505; --bg2: #0b0b0b; --bg3: #111;
   --gold1: #f9c74f; --gold2: #f3722c;
@@ -1213,7 +1213,7 @@ function ProfilePage({ setPage }) {
   const menuItemStyle = { display: "flex", alignItems: "center", gap: 14, padding: "15px 18px", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.06)" };
 
   return (
-    <div style={{ paddingTop: 110, paddingBottom: 80, background: "#fbf3f3", minHeight: "100vh" }}>
+    <div style={{ paddingTop: 110, paddingBottom: 80, background: "#fbf3f3", minHeight: "100vh", fontFamily: "'Inter', sans-serif" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 24px" }}>
         <SectionHead
           badge="Your Account" badgeColor="#ff6b35" title="My Profile" titleClass="tg-gold"
@@ -1256,7 +1256,7 @@ function ProfilePage({ setPage }) {
 
           {!editingProfile ? (
             <>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: 20, marginTop: 6 }}>{user.name || "Friend"}</div>
+              <div style={{ fontWeight: 800, fontSize: 20, marginTop: 6 }}>{user.name || "Friend"}</div>
               <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 14, marginTop: 2 }}>{user.email}</div>
               {!!phone && <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 14 }}>{phone}</div>}
               {isAdmin && (
@@ -2270,29 +2270,47 @@ function ChatBubble({ page, setPage }) {
   if (page === "chatbot") return null;
 
   return (
-    <button
-      onClick={() => setPage("chatbot")}
-      aria-label="Open CNN Assistant chat"
-      style={{
-        position: "fixed",
-        bottom: 100,
-        right: 24,
-        zIndex: 1002,
-        width: 58,
-        height: 58,
-        borderRadius: "50%",
-        border: "none",
-        cursor: "pointer",
-        background: "linear-gradient(135deg,#f9c74f,#f3722c)",
-        boxShadow: "0 8px 24px rgba(243,114,44,0.4)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 26,
-      }}
-    >
-      💬
-    </button>
+    <div style={{ position: "fixed", bottom: 100, right: 24, zIndex: 1002, display: "flex", alignItems: "center", gap: 10 }}>
+      <div
+        onClick={() => setPage("chatbot")}
+        style={{
+          background: "#fff",
+          border: "1px solid rgba(124,58,237,0.15)",
+          borderRadius: 16,
+          borderBottomRightRadius: 4,
+          padding: "10px 16px",
+          fontSize: 13.5,
+          fontWeight: 700,
+          color: "#0a0a0a",
+          boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+          animation: "chatGreetingFloat 2.4s ease-in-out infinite",
+        }}
+      >
+        Hi, need help? 👋
+      </div>
+      <button
+        onClick={() => setPage("chatbot")}
+        aria-label="Open CNN Assistant chat"
+        style={{
+          width: 58,
+          height: 58,
+          borderRadius: "50%",
+          border: "none",
+          cursor: "pointer",
+          background: "linear-gradient(135deg,#f9c74f,#f3722c)",
+          boxShadow: "0 8px 24px rgba(243,114,44,0.4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 26,
+          flexShrink: 0,
+        }}
+      >
+        💬
+      </button>
+    </div>
   );
 }
 /* ─────────────────────────────────────────────
@@ -3289,9 +3307,9 @@ function Footer({ setPage }) {
           <div className="footer-brand">
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <div style={{ width: 38, height: 38, borderRadius: 9, background: "linear-gradient(135deg,#f9c74f,#f3722c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🌿</div>
-              <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 17 }}><span className="tg-gold">CNN</span> Farm Hub</span>
+              <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 17, color: "#fff" }}><span className="tg-gold">CNN</span> Farm Hub</span>
             </div>
-            <p style={{ color: "rgba(101, 15, 15, 0.45)", fontSize: 14, lineHeight: 1.8, marginBottom: 20 }}>Farm-fresh A2 dairy delivered to your doorstep every morning. Pure. Natural. Trusted since 2009.</p>
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, lineHeight: 1.8, marginBottom: 20 }}>Farm-fresh A2 dairy delivered to your doorstep every morning. Pure. Natural. Trusted since 2009.</p>
             <div style={{ display: "flex", gap: 10 }}>
               {["📘", "📷", "🐦", "📱"].map((ic, i) => (
                 <button key={i} onClick={() => createSound("click")} style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(124,58,237,0.2)", border: "1px solid rgba(124,58,237,0.35)", color: "#000", cursor: "pointer", fontSize: 16 }}>{ic}</button>
@@ -3301,17 +3319,17 @@ function Footer({ setPage }) {
 
           {/* Quick links */}
           <div>
-            <h4 style={{ fontWeight: 700, fontSize: 14, color: "#7c3aed", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Quick Links</h4>
+            <h4 style={{ fontWeight: 700, fontSize: 14, color: "#fff", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Quick Links</h4>
             {["home", "products", "farm", "families", "subscription", "contact"].map(l => (
-              <div key={l} onClick={() => go(l)} style={{ color: "rgba(194, 55, 55, 0.5)", fontSize: 14, marginBottom: 10, cursor: "pointer", textTransform: "capitalize", transition: "color .25s" }}
-                onMouseEnter={e => e.target.style.color = "#a78bfa"}
-                onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.5)"}>{l === "farm" ? "Our Farm" : l}</div>
+              <div key={l} onClick={() => go(l)} style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, marginBottom: 10, cursor: "pointer", textTransform: "capitalize", transition: "color .25s" }}
+                onMouseEnter={e => e.target.style.color = "#fff"}
+                onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}>{l === "farm" ? "Our Farm" : l}</div>
             ))}
           </div>
 
           {/* Products */}
           <div>
-            <h4 style={{ fontWeight: 700, fontSize: 14, color: "#f9c74f", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Products</h4>
+            <h4 style={{ fontWeight: 700, fontSize: 14, color: "#fff", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Products</h4>
             {["A2 Desi Milk", "Bilona Ghee", "Fresh Paneer", "Cultured Dahi", "White Butter", "Farm Lassi"].map(p => (
               <div key={p} style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginBottom: 10 }}>{p}</div>
             ))}
@@ -3319,7 +3337,7 @@ function Footer({ setPage }) {
 
           {/* Contact */}
           <div>
-            <h4 style={{ fontWeight: 700, fontSize: 14, color: "#39d353", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Contact</h4>
+            <h4 style={{ fontWeight: 700, fontSize: 14, color: "#fff", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Contact</h4>
             {[["📞", "+91 8618854283"], ["📧", "cnnfarmhub@gmail.com"], ["📍", "Chinnappanahalli, Karnataka"], ["🕐", "Mon–Sat 6AM–9PM"]].map(([ic, v]) => (
               <div key={v} style={{ display: "flex", gap: 8, color: "rgba(255,255,255,0.5)", fontSize: 13, marginBottom: 10 }}><span>{ic}</span><span>{v}</span></div>
             ))}
@@ -3348,7 +3366,7 @@ function Footer({ setPage }) {
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>Payments via</span>
-            <span style={{ background: "rgba(255,255,255,0.08)", borderRadius: 6, padding: "3px 10px", fontSize: 12, fontWeight: 700, color: "#00b4d8" }}>Razorpay</span>
+            <span style={{ background: "rgba(255,255,255,0.08)", borderRadius: 6, padding: "3px 10px", fontSize: 12, fontWeight: 700, color: "#fff" }}>Razorpay</span>
           </div>
         </div>
       </div>
