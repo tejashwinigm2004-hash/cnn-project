@@ -500,18 +500,19 @@ function Nav({ page, setPage, cart }) {
  
       {/* Main flex row */}
       <div style={{
-        maxWidth: 1280, margin: "0 auto", padding: "0 24px",
+        maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 14px" : "0 24px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
+        gap: isMobile ? 6 : 0,
       }}>
  
         {/* Logo */}
-        <div onClick={() => go("home")} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, overflow: "hidden" }}>
+        <div onClick={() => go("home")} style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 10, cursor: "pointer", minWidth: 0, flexShrink: 1 }}>
+          <div style={{ width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, borderRadius: 10, overflow: "hidden", flexShrink: 0 }}>
             <img src={logo} alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </div>
-          <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.1" }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: "#f9c74f" }}>CNN Organic</span>
-            <span style={{ fontSize: 15, fontWeight: 600, color: "#2e7d32" }}>Fresh Farm</span>
+          <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.1", minWidth: 0 }}>
+            <span style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: "#f9c74f", whiteSpace: "nowrap" }}>CNN Organic</span>
+            <span style={{ fontSize: isMobile ? 11 : 15, fontWeight: 600, color: "#2e7d32", whiteSpace: "nowrap" }}>Fresh Farm</span>
           </span>
         </div>
  
@@ -560,15 +561,15 @@ function Nav({ page, setPage, cart }) {
         )}
  
         {/* Right: Login/Logout + Cart + Hamburger */}
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: isMobile ? 6 : 10, alignItems: "center", flexShrink: 0 }}>
           {!user && (
-            <Btn variant="ghost" onClick={() => go("login")} style={{ padding: "8px 16px", fontSize: 13 }}>
+            <Btn variant="ghost" onClick={() => go("login")} style={{ padding: isMobile ? "6px 10px" : "8px 16px", fontSize: isMobile ? 12 : 13 }}>
               Login
             </Btn>
           )}
 
-          <Btn variant="gold" onClick={() => go("cart")} style={{ padding: "8px 16px", fontSize: 13 }}>
-            🛒 Cart {cart.length > 0 && (
+          <Btn variant="gold" onClick={() => go("cart")} style={{ padding: isMobile ? "6px 10px" : "8px 16px", fontSize: isMobile ? 12 : 13 }}>
+            🛒{!isMobile && " Cart"} {cart.length > 0 && (
               <span style={{ background: "#ff3b30", borderRadius: "50%", padding: "1px 6px", fontSize: 11, marginLeft: 4 }}>
                 {cart.length}
               </span>
@@ -588,9 +589,9 @@ function Nav({ page, setPage, cart }) {
                 aria-label="Account menu"
               >
                 <span style={{
-                  width: 34, height: 34, borderRadius: "50%",
+                  width: isMobile ? 28 : 34, height: isMobile ? 28 : 34, borderRadius: "50%",
                   background: "linear-gradient(135deg,#f9c74f,#f3722c)",
-                  color: "#0b0b0b", fontWeight: 700, fontSize: 14,
+                  color: "#0b0b0b", fontWeight: 700, fontSize: isMobile ? 12 : 14,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
                 }}>
@@ -2465,12 +2466,12 @@ function ChatbotPage({ setPage }) {
 function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, deliverySlot, setDeliverySlot }) {
   const { user } = useAuth();
   const savedAddresses = user?.addresses || [];
- 
+
   const [selectedId, setSelectedId] = useState(null); // id of a saved address, or "new"
   const [addressText, setAddressText] = useState(deliveryAddress || "");
   const [slot, setSlot] = useState(deliverySlot || "morning");
   const [error, setError] = useState(null);
- 
+
   const handleContinue = () => {
     if (!addressText.trim()) {
       setError("Please enter a delivery address before continuing.");
@@ -2480,14 +2481,14 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
     setDeliverySlot(slot);
     setPage("cart");
   };
- 
+
   const inputStyle = {
     width: "100%", padding: "12px 14px", borderRadius: 10,
     border: "1px solid rgba(0,0,0,0.12)", background: "#faf9f9",
     color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
     marginBottom: 12,
   };
- 
+
   return (
     <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff", padding: "100px 24px 100px" }}>
       <div style={{ maxWidth: 600, margin: "0 auto" }}>
@@ -2500,13 +2501,13 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
         <p style={{ color: "rgba(11,11,11,0.6)", fontSize: 14, marginBottom: 30 }}>
           Tell us where and when to deliver your order.
         </p>
- 
+
         {error && (
           <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", borderRadius: 12, padding: "12px 16px", marginBottom: 20, fontSize: 14 }}>
             {error}
           </div>
         )}
- 
+
         {savedAddresses.length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 10 }}>Saved addresses</div>
@@ -2528,7 +2529,7 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
             </div>
           </div>
         )}
- 
+
         <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 10 }}>
           {savedAddresses.length > 0 ? "Or enter a different address" : "Delivery address"}
         </div>
@@ -2538,7 +2539,7 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
           value={addressText}
           onChange={e => { setAddressText(e.target.value); setSelectedId(null); setError(null); }}
         />
- 
+
         <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", margin: "8px 0 10px" }}>Delivery slot</div>
         <div style={{ display: "flex", gap: 10, marginBottom: 26 }}>
           {[{ value: "morning", label: "☀️ Morning" }, { value: "evening", label: "🌙 Evening" }].map(opt => (
@@ -2556,7 +2557,7 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
             </div>
           ))}
         </div>
- 
+
         <div style={{ display: "flex", gap: 12 }}>
           <button
             onClick={() => setPage("cart")}
@@ -2572,7 +2573,7 @@ function DeliveryDetailsPage({ setPage, deliveryAddress, setDeliveryAddress, del
     </div>
   );
 }
- 
+
 function CartPage({ setPage, deliveryAddress, deliverySlot }) {
   const { user } = useAuth();
   const token = localStorage.getItem("token"); // NOTE: confirm your login flow actually sets this - see note below
