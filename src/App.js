@@ -1,4 +1,3 @@
-
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 import AdminPage from './AdminPage';
@@ -133,8 +132,7 @@ body{font-family:'Syne',sans-serif;background:var(--bg);color:#000;overflow-x:hi
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:linear-gradient(var(--gold1),var(--gold2));border-radius:3px}
 
-@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
-@keyframes morphBlob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}}
+@keyframes chatGreetingFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}@keyframes morphBlob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}}
 @keyframes gradPan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes rippleAnim{0%{transform:translate(-50%,-50%) scale(0);opacity:.7}100%{transform:translate(-50%,-50%) scale(8);opacity:0}}
 @keyframes btnBounce{0%{transform:scale(1)}25%{transform:scale(0.88) rotate(-1deg)}60%{transform:scale(1.1) rotate(.5deg)}100%{transform:scale(1)}}
@@ -143,6 +141,7 @@ body{font-family:'Syne',sans-serif;background:var(--bg);color:#000;overflow-x:hi
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(249,199,79,0.4)}50%{box-shadow:0 0 0 18px rgba(249,199,79,0)}}
 @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes chatGreetingFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes slideDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes bgFlash{0%{background:rgba(255,255,255,0.12)}100%{background:transparent}}
 @keyframes bgFlash{0%{background:rgba(255,255,255,0.12)}100%{background:transparent}}
@@ -2258,34 +2257,51 @@ function findBestMatch(userText) {
 ───────────────────────────────────────────── */
 function ChatBubble({ page, setPage }) {
   if (page === "chatbot") return null;
- 
+
   return (
-    <button
-      onClick={() => setPage("chatbot")}
-      aria-label="Open CNN Assistant chat"
-      style={{
-        position: "fixed",
-        bottom: 100,
-        right: 24,
-        zIndex: 1002,
-        width: 58,
-        height: 58,
-        borderRadius: "50%",
-        border: "none",
-        cursor: "pointer",
-        background: "linear-gradient(135deg,#f9c74f,#f3722c)",
-        boxShadow: "0 8px 24px rgba(243,114,44,0.4)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 26,
-      }}
-    >
-      💬
-    </button>
+    <div style={{ position: "fixed", bottom: 100, right: 24, zIndex: 1002, display: "flex", alignItems: "center", gap: 10 }}>
+      <div
+        onClick={() => setPage("chatbot")}
+        style={{
+          background: "#fff",
+          border: "1px solid rgba(124,58,237,0.15)",
+          borderRadius: 16,
+          borderBottomRightRadius: 4,
+          padding: "10px 16px",
+          fontSize: 13.5,
+          fontWeight: 700,
+          color: "#0a0a0a",
+          boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+          animation: "chatGreetingFloat 2.4s ease-in-out infinite",
+        }}
+      >
+        Hi, need help? 👋
+      </div>
+      <button
+        onClick={() => setPage("chatbot")}
+        aria-label="Open CNN Assistant chat"
+        style={{
+          width: 58,
+          height: 58,
+          borderRadius: "50%",
+          border: "none",
+          cursor: "pointer",
+          background: "linear-gradient(135deg,#f9c74f,#f3722c)",
+          boxShadow: "0 8px 24px rgba(243,114,44,0.4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 26,
+          flexShrink: 0,
+        }}
+      >
+        💬
+      </button>
+    </div>
   );
 }
- 
 /* ─────────────────────────────────────────────
    CHATBOT PAGE
 ───────────────────────────────────────────── */
