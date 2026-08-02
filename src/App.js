@@ -4,6 +4,7 @@ import AdminPage from './AdminPage';
 import axios from 'axios';
 import API_URL from './config';
 import logo from './logo.png';
+import farmRangeBanner from './banner.jpeg';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CustomCursor, GrainOverlay, WordReveal, MarqueeBand, ScrollReveal, StatCounter, FloatingParticles } from './fx-components';
 import { useAuth } from "./context/AuthContext";
@@ -758,32 +759,18 @@ function Hero({ setPage }) {
       <div className="hero-grid" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "1fr", gap: 60, alignItems: "center", paddingTop: 100, paddingBottom: 80 }}>
         {/* Left */}
         <div style={{ animation: "pageSlide .7s cubic-bezier(.22,1,.36,1) forwards" }}>
-          <div
+          <img
+            src={farmRangeBanner}
+            alt="Explore our farm range: pure dairy, fresh vegetables & fruits"
             onClick={() => setPage("products")}
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 16,
-              background: "#faf3e0",
-              border: "1.5px solid #2e7d32",
-              borderRadius: 18,
-              padding: "14px 22px",
-              cursor: "pointer",
+              width: "100%",
               maxWidth: 620,
+              borderRadius: 18,
+              cursor: "pointer",
+              display: "block",
             }}
-          >
-            <span style={{ fontSize: 26, lineHeight: 1, whiteSpace: "nowrap" }}>🥛🧈🧀</span>
-            <div style={{ textAlign: "center", flex: 1 }}>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: 15, color: "#2e7d32", letterSpacing: "0.01em" }}>
-                Explore Our Farm Range: Pure Dairy,
-              </div>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: 15, color: "#2e7d32", letterSpacing: "0.01em" }}>
-                Fresh Vegetables & Fruits.
-              </div>
-            </div>
-            <span style={{ fontSize: 26, lineHeight: 1, whiteSpace: "nowrap" }}>🥕🍅🍎🍌</span>
-          </div>
+          />
 
           <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(38px,6vw,72px)", lineHeight: 1.1, margin: "22px 0 22px", perspective: 1000, color: "#0a0a0a" }}>
 
