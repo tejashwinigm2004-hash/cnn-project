@@ -1519,7 +1519,193 @@ function ProfilePage({ setPage }) {
 /* ─────────────────────────────────────────────
    FARM PAGE
 ───────────────────────────────────────────── */
-function FarmPage() {
+/* ─────────────────────────────────────────────
+   FARM VISIT BOOKING PAGE — flat ₹150 per booking
+───────────────────────────────────────────── */
+function FarmVisitBookingPage({ setPage }) {
+  const { user } = useAuth();
+  const [name, setName] = useState(user?.name || "");
+  const [contact, setContact] = useState(user?.phone || "");
+  const [visitDate, setVisitDate] = useState("");
+  const [visitors, setVisitors] = useState(1);
+  const [error, setError] = useState(null);
+  const [booking, setBooking] = useState(false);
+
+  const VISIT_PRICE = 200; // flat fee per booking, validated server-side too
+
+  // Farm is only open Sat & Sun — block any other day from being picked
+  const isWeekend = (dateStr) => {
+    if (!dateStr) return false;
+    const day = new Date(dateStr + "T00:00:00").getDay();
+    return day === 0 || day === 6;
+  };
+
+  const handleBookVisit = async () => {
+    if (!name.trim() || !contact.trim() || !visitDate) {
+      setError("Please fill in your name, contact number, and preferred visit date.");
+      return;
+    }
+    if (!/^[0-9]{10}$/.test(contact.trim())) {
+      setError("Please enter a valid 10-digit contact number.");
+      return;
+    }
+    if (!isWeekend(visitDate)) {
+      setError("Farm visits are only available on Saturdays and Sundays, 7AM–11AM. Please pick a weekend date.");
+      return;
+    }
+    if (!visitors || visitors < 1) {
+      setError("Please enter at least 1 visitor.");
+      return;
+    }
+
+    setError(null);
+    setBooking(true);
+    try {
+      const res = await fetch(`${API_URL}/api/payment/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planId: "farm_visit",
+          name: name.trim(),
+          contact: contact.trim(),
+          visitDate,
+          visitors,
+        }),
+      });
+      const order = await res.json();
+
+      if (!res.ok) {
+        setError(order.message || "Could not start the booking. Please try again.");
+        setBooking(false);
+        return;
+      }
+
+      const options = {
+        key: RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "CNN Farm Hub",
+        description: `Farm visit booking — ${visitors} visitor(s) on ${visitDate}`,
+        order_id: order.id,
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(`${API_URL}/api/payment/verify-payment`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...response, planId: "farm_visit", name: name.trim(), contact: contact.trim(), visitDate, visitors }),
+            });
+            const result = await verifyRes.json();
+            if (result.verified) {
+              alert(`Farm visit booked for ${visitDate}! We'll see you there. 🐄`);
+              setPage("farm");
+            } else {
+              setError("Payment succeeded but verification failed. Please contact support with this reference: " + response.razorpay_payment_id);
+            }
+          } catch {
+            setError("Payment succeeded but we couldn't confirm it. Please contact support with reference: " + response.razorpay_payment_id);
+          } finally {
+            setBooking(false);
+          }
+        },
+        modal: { ondismiss: () => setBooking(false) },
+        theme: { color: "#39d353" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Farm visit booking error:", err);
+      setError("Something went wrong starting the booking. Please try again.");
+      setBooking(false);
+    }
+  };
+
+  const inputStyle = {
+    width: "100%", padding: "12px 14px", borderRadius: 10,
+    border: "1px solid rgba(0,0,0,0.12)", background: "#faf9f9",
+    color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
+    marginBottom: 14,
+  };
+  const labelStyle = { fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 6, display: "block" };
+
+  return (
+    <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff", padding: "100px 24px 100px" }}>
+      <div style={{ maxWidth: 560, margin: "0 auto" }}>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, marginBottom: 10 }}>
+          Book a{" "}
+          <span style={{ background: "linear-gradient(135deg,#2e7d32,#66bb6a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            Farm Visit
+          </span>
+        </h1>
+        <p style={{ color: "rgba(11,11,11,0.6)", fontSize: 14, marginBottom: 8 }}>
+          Saturdays & Sundays, 7AM–11AM. Flat ₹{VISIT_PRICE} per booking.
+        </p>
+
+        {error && (
+          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", borderRadius: 12, padding: "12px 16px", marginBottom: 20, fontSize: 14 }}>
+            {error}
+          </div>
+        )}
+
+        <label style={labelStyle}>Full Name</label>
+        <input style={inputStyle} placeholder="e.g. Tejashwini G M" value={name} onChange={e => { setName(e.target.value); setError(null); }} />
+
+        <label style={labelStyle}>Contact Number</label>
+        <input
+          style={inputStyle}
+          placeholder="10-digit mobile number"
+          value={contact}
+          maxLength={10}
+          inputMode="numeric"
+          onChange={e => { setContact(e.target.value.replace(/[^0-9]/g, "")); setError(null); }}
+        />
+
+        <label style={labelStyle}>Visit Date (Sat or Sun only)</label>
+        <input
+          type="date"
+          style={inputStyle}
+          value={visitDate}
+          min={new Date().toISOString().split("T")[0]}
+          onChange={e => { setVisitDate(e.target.value); setError(null); }}
+        />
+
+        <label style={labelStyle}>Number of Visitors</label>
+        <input
+          type="number"
+          min={1}
+          max={10}
+          style={inputStyle}
+          value={visitors}
+          onChange={e => { setVisitors(Number(e.target.value)); setError(null); }}
+        />
+
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          borderRadius: 12, padding: "14px 16px", marginBottom: 20, background: "#f5f3ff",
+          border: "1px solid rgba(46,125,50,0.15)",
+        }}>
+          <span style={{ fontWeight: 700, fontSize: 14, color: "#0a0a0a" }}>Booking Fee</span>
+          <span style={{ fontWeight: 800, fontSize: 18, color: "#2e7d32" }}>₹{VISIT_PRICE}</span>
+        </div>
+
+        <div style={{ display: "flex", gap: 12 }}>
+          <button
+            onClick={() => setPage("farm")}
+            style={{ flex: 1, padding: "13px", borderRadius: 10, border: "1px solid rgba(0,0,0,0.15)", background: "#fff", color: "rgba(11,11,11,0.7)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+          >
+            Back
+          </button>
+          <Btn variant="farm" onClick={handleBookVisit} disabled={booking} style={{ flex: 2, fontSize: 15, padding: "13px", textAlign: "center", opacity: booking ? 0.7 : 1 }}>
+            {booking ? "Processing…" : `Pay ₹${VISIT_PRICE} & Book →`}
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FarmPage({ setPage }) {
+
   const teamImages = [
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80",
     "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80",
@@ -1625,7 +1811,7 @@ At CNN Farm Hub, we follow sustainable farming practices that prioritize the hea
             <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 18 }}>
               <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 36, textAlign: "center", color: "#fff" }}>Visit Our Farm</h2>
               <p style={{ color: "#fff", textAlign: "center" }}>Open for family visits: Saturday & Sunday, 7AM–11AM</p>
-              <Btn variant="farm" style={{ fontSize: 15, padding: "13px 28px" }} onClick={() => {}}>Book Farm Visit →</Btn>
+              <Btn variant="farm" style={{ fontSize: 15, padding: "13px 28px" }} onClick={() => setPage("farm-visit")}>Book Farm Visit →</Btn>
             </div>
           </div>
         </div>
@@ -4002,7 +4188,8 @@ export default function App() {
       case "products": return productsLoading
         ? <div style={{ paddingTop: 140, textAlign: "center", color: "rgba(11,11,11,0.5)" }}>Loading products…</div>
         : <ProductsPage addToCart={addToCart} PRODUCTS={PRODUCTS} />;
-      case "farm": return <FarmPage />;
+      case "farm": return <FarmPage setPage={navigate} />;
+      case "farm-visit": return <FarmVisitBookingPage setPage={navigate} />;
       case "families": return <FamiliesPage setPage={navigate} />;
       case "subscription": return <SubPage setPage={navigate} />;
       case "contact": return <ContactPage />;
