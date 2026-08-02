@@ -1,3 +1,4 @@
+
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 import AdminPage from './AdminPage';
@@ -1431,7 +1432,7 @@ function ProfilePage({ setPage }) {
         {/* GENERAL MENU */}
         <div style={groupTitleStyle}>General</div>
         <div style={{ background: "#fff", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,0,0,0.07)", marginBottom: 16 }}>
-          <div style={menuItemStyle} onClick={() => setPage("cart")}>
+          <div style={menuItemStyle} onClick={() => setPage("orders")}>
             <span>📦</span><span style={{ flex: 1, fontWeight: 700, fontSize: 14.5 }}>My Orders</span><span style={{ color: "rgba(0,0,0,0.3)" }}>›</span>
           </div>
           <div style={menuItemStyle} onClick={() => setPage("subscription")}>
@@ -2047,6 +2048,115 @@ function loadRazorpayScript() {
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
   });
+}
+ 
+function OrdersPage({ setPage }) {
+  const { user, token } = useAuth();
+  const [orders, setOrders] = useState(null); // null = loading
+  const [error, setError] = useState(null);
+ 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!user?.id) {
+        if (!cancelled) setError("Please log in to see your orders.");
+        return;
+      }
+      try {
+        const res = await fetch(`${API_URL}/api/orders/my-orders`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Request failed");
+        const data = await res.json();
+        if (!cancelled) setOrders(data);
+      } catch (err) {
+        console.error("Failed to load orders:", err);
+        if (!cancelled) setError("Couldn't load your orders. Please refresh.");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, token]);
+ 
+  const statusColor = (status) => {
+    if (status === "delivered") return "#2e7d32";
+    if (status === "cancelled" || status === "failed") return "#c0392b";
+    if (status === "shipped" || status === "out_for_delivery") return "#f3722c";
+    return "rgba(11,11,11,0.55)"; // pending / processing
+  };
+ 
+  return (
+    <div style={{ paddingTop: 110, paddingBottom: 80, background: "#fbf3f3", minHeight: "100vh" }}>
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 24px" }}>
+        <SectionHead
+          badge="Order History" badgeColor="#ff6b35" title="My Orders" titleClass="tg-gold"
+          sub="Everything you've ordered from CNN Farm Hub, most recent first."
+        />
+ 
+        {error && (
+          <div style={{ marginTop: 24, textAlign: "center", color: "#c0392b", fontSize: 14 }}>{error}</div>
+        )}
+ 
+        {!error && orders === null && (
+          <div style={{ marginTop: 40, textAlign: "center", color: "rgba(11,11,11,0.5)" }}>Loading your orders…</div>
+        )}
+ 
+        {!error && orders && orders.length === 0 && (
+          <div style={{ marginTop: 40, textAlign: "center" }}>
+            <div style={{ fontSize: 15, color: "rgba(11,11,11,0.6)", marginBottom: 16 }}>You haven't placed any orders yet.</div>
+            <Btn variant="orange" onClick={() => setPage("products")} style={{ padding: "12px 28px" }}>Start Shopping</Btn>
+          </div>
+        )}
+ 
+        {!error && orders && orders.length > 0 && (
+          <div style={{ marginTop: 24 }}>
+            {orders.map(order => (
+              <div key={order._id} style={{
+                background: "#fff", borderRadius: 16, padding: "18px 20px",
+                border: "1px solid rgba(0,0,0,0.07)", marginBottom: 16,
+                boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: 14.5 }}>Order #{order._id.slice(-8).toUpperCase()}</div>
+                    <div style={{ fontSize: 12.5, color: "rgba(11,11,11,0.5)", marginTop: 2 }}>
+                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : ""}
+                    </div>
+                  </div>
+                  <span style={{
+                    fontSize: 11.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em",
+                    color: statusColor(order.status || order.paymentStatus),
+                  }}>
+                    {(order.status || order.paymentStatus || "pending").replace(/_/g, " ")}
+                  </span>
+                </div>
+ 
+                <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: 10 }}>
+                  {(order.items || []).map((item, idx) => (
+                    <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5, marginBottom: 4 }}>
+                      <span style={{ color: "rgba(11,11,11,0.8)" }}>
+                        {item.productId?.name || "Product"} × {item.quantity}
+                      </span>
+                      <span style={{ color: "rgba(11,11,11,0.6)" }}>
+                        ₹{((item.productId?.price || 0) * item.quantity).toFixed(0)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+ 
+                <div style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  borderTop: "1px solid rgba(0,0,0,0.06)", marginTop: 10, paddingTop: 10,
+                }}>
+                  <span style={{ fontSize: 13.5, fontWeight: 700 }}>Total</span>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: "#f3722c" }}>₹{(order.totalAmount || 0).toFixed(0)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
  
 function CartPage({ setPage, deliveryAddress, deliverySlot }) {
@@ -3262,6 +3372,7 @@ export default function App() {
       case "subscription": return <SubPage setPage={navigate} />;
       case "contact": return <ContactPage />;
       case "cart": return <CartPage cart={cart} setCart={setCart} setPage={navigate} />;
+      case "orders": return <OrdersPage setPage={navigate} />;
       case "login": return <LoginPage setPage={navigate} />;
       case "resetPassword": return <ResetPasswordPage token={resetToken} setPage={navigate} />;
       case "admin": return <AdminPage />;
