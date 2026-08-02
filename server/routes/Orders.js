@@ -122,10 +122,10 @@ router.post('/verify-payment', auth, async (req, res) => {
   }
 });
  
-// GET user orders
-router.get('/:userId', auth, async (req, res) => {
+// GET logged-in user's own orders (userId comes from the verified token, never the URL)
+router.get('/my-orders', auth, async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.params.userId })
+    const orders = await Order.find({ userId: req.user.id })
       .populate('items.productId')
       .sort({ createdAt: -1 });
     res.json(orders);
