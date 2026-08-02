@@ -316,14 +316,14 @@ function Badge({ label, color = "#f9c74f" }) {
 /* ─────────────────────────────────────────────
    SECTION HEADER
 ───────────────────────────────────────────── */
-function SectionHead({ badge, badgeColor = "#f9c74f", title, titleClass = "tg-gold", sub }) {
+function SectionHead({ badge, badgeColor = "#f9c74f", title, titleClass = "tg-gold", sub, subColor = "rgba(255,255,255,0.5)" }) {
   return (
     <div style={{ textAlign: "center", marginBottom: 56 }}>
       <Badge label={badge} color={badgeColor} />
       <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: "clamp(32px,5vw,52px)", lineHeight: 1.15, margin: "16px 0 14px" }}>
         <span className={titleClass}>{title}</span>
       </h2>
-      {sub && <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, maxWidth: 540, margin: "0 auto", lineHeight: 1.75 }}>{sub}</p>}
+      {sub && <p style={{ color: subColor, fontSize: 16, maxWidth: 540, margin: "0 auto", lineHeight: 1.75 }}>{sub}</p>}
     </div>
   );
 }
@@ -1218,6 +1218,7 @@ function ProfilePage({ setPage }) {
         <SectionHead
           badge="Your Account" badgeColor="#ff6b35" title="My Profile" titleClass="tg-gold"
           sub="Manage your details, delivery preferences, and account settings."
+          subColor="rgba(10,10,10,0.55)"
         />
 
         {/* PROFILE CARD */}
