@@ -224,8 +224,8 @@ input:focus,textarea:focus{border-color:rgba(57,211,83,0.6);background:rgba(57,2
   .farm-team-grid{grid-template-columns:1fr!important;gap:16px!important}
   .contact-grid{grid-template-columns:1fr!important;gap:28px!important}
   .contact-form-fields{grid-template-columns:1fr!important}
-  .cart-grid{grid-template-columns:1fr!important}
-  .cart-summary{position:static!important}
+  .cart-grid{grid-template-columns:minmax(0,1fr)!important}
+  .cart-summary{position:static!important;min-width:0!important}
   .login-grid{grid-template-columns:1fr!important}
   .login-left{display:none!important}
   .footer-grid{grid-template-columns:1fr 1fr!important;gap:24px!important}
