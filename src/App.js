@@ -105,10 +105,15 @@ function createSound(type) {
 ───────────────────────────────────────────── */
 /* PRODUCTS moved inside App() - fetched from backend, see below */
 const PLANS = [
-  { id: "basic", name: "Starter", price: 1400, period: "month", color: "#00b4d8", items: ["500ml A2 Milk Daily", "250g Curd Weekly", "Free Delivery", "WhatsApp Updates"], popular: false, maxItems: 2 },
-  { id: "premium", name: "Premium", price: 3200, period: "month", color: "#39d353", items: ["1L A2 Milk Daily", "500g Ghee Monthly", "400g Paneer Weekly", "400g Dahi Weekly", "Free Priority Delivery", "Dedicated Manager"], popular: true, maxItems: 4 },
-  { id: "family", name: "Family", price: 5600, period: "month", color: "#f9c74f", items: ["2L A2 Milk Daily", "1Kg Ghee Monthly", "500g Paneer Twice/Week", "Seasonal Products", "Doorstep Delivery 5AM", "WhatsApp Bot Ordering", "Monthly Farm Visit"], popular: false, maxItems: 6 },
+  { id: "basic", name: "Starter", prices: { monthly: 1500, weekly: 1000, daily: 800 }, color: "#00b4d8", items: ["500ml A2 Milk Daily", "250g Curd Weekly", "Free Delivery", "WhatsApp Updates"], popular: false, maxItems: 2 },
+  { id: "premium", name: "Premium", prices: { monthly: 3500, weekly: 3000, daily: 2500 }, color: "#39d353", items: ["1L A2 Milk Daily", "500g Ghee Monthly", "400g Paneer Weekly", "400g Dahi Weekly", "Free Priority Delivery", "Dedicated Manager"], popular: true, maxItems: 4 },
+  { id: "family", name: "Family", prices: { monthly: 2000, weekly: 1500, daily: 1200 }, color: "#f9c74f", items: ["2L A2 Milk Daily", "1Kg Ghee Monthly", "500g Paneer Twice/Week", "Seasonal Products", "Doorstep Delivery 5AM", "WhatsApp Bot Ordering", "Monthly Farm Visit"], popular: false, maxItems: 6 },
 ];
+/* Each plan now carries its own explicit price per billing frequency (set directly,
+   not derived from a monthly/30 or /7 conversion) — see PLANS[].prices above. */
+function getFreqPrice(plan, freq) {
+  return plan?.prices?.[freq] ?? plan?.prices?.monthly ?? 0;
+}
 
 const FAMILIES = [
   { name: "Raghavendra Family", location: "Indiranagar, Bangalore", since: "2021", img: "https://images.unsplash.com/photo-1542644416-2289c587843e?w=400&q=80&crop=faces&fit=crop", quote: "Our kids love the A2 milk! We can taste the difference from store-bought dairy. Worth every rupee." },
@@ -1939,8 +1944,8 @@ function SubPage({ setPage, PRODUCTS, addToCart, setActiveSubscriptionPlan }) {
       setActiveSubscriptionPlan?.({
         id: currentPlan.id,
         name: currentPlan.name,
-        price: currentPlan.price,
-        period: currentPlan.period,
+        price: getFreqPrice(currentPlan, freq),
+        period: freq === "monthly" ? "month" : freq === "weekly" ? "week" : "day",
         color: currentPlan.color,
         maxItems: currentPlan.maxItems,
         planItems: currentPlan.items, // the plan's own included-features list
@@ -2006,8 +2011,8 @@ function SubPage({ setPage, PRODUCTS, addToCart, setActiveSubscriptionPlan }) {
                 <div style={{ padding: "30px 28px" }}>
                   <div style={{ fontSize: 13, color: pl.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>{pl.name}</div>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}>
-                    <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#000" }}>₹{pl.price.toLocaleString()}</span>
-                    <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 14 }}>/{pl.period}</span>
+                    <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#000" }}>₹{getFreqPrice(pl, freq).toLocaleString()}</span>
+                    <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 14 }}>/{freq === "monthly" ? "month" : freq === "weekly" ? "week" : "day"}</span>
                   </div>
                   <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 12, marginBottom: 26 }}>Billed {freq}</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
@@ -2123,7 +2128,7 @@ function SubPage({ setPage, PRODUCTS, addToCart, setActiveSubscriptionPlan }) {
                 onClick={() => {
                   const plan = PLANS.find(p => p.id === selected);
                   const message = encodeURIComponent(
-                    `Hi! I'm interested in the ${plan?.name || "subscription"} plan (₹${plan?.price || ""}/${plan?.period || "month"}). Can you help me get started?`
+                    `Hi! I'm interested in the ${plan?.name || "subscription"} plan (₹${plan ? getFreqPrice(plan, freq) : ""}/${freq === "monthly" ? "month" : freq === "weekly" ? "week" : "day"}). Can you help me get started?`
                   );
                   window.open(`https://wa.me/918618854283?text=${message}`, "_blank");
                 }}
@@ -3910,9 +3915,9 @@ function HomeSections({ setPage, addToCart, PRODUCTS }) {
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}>
               <span style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, color: "#000" }}>
-                ₹{pl.price.toLocaleString()}
+                ₹{pl.prices.monthly.toLocaleString()}
               </span>
-              <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 14 }}>/{pl.period}</span>
+              <span style={{ color: "rgba(11,11,11,0.6)", fontSize: 14 }}>/month</span>
             </div>
             <div style={{ color: "rgba(11,11,11,0.6)", fontSize: 12, marginBottom: 26 }}>Billed monthly</div>
 
