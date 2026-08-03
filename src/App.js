@@ -105,10 +105,11 @@ function createSound(type) {
 ───────────────────────────────────────────── */
 /* PRODUCTS moved inside App() - fetched from backend, see below */
 const PLANS = [
-  { id: "basic", name: "Starter", price: 1400, period: "month", color: "#00b4d8", items: ["500ml A2 Milk Daily", "250g Curd Weekly", "Free Delivery", "WhatsApp Updates"], popular: false },
-  { id: "premium", name: "Premium", price: 3200, period: "month", color: "#39d353", items: ["1L A2 Milk Daily", "500g Ghee Monthly", "400g Paneer Weekly", "400g Dahi Weekly", "Free Priority Delivery", "Dedicated Manager"], popular: true },
-  { id: "family", name: "Family", price: 5600, period: "month", color: "#f9c74f", items: ["2L A2 Milk Daily", "1Kg Ghee Monthly", "500g Paneer Twice/Week", "Seasonal Products", "Doorstep Delivery 5AM", "WhatsApp Bot Ordering", "Monthly Farm Visit"], popular: false },
+  { id: "basic", name: "Starter", price: 1400, period: "month", color: "#00b4d8", items: ["500ml A2 Milk Daily", "250g Curd Weekly", "Free Delivery", "WhatsApp Updates"], popular: false, maxItems: 2 },
+  { id: "premium", name: "Premium", price: 3200, period: "month", color: "#39d353", items: ["1L A2 Milk Daily", "500g Ghee Monthly", "400g Paneer Weekly", "400g Dahi Weekly", "Free Priority Delivery", "Dedicated Manager"], popular: true, maxItems: 4 },
+  { id: "family", name: "Family", price: 5600, period: "month", color: "#f9c74f", items: ["2L A2 Milk Daily", "1Kg Ghee Monthly", "500g Paneer Twice/Week", "Seasonal Products", "Doorstep Delivery 5AM", "WhatsApp Bot Ordering", "Monthly Farm Visit"], popular: false, maxItems: 6 },
 ];
+
 const FAMILIES = [
   { name: "Raghavendra Family", location: "Indiranagar, Bangalore", since: "2021", img: "https://images.unsplash.com/photo-1542644416-2289c587843e?w=400&q=80&crop=faces&fit=crop", quote: "Our kids love the A2 milk! We can taste the difference from store-bought dairy. Worth every rupee." },
   { name: "Priya & Suresh Kumar", location: "HSR Layout, Bangalore", since: "2022", img: "https://images.unsplash.com/photo-1533777419517-3e4017e2e15a?w=400&q=80&crop=faces&fit=crop", quote: "The ghee is absolutely divine. We use it for everything — pooja, cooking, even skin care!" },
@@ -1892,55 +1893,67 @@ function FamiliesPage({ setPage }) {
 /* ─────────────────────────────────────────────
    SUBSCRIPTION PAGE
 ───────────────────────────────────────────── */
-function SubPage({ setPage }) {
+function SubPage({ setPage, PRODUCTS, addToCart, setActiveSubscriptionPlan }) {
   const [selected, setSelected] = useState("premium");
   const [freq, setFreq] = useState("monthly");
- 
-  const handleSubscribe = async () => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/payment/create-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: selected }),
-      });
-      const order = await res.json();
- 
-      if (!res.ok) {
-        alert(order.message || "Could not create order");
-        return;
+  const [selectedItems, setSelectedItems] = useState([]); // array of product ids
+  const [adding, setAdding] = useState(false);
+
+  const currentPlan = PLANS.find(p => p.id === selected);
+  const maxItems = currentPlan?.maxItems ?? 0;
+
+  // Whenever the plan changes, drop any picks that exceed the new plan's cap
+  // (switching to a smaller plan shouldn't silently keep an over-limit selection).
+  useEffect(() => {
+    setSelectedItems(prev => prev.slice(0, maxItems));
+  }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectedProducts = (PRODUCTS || []).filter(p => selectedItems.includes(p.id));
+  // Real, recalculated amount — the actual sum of the selected products' live
+  // prices, not the plan's flat headline price.
+  const selectedTotal = selectedProducts.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+
+  const toggleItem = (productId) => {
+    setSelectedItems(prev => {
+      if (prev.includes(productId)) {
+        return prev.filter(id => id !== productId);
       }
- 
-      const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: "CNN Farm Hub",
-        description: `${selected} subscription`,
-        order_id: order.id,
-        handler: async function (response) {
-          const verifyRes = await fetch(`${process.env.REACT_APP_API_URL}/api/payment/verify-payment`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response),
-          });
-          const result = await verifyRes.json();
-          if (result.verified) {
-            alert("Subscription payment successful! 🎉");
-          } else {
-            alert("Payment verification failed.");
-          }
-        },
-        theme: { color: "#39d353" },
-      };
- 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (err) {
-      console.error("Payment error:", err);
-      alert("Something went wrong starting the payment.");
+      if (prev.length >= maxItems) {
+        alert(`Your ${currentPlan?.name || "selected"} plan allows up to ${maxItems} item${maxItems === 1 ? "" : "s"}. Remove one before adding another, or switch to a bigger plan.`);
+        return prev;
+      }
+      createSound("click");
+      return [...prev, productId];
+    });
+  };
+
+  // Adds every selected product to the real cart (same endpoint/flow as the
+  // Products page), then sends the user to the Cart page where checkout and
+  // Razorpay payment already work.
+  const handleAddSelectedToCart = async () => {
+    setAdding(true);
+    try {
+      for (const product of selectedProducts) {
+        await addToCart(product);
+      }
+      setActiveSubscriptionPlan?.({
+        id: currentPlan.id,
+        name: currentPlan.name,
+        price: currentPlan.price,
+        period: currentPlan.period,
+        color: currentPlan.color,
+        maxItems: currentPlan.maxItems,
+        planItems: currentPlan.items, // the plan's own included-features list
+        selectedItems: selectedProducts.map(p => ({ id: p.id, name: p.name, price: p.price, unit: p.unit })),
+        selectedTotal,
+      });
+      setPage("cart");
+      window.scrollTo(0, 0);
+    } finally {
+      setAdding(false);
     }
   };
- 
+
   return (
     <div style={{ paddingTop: 100 }}>
       <div style={{ height: 260, overflow: "hidden", position: "relative" }}>
@@ -2006,16 +2019,91 @@ function SubPage({ setPage }) {
                   </div>
                   <Btn
                     variant={selected === pl.id ? "sub" : "ghost"}
-                    onClick={() => setSelected(pl.id)}
+                    disabled={selected === pl.id && adding}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (selected === pl.id) {
+                        handleAddSelectedToCart();
+                      } else {
+                        setSelected(pl.id);
+                      }
+                    }}
                     style={{ width: "100%", justifyContent: "center", fontSize: 14, padding: "12px", background: selected === pl.id ? `linear-gradient(135deg,${pl.color},${pl.color}cc)` : undefined, color: selected === pl.id ? "#020f05" : undefined }}
                   >
-                    {selected === pl.id ? "✓ Selected" : "Select Plan"}
+                    {selected === pl.id ? (adding ? "Adding…" : "Subscribe Now →") : "Select Plan"}
                   </Btn>
                 </div>
               </div>
+
             ))}
           </div>
  
+          {/* Item picker — capped by the selected plan's maxItems, using real products */}
+          <div style={{
+            borderRadius: 24, padding: "30px 28px", marginBottom: 40,
+            background: "#f5f3ff", border: "1px solid rgba(124,58,237,0.15)",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 18 }}>
+              <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 20, color: "#0a0a0a" }}>
+                Choose your items <span style={{ color: currentPlan?.color }}>({currentPlan?.name}, optional)</span>
+              </h3>
+              <span style={{
+                fontSize: 13, fontWeight: 700, padding: "6px 14px", borderRadius: 20,
+                background: selectedItems.length >= maxItems ? "#000" : "#fff",
+                color: selectedItems.length >= maxItems ? "#fff" : "#0a0a0a",
+                border: `1px solid ${currentPlan?.color || "#000"}`,
+              }}>
+                {selectedItems.length}/{maxItems} selected
+              </span>
+            </div>
+
+            {(!PRODUCTS || PRODUCTS.length === 0) ? (
+              <p style={{ fontSize: 13, color: "rgba(11,11,11,0.5)" }}>Loading products…</p>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 12 }}>
+                {PRODUCTS.map(p => {
+                  const isSelected = selectedItems.includes(p.id);
+                  const isDisabled = !isSelected && selectedItems.length >= maxItems;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => !isDisabled && toggleItem(p.id)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderRadius: 12,
+                        cursor: isDisabled ? "not-allowed" : "pointer",
+                        opacity: isDisabled ? 0.4 : 1,
+                        background: isSelected ? `${currentPlan?.color}22` : "#fff",
+                        border: `2px solid ${isSelected ? currentPlan?.color : "rgba(124,58,237,0.15)"}`,
+                        transition: "all .2s",
+                      }}
+                    >
+                      <span style={{
+                        width: 18, height: 18, borderRadius: 5, flexShrink: 0,
+                        border: `2px solid ${isSelected ? currentPlan?.color : "rgba(0,0,0,0.25)"}`,
+                        background: isSelected ? currentPlan?.color : "transparent",
+                        display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#020f05",
+                      }}>{isSelected ? "✓" : ""}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 600, color: "#0a0a0a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                        <div style={{ fontSize: 12, color: "rgba(11,11,11,0.55)" }}>₹{p.price}/{p.unit}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(124,58,237,0.15)" }}>
+              <p style={{ fontSize: 12, color: "rgba(11,11,11,0.5)" }}>
+                Your {currentPlan?.name} plan lets you pick up to {maxItems} item{maxItems === 1 ? "" : "s"} — totally optional, add if you'd like.
+              </p>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 12, color: "rgba(11,11,11,0.5)" }}>Real total for selected items</div>
+                <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 22, color: "#0a0a0a" }}>₹{selectedTotal.toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+
           {/* CTA bar */}
           <div style={{
             borderRadius: 24, padding: "36px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20,
@@ -2027,7 +2115,9 @@ function SubPage({ setPage }) {
               <p style={{ color: "rgba(11, 11, 11, 0.95)", marginTop: 4 }}>Free delivery · Pause anytime · No contract</p>
             </div>
             <div style={{ display: "flex", gap: 12 }}>
-              <Btn variant="sub" onClick={handleSubscribe} style={{ fontSize: 15, padding: "13px 28px" }}>Subscribe Now →</Btn>
+              <Btn variant="sub" onClick={handleAddSelectedToCart} disabled={adding} style={{ fontSize: 15, padding: "13px 28px" }}>
+                {adding ? "Adding…" : "Subscribe Now →"}
+              </Btn>
 <Btn
                 variant="ghost"
                 onClick={() => {
@@ -2927,7 +3017,7 @@ function DeliveryDetailsPage({ setPage, deliveryInfo, setDeliveryInfo }) {
   );
 }
 
-function CartPage({ setPage, deliveryAddress, deliverySlot }) {
+function CartPage({ setPage, deliveryAddress, deliverySlot, activeSubscriptionPlan }) {
   const { user } = useAuth();
   const token = localStorage.getItem("token"); // NOTE: confirm your login flow actually sets this - see note below
   const [cart, setCartState] = useState(null); // null = loading
@@ -2952,7 +3042,11 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
     return () => { cancelled = true; };
   }, [token]); 
   const items = (cart || []).filter(i => i.productId);
-  const total = items.reduce((s, i) => s + (i.productId?.price || 0) * i.quantity, 0);
+  const itemsTotal = items.reduce((s, i) => s + (i.productId?.price || 0) * i.quantity, 0);
+  const planFee = activeSubscriptionPlan?.price || 0;
+  // The real payable amount: the plan's own monthly/weekly/daily fee PLUS whatever
+  // extra items were added to the cart (from the Subscription page or Products page).
+  const total = itemsTotal + planFee;
  
   // Set an exact quantity (backend handles removal if it drops to 0)
   const update = async (productId, newQty) => {
@@ -3002,6 +3096,10 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
           totalAmount: total,
           deliveryAddress,
           deliverySlot,
+          // Plan fee isn't a cart product, so it's sent separately — the backend
+          // can add these fields to the Order schema to record what was charged.
+          subscriptionPlanId: activeSubscriptionPlan?.id || null,
+          subscriptionPlanFee: planFee,
         }),
       });
       if (!orderRes.ok) throw new Error("Could not create order");
@@ -3088,14 +3186,78 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
             Cart
           </span>
         </h1>
- 
+
+        {activeSubscriptionPlan && (
+          <div style={{
+            borderRadius: 16, padding: "20px 24px", marginBottom: 24,
+            background: `${activeSubscriptionPlan.color}15`,
+            border: `1px solid ${activeSubscriptionPlan.color}55`,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 20 }}>📦</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: "#0a0a0a" }}>
+                    {activeSubscriptionPlan.name} Plan Subscription
+                  </div>
+                  <div style={{ fontSize: 12.5, color: "rgba(11,11,11,0.6)" }}>
+                    ₹{activeSubscriptionPlan.price?.toLocaleString()}/{activeSubscriptionPlan.period} base plan · Billed {activeSubscriptionPlan.period}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setPage("subscription")}
+                style={{ background: "none", border: "none", color: activeSubscriptionPlan.color, fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+              >
+                Change Plan
+              </button>
+            </div>
+
+            {activeSubscriptionPlan.planItems?.length > 0 && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", color: "rgba(11,11,11,0.5)", marginBottom: 8 }}>
+                  Plan Includes
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {activeSubscriptionPlan.planItems.map(item => (
+                    <span key={item} style={{ fontSize: 12, padding: "5px 10px", borderRadius: 20, background: "#fff", border: `1px solid ${activeSubscriptionPlan.color}44`, color: "#0a0a0a" }}>
+                      ✓ {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeSubscriptionPlan.selectedItems?.length > 0 && (
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", color: "rgba(11,11,11,0.5)" }}>
+                    Your Selected Items ({activeSubscriptionPlan.selectedItems.length}/{activeSubscriptionPlan.maxItems})
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0a0a0a" }}>
+                    ₹{activeSubscriptionPlan.selectedTotal?.toLocaleString()} total
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {activeSubscriptionPlan.selectedItems.map(item => (
+                    <div key={item.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "rgba(11,11,11,0.85)", background: "#fff", borderRadius: 8, padding: "8px 12px" }}>
+                      <span>{item.name}</span>
+                      <span>₹{item.price}/{item.unit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {error && (
           <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", borderRadius: 12, padding: "12px 16px", marginBottom: 20, fontSize: 14 }}>
             {error}
           </div>
         )}
  
-        {items.length === 0 ? (
+        {items.length === 0 && !activeSubscriptionPlan ? (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <div style={{ fontSize: 80, marginBottom: 20 }}>🛒</div>
             <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 28, color: "rgba(11,11,11,0.95)", marginBottom: 12 }}>Your cart is empty</h3>
@@ -3104,7 +3266,15 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
         ) : (
           <div className="cart-grid" style={{ display: "grid", gap: 30 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {items.map(item => (
+              {items.length === 0 ? (
+                <div style={{
+                  borderRadius: 18, padding: "26px 22px", textAlign: "center",
+                  background: "#f5f3ff", border: "1px dashed rgba(124,58,237,0.25)",
+                  color: "rgba(11,11,11,0.55)", fontSize: 13.5,
+                }}>
+                  No extra items added yet. <button onClick={() => setPage("products")} style={{ background: "none", border: "none", color: "#7c3aed", fontWeight: 700, cursor: "pointer", fontSize: 13.5 }}>Browse products →</button>
+                </div>
+              ) : items.map(item => (
                 <div
                   key={item.productId._id}
                   style={{
@@ -3170,15 +3340,20 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
                 <h3 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 22, marginBottom: 22, color: "#0a0a0a" }}>Order Summary</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 18 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(11,11,11,0.7)", fontSize: 14 }}>
-                    <span>Subtotal</span><span>₹{total}</span>
+                    <span>Items Subtotal</span><span>₹{itemsTotal}</span>
                   </div>
+                  {activeSubscriptionPlan && (
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(11,11,11,0.7)", fontSize: 14 }}>
+                      <span>{activeSubscriptionPlan.name} Plan Fee</span><span>₹{planFee.toLocaleString()}</span>
+                    </div>
+                  )}
                   <div style={{ display: "flex", justifyContent: "space-between", color: "rgba(11,11,11,0.7)", fontSize: 14 }}>
                     <span>Delivery</span><span style={{ color: "#16a34a" }}>Free</span>
                   </div>
                   <div style={{ height: 1, background: "linear-gradient(90deg,transparent,rgba(124,58,237,0.3),transparent)" }} />
                   <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 22, color: "#0a0a0a" }}>
                     <span>Total</span>
-                    <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>₹{total}</span>
+                    <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>₹{total.toLocaleString()}</span>
                   </div>
                 </div>
 
@@ -3228,7 +3403,7 @@ function CartPage({ setPage, deliveryAddress, deliverySlot }) {
                   disabled={paying}
                   style={{ width: "100%", fontSize: 16, padding: "14px", display: "block", textAlign: "center", opacity: paying ? 0.7 : 1 }}
                 >
-                  {paying ? "Processing…" : deliveryAddress ? "Checkout →" : "Add Delivery Address →"}
+                  {paying ? "Processing…" : deliveryAddress ? `💳 Pay ₹${total} Now →` : "Add Delivery Address →"}
                 </Btn>
                 <div
                   style={{
@@ -4057,6 +4232,7 @@ export default function App() {
   const [resetToken, setResetToken] = useState(null);
   const [cart, setCart] = useState([]);
   const [PRODUCTS, setPRODUCTS] = useState([]);
+  const [activeSubscriptionPlan, setActiveSubscriptionPlan] = useState(null); // { id, name, price, period, color } | null
   const [productsLoading, setProductsLoading] = useState(true);
   const [deliveryInfo, setDeliveryInfo] = useState(null);
 
@@ -4191,7 +4367,7 @@ export default function App() {
       case "farm": return <FarmPage setPage={navigate} />;
       case "farm-visit": return <FarmVisitBookingPage setPage={navigate} />;
       case "families": return <FamiliesPage setPage={navigate} />;
-      case "subscription": return <SubPage setPage={navigate} />;
+      case "subscription": return <SubPage setPage={navigate} PRODUCTS={PRODUCTS} addToCart={addToCart} setActiveSubscriptionPlan={setActiveSubscriptionPlan} />;
       case "contact": return <ContactPage />;
       case "cart": return (
         <CartPage
@@ -4200,6 +4376,7 @@ export default function App() {
           setPage={navigate}
           deliveryAddress={deliveryAddress}
           deliverySlot={deliverySlot}
+          activeSubscriptionPlan={activeSubscriptionPlan}
         />
       );
       case "delivery-details": return (
