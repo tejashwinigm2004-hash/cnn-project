@@ -8,6 +8,7 @@ const auth = require('../middleware/auth');
 const { sendOrderConfirmationEmail } = require('../utils/emailService');
 const User = require('../models/User');
 const { sendPushNotification } = require('../utils/pushNotifications');
+const { ensureRazorpayCustomer } = require('./paymentMethods');
 
 // Initialize Razorpay with your keys (set these in your .env file)
 // RAZORPAY_KEY_ID=rzp_test_xxxxxxxx  (or rzp_live_xxxxxxxx for production)
@@ -111,6 +112,12 @@ router.post('/create-razorpay-order', auth, async (req, res) => {
 
     const amount = dbOrder.totalAmount; // the SERVER's known amount, not the browser's
 
+    // Make sure this user has a Razorpay Customer ID, and pass it into the
+    // order so Razorpay's checkout shows "Save this card" and links any
+    // saved card to their account (see routes/paymentMethods.js).
+    const user = await User.findById(req.user.id);
+    const customerId = await ensureRazorpayCustomer(user);
+
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(amount * 100), // Razorpay expects paise
       currency: 'INR',
@@ -118,7 +125,7 @@ router.post('/create-razorpay-order', auth, async (req, res) => {
       notes: { dbOrderId: orderId },
     });
 
-    res.json(razorpayOrder);
+    res.json({ ...razorpayOrder, customerId, prefillEmail: user.email, prefillContact: user.phone });
   } catch (err) {
     console.error('Razorpay order creation failed:', err);
     res.status(500).json({ message: 'Could not initiate payment' });

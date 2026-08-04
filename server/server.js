@@ -72,6 +72,7 @@ app.use('/api/orders', require('./routes/Orders'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/subscriptions', require('./routes/Subscriptions'));
 app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/payment-methods', require('./routes/paymentMethods').router);
 
 // Razorpay: create order
 // Supports two payment types:
