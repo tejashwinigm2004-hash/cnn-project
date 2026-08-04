@@ -1024,7 +1024,7 @@ function ProfileSectionCard({ children, style = {} }) {
 }
 
 function ProfilePage({ setPage }) {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
 
   const profileInputStyle = {
     width: "100%", padding: "11px 14px", borderRadius: 10,
@@ -1073,6 +1073,49 @@ function ProfilePage({ setPage }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
+
+  // Payment methods (real Razorpay saved cards — see routes/paymentMethods.js)
+  const [savedCards, setSavedCards] = useState([]);
+  const [cardsLoading, setCardsLoading] = useState(true);
+  const [removingCardId, setRemovingCardId] = useState(null);
+
+  useEffect(() => {
+    if (!user || !token) { setCardsLoading(false); return; }
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/payment-methods`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setSavedCards(data.cards || []);
+      } catch (err) {
+        console.error("Failed to load payment methods:", err);
+      } finally {
+        setCardsLoading(false);
+      }
+    })();
+  }, [user, token]);
+
+  const handleRemoveCard = async (tokenId) => {
+    if (!window.confirm("Remove this saved card?")) return;
+    setRemovingCardId(tokenId);
+    try {
+      const res = await fetch(`${API_URL}/api/payment-methods/${tokenId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setSavedCards(prev => prev.filter(c => c.tokenId !== tokenId));
+      } else {
+        alert("Couldn't remove this card. Please try again.");
+      }
+    } catch (err) {
+      console.error("Failed to remove card:", err);
+      alert("Couldn't remove this card. Please try again.");
+    } finally {
+      setRemovingCardId(null);
+    }
+  };
 
   if (!user) {
     return (
@@ -1433,9 +1476,38 @@ function ProfilePage({ setPage }) {
         {/* PAYMENT METHODS */}
         <ProfileSectionCard>
           <span style={sectionTitleStyle}>💳 Payment Methods</span>
-          <div style={{ fontSize: 13, color: "rgba(11,11,11,0.5)", marginTop: 6 }}>No payment methods saved yet.</div>
-          <div style={{ marginTop: 10 }}>
-            <button onClick={() => alert("Add payment method flow goes here.")} style={linkStyle}>+ Add Payment Method</button>
+
+          {cardsLoading ? (
+            <div style={{ fontSize: 13, color: "rgba(11,11,11,0.5)", marginTop: 6 }}>Loading…</div>
+          ) : savedCards.length === 0 ? (
+            <div style={{ fontSize: 13, color: "rgba(11,11,11,0.5)", marginTop: 6 }}>No payment methods saved yet.</div>
+          ) : (
+            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+              {savedCards.map(card => (
+                <div key={card.tokenId} style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  padding: "10px 12px", borderRadius: 10, background: "#faf9f9", border: "1px solid rgba(0,0,0,0.08)",
+                }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: "#0a0a0a" }}>
+                    {card.network || "Card"} •••• {card.last4}
+                    <span style={{ fontWeight: 400, color: "rgba(11,11,11,0.5)", marginLeft: 6, textTransform: "capitalize" }}>
+                      ({card.type})
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveCard(card.tokenId)}
+                    disabled={removingCardId === card.tokenId}
+                    style={{ ...linkStyle, color: "#dc2626", fontSize: 13 }}
+                  >
+                    {removingCardId === card.tokenId ? "Removing…" : "Remove"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ fontSize: 12.5, color: "rgba(11,11,11,0.45)", marginTop: 10 }}>
+            Cards are saved securely by Razorpay during checkout — tick "Save this card" the next time you pay, and it'll show up here.
           </div>
         </ProfileSectionCard>
 
@@ -3137,7 +3209,12 @@ function CartPage({ setPage, deliveryAddress, deliverySlot, activeSubscriptionPl
         name: "CNN Organic Fresh Farm",
         description: "Order Payment",
         order_id: rpOrder.id,
-        prefill: { name: user?.name, email: user?.email, contact: user?.phone },
+        customer_id: rpOrder.customerId, // links this checkout to the user's Razorpay Customer — enables "Save this card"
+        prefill: {
+          name: user?.name,
+          email: rpOrder.prefillEmail || user?.email,
+          contact: rpOrder.prefillContact || user?.phone,
+        },
         theme: { color: "#7c3aed" },
         handler: async function (response) {
           try {
