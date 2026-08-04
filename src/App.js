@@ -1789,6 +1789,205 @@ function FarmVisitBookingPage({ setPage }) {
   );
 }
 
+function BookCallPage({ setPage }) {
+  const { user } = useAuth();
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [name, setName] = useState(user?.name || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const ALL_SLOTS = [
+    "10:00 AM - 10:30 AM", "10:30 AM - 11:00 AM",
+    "11:00 AM - 11:30 AM", "11:30 AM - 12:00 PM",
+    "12:00 PM - 12:30 PM", "12:30 PM - 1:00 PM",
+    "1:00 PM - 1:30 PM", "1:30 PM - 2:00 PM",
+    "2:00 PM - 2:30 PM", "2:30 PM - 3:00 PM",
+    "3:00 PM - 3:30 PM", "3:30 PM - 4:00 PM",
+    "4:00 PM - 4:30 PM", "4:30 PM - 5:00 PM",
+    "5:00 PM - 5:30 PM", "5:30 PM - 6:00 PM",
+  ];
+
+  const fetchAvailability = async (date) => {
+    setLoadingSlots(true);
+    setSelectedSlot(null);
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/api/bookings/availability/${date}`);
+      const data = await res.json();
+      setBookedSlots(data.bookedSlots || []);
+    } catch (err) {
+      console.error("Availability error:", err);
+      setError("Couldn't load available slots. Please try again.");
+      setBookedSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    setError(null);
+    if (date) fetchAvailability(date);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedDate || !selectedSlot) {
+      setError("Please select a date and time slot.");
+      return;
+    }
+    if (!name.trim() || !phone.trim() || !email.trim()) {
+      setError("Please fill in your name, phone, and email.");
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/api/bookings/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          date: selectedDate,
+          timeSlot: selectedSlot,
+        }),
+      });
+
+      if (res.status === 409) {
+        setError("This slot was just booked. Please choose another.");
+        fetchAvailability(selectedDate);
+        setSelectedSlot(null);
+        return;
+      }
+      if (!res.ok) throw new Error("Booking failed");
+
+      createSound("success");
+      setSuccess(true);
+    } catch (err) {
+      console.error("Booking error:", err);
+      setError("Failed to book your call. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const bcInputStyle = {
+    width: "100%", padding: "12px 14px", borderRadius: 10,
+    border: "1px solid rgba(0,0,0,0.12)", background: "#faf9f9",
+    color: "#0a0a0a", fontSize: 14, outline: "none", boxSizing: "border-box",
+    marginBottom: 14,
+  };
+  const bcLabelStyle = { fontSize: 13, fontWeight: 700, color: "rgba(11,11,11,0.6)", marginBottom: 6, display: "block" };
+
+  if (success) {
+    return (
+      <div style={{ paddingTop: 140, minHeight: "100vh", background: "#fff", textAlign: "center", padding: "140px 24px 100px" }}>
+        <div style={{ fontSize: 60, marginBottom: 16 }}>📞</div>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 32, marginBottom: 12 }}>Call Booked!</h1>
+        <p style={{ color: "rgba(11,11,11,0.6)", fontSize: 15, marginBottom: 28 }}>
+          We'll call you on {selectedDate} at {selectedSlot}.
+        </p>
+        <Btn variant="gold" onClick={() => setPage("home")} style={{ fontSize: 15, padding: "13px 28px" }}>Back to Home →</Btn>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ paddingTop: 100, minHeight: "100vh", background: "#fff", padding: "100px 24px 100px" }}>
+      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+        <h1 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 40, marginBottom: 10 }}>
+          Book a{" "}
+          <span style={{ background: "linear-gradient(135deg,#39d353,#00b894)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            Discovery Call
+          </span>
+        </h1>
+        <p style={{ color: "rgba(11,11,11,0.6)", fontSize: 14, marginBottom: 24 }}>
+          Pick a date and time that works for you — we'll give you a call.
+        </p>
+
+        {error && (
+          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", borderRadius: 12, padding: "12px 16px", marginBottom: 20, fontSize: 14 }}>
+            {error}
+          </div>
+        )}
+
+        <label style={bcLabelStyle}>Select a Date</label>
+        <input
+          type="date"
+          style={bcInputStyle}
+          value={selectedDate}
+          min={new Date().toISOString().split("T")[0]}
+          onChange={e => handleDateChange(e.target.value)}
+        />
+
+        {selectedDate && (
+          <>
+            <label style={bcLabelStyle}>Available Slots</label>
+            {loadingSlots ? (
+              <p style={{ fontSize: 13, color: "rgba(11,11,11,0.5)", marginBottom: 20 }}>Loading…</p>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 10, marginBottom: 20 }}>
+                {ALL_SLOTS.map(slot => {
+                  const isBooked = bookedSlots.includes(slot);
+                  const isSelected = selectedSlot === slot;
+                  return (
+                    <button
+                      key={slot}
+                      disabled={isBooked}
+                      onClick={() => setSelectedSlot(slot)}
+                      style={{
+                        padding: "10px 12px", borderRadius: 10, fontSize: 12.5, fontWeight: 600,
+                        cursor: isBooked ? "not-allowed" : "pointer",
+                        opacity: isBooked ? 0.4 : 1,
+                        background: isSelected ? "rgba(57,211,83,0.15)" : "#faf9f9",
+                        border: `1px solid ${isSelected ? "#39d353" : "rgba(0,0,0,0.1)"}`,
+                        color: "#0a0a0a",
+                      }}
+                    >
+                      {slot}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {selectedDate && selectedSlot && (
+          <>
+            <label style={bcLabelStyle}>Your Details</label>
+            <input style={bcInputStyle} placeholder="Full Name" value={name} onChange={e => { setName(e.target.value); setError(null); }} />
+            <input style={bcInputStyle} placeholder="Phone Number" value={phone} onChange={e => { setPhone(e.target.value); setError(null); }} />
+            <input style={bcInputStyle} placeholder="Email Address" value={email} onChange={e => { setEmail(e.target.value); setError(null); }} />
+          </>
+        )}
+
+        <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+          <button
+            onClick={() => setPage("home")}
+            style={{ flex: 1, padding: "13px", borderRadius: 10, border: "1px solid rgba(0,0,0,0.15)", background: "#fff", color: "rgba(11,11,11,0.7)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+          >
+            Back
+          </button>
+          {selectedDate && selectedSlot && (
+            <Btn variant="farm" onClick={handleSubmit} disabled={submitting} style={{ flex: 2, fontSize: 15, padding: "13px", textAlign: "center", opacity: submitting ? 0.7 : 1 }}>
+              {submitting ? "Booking…" : "Confirm Booking →"}
+            </Btn>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FarmPage({ setPage }) {
 
   const teamImages = [
@@ -3834,6 +4033,27 @@ function HomeSections({ setPage, addToCart, PRODUCTS }) {
   return (
     <>
     <MarqueeBand />
+
+      {/* Book a Call banner — right before Products */}
+      <div style={{ padding: "24px 24px 0" }}>
+        <div style={{
+          maxWidth: 900, margin: "0 auto", borderRadius: 18, padding: "18px 26px",
+          display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14,
+          background: "linear-gradient(135deg,#f5f3ff,#ede9fe)", border: "1px solid rgba(124,58,237,0.15)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 26 }}>📞</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 15, color: "#0a0a0a" }}>Not sure what to order?</div>
+              <div style={{ fontSize: 13, color: "rgba(11,11,11,0.6)" }}>Book a free call and we'll help you pick.</div>
+            </div>
+          </div>
+          <Btn variant="sub" onClick={() => { setPage("bookcall"); window.scrollTo(0, 0); }} style={{ fontSize: 14, padding: "11px 22px" }}>
+            Book a Call →
+          </Btn>
+        </div>
+      </div>
+
       {/* Products preview */}
       <section className="section-pad" style={{ background: "#fff", padding: "90px 24px" }}>
         <div style={{ maxWidth: 1600, margin: "0 auto" }}>
@@ -4062,6 +4282,22 @@ function HomeSections({ setPage, addToCart, PRODUCTS }) {
           <div style={{ textAlign: "center" }}>
             <Btn variant="family" onClick={() => { setPage("families"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 30px" }}>Meet All Families →</Btn>
           </div>
+        </div>
+      </section>
+
+      {/* Book a Discovery Call */}
+      <section className="section-pad" style={{ background: "#f5f3ff", padding: "70px 24px" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ fontSize: 46, marginBottom: 12 }}>📞</div>
+          <h2 style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 30, marginBottom: 10, color: "#0a0a0a" }}>
+            Not sure where to start?
+          </h2>
+          <p style={{ color: "rgba(11,11,11,0.6)", fontSize: 15, marginBottom: 26, lineHeight: 1.7 }}>
+            Book a free discovery call — pick a date and time that works for you, and we'll walk you through plans, products, and what fits your family best.
+          </p>
+          <Btn variant="sub" onClick={() => { setPage("bookcall"); window.scrollTo(0, 0); }} style={{ fontSize: 15, padding: "13px 30px" }}>
+            Book a Discovery Call →
+          </Btn>
         </div>
       </section>
     </>
@@ -4458,6 +4694,7 @@ export default function App() {
         : <ProductsPage addToCart={addToCart} PRODUCTS={PRODUCTS} />;
       case "farm": return <FarmPage setPage={navigate} />;
       case "farm-visit": return <FarmVisitBookingPage setPage={navigate} />;
+      case "bookcall": return <BookCallPage setPage={navigate} />;
       case "families": return <FamiliesPage setPage={navigate} />;
       case "subscription": return <SubPage setPage={navigate} PRODUCTS={PRODUCTS} addToCart={addToCart} setActiveSubscriptionPlan={setActiveSubscriptionPlan} />;
       case "contact": return <ContactPage />;
