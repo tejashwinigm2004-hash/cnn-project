@@ -1567,6 +1567,13 @@ function FarmVisitBookingPage({ setPage }) {
     setError(null);
     setBooking(true);
     try {
+      const scriptOk = await loadRazorpayScript();
+      if (!scriptOk) {
+        setError("Couldn't load the payment gateway. Check your internet connection and try again.");
+        setBooking(false);
+        return;
+      }
+
       const res = await fetch(`${API_URL}/api/payment/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1945,6 +1952,7 @@ function SubPage({ setPage, PRODUCTS, addToCart, setActiveSubscriptionPlan }) {
         id: currentPlan.id,
         name: currentPlan.name,
         price: getFreqPrice(currentPlan, freq),
+        freq, // raw "daily" | "weekly" | "monthly" — sent to backend for price validation
         period: freq === "monthly" ? "month" : freq === "weekly" ? "week" : "day",
         color: currentPlan.color,
         maxItems: currentPlan.maxItems,
@@ -3102,19 +3110,21 @@ function CartPage({ setPage, deliveryAddress, deliverySlot, activeSubscriptionPl
           deliveryAddress,
           deliverySlot,
           // Plan fee isn't a cart product, so it's sent separately — the backend
-          // can add these fields to the Order schema to record what was charged.
+          // recomputes the real fee itself from planId + freq (see Orders.js).
           subscriptionPlanId: activeSubscriptionPlan?.id || null,
-          subscriptionPlanFee: planFee,
+          subscriptionPlanFreq: activeSubscriptionPlan?.freq || null,
+          subscriptionPlanFee: planFee, // sent for reference only — backend ignores this and recomputes
         }),
       });
       if (!orderRes.ok) throw new Error("Could not create order");
       const order = await orderRes.json();
  
-      // 2. Create matching Razorpay order
+      // 2. Create matching Razorpay order — the backend now looks up the
+      // saved order's own totalAmount rather than trusting a client-sent amount.
       const rpOrderRes = await fetch(`${API_URL}/api/orders/create-razorpay-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ amount: total, orderId: order._id }),
+        body: JSON.stringify({ orderId: order._id }),
       });
       if (!rpOrderRes.ok) throw new Error("Could not initiate payment");
       const rpOrder = await rpOrderRes.json();

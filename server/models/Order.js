@@ -25,7 +25,13 @@ const orderSchema = new mongoose.Schema({
   },
   deliveryInstructions: { type: String },
   deliverySlot: { type: String },
-  deliveryDate: { type: Date }
+  deliveryDate: { type: Date },
+  // Subscription plan info — set only when this order came from the
+  // Subscription page. subscriptionPlanFee is the SERVER-verified fee
+  // (from Orders.js's PLAN_PRICES lookup), never a client-sent number.
+  subscriptionPlanId: { type: String, enum: ['basic', 'premium', 'family'] },
+  subscriptionPlanFreq: { type: String, enum: ['daily', 'weekly', 'monthly'] },
+  subscriptionPlanFee: { type: Number },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);
