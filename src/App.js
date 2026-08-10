@@ -1964,9 +1964,12 @@ function BookCallPage({ setPage }) {
         {selectedDate && selectedSlot && (
           <>
             <label style={bcLabelStyle}>Your Details</label>
-            <input style={bcInputStyle} placeholder="Full Name" value={name} onChange={e => { setName(e.target.value); setError(null); }} />
-            <input style={bcInputStyle} placeholder="Phone Number" value={phone} onChange={e => { setPhone(e.target.value); setError(null); }} />
-            <input style={bcInputStyle} placeholder="Email Address" value={email} onChange={e => { setEmail(e.target.value); setError(null); }} />
+            <label style={bcLabelStyle}>Full Name</label>
+            <input style={bcInputStyle} placeholder="e.g. Teju" value={name} onChange={e => { setName(e.target.value); setError(null); }} />
+            <label style={bcLabelStyle}>Phone Number</label>
+            <input style={bcInputStyle} placeholder="e.g. 9876543210" value={phone} onChange={e => { setPhone(e.target.value); setError(null); }} />
+            <label style={bcLabelStyle}>Email Address</label>
+            <input style={bcInputStyle} placeholder="e.g. you@example.com" value={email} onChange={e => { setEmail(e.target.value); setError(null); }} />
           </>
         )}
 
@@ -4679,7 +4682,36 @@ export default function App() {
     setToast(`Couldn't add to cart: ${err.message}`);
   }
 }, []);
-  const navigate = (p) => { setPage(p); window.scrollTo(0, 0); };
+  // Push a browser history entry every time we navigate, so back/swipe-back
+  // moves through in-app pages instead of exiting the site.
+  const navigate = (p) => {
+    if (p !== page) {
+      window.history.pushState({ page: p }, "", `#${p}`);
+    }
+    setPage(p);
+    window.scrollTo(0, 0);
+  };
+
+  // On mount: seed history with the current page, and listen for back/forward
+  // (including swipe-back gestures) to change `page` instead of leaving the app.
+  useEffect(() => {
+    window.history.replaceState({ page }, "", `#${page}`);
+
+    const handlePopState = (event) => {
+      if (event.state && event.state.page) {
+        setPage(event.state.page);
+        window.scrollTo(0, 0);
+      } else {
+        // No app state on this entry (e.g. user swiped past our first entry) —
+        // push it back so the next swipe stays inside the app instead of exiting.
+        window.history.pushState({ page: "home" }, "", "#home");
+        setPage("home");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const renderPage = () => {
     switch (page) {
