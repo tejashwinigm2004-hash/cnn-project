@@ -1818,7 +1818,10 @@ function BookCallPage({ setPage }) {
     setSelectedSlot(null);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/bookings/availability/${date}`);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/api/bookings/availability/${date}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = await res.json();
       setBookedSlots(data.bookedSlots || []);
     } catch (err) {
@@ -1846,12 +1849,21 @@ function BookCallPage({ setPage }) {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Please log in to book a call.");
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
       const res = await fetch(`${API_URL}/api/bookings/create`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           name: name.trim(),
           phone: phone.trim(),
@@ -1861,6 +1873,10 @@ function BookCallPage({ setPage }) {
         }),
       });
 
+      if (res.status === 401) {
+        setError("Your session has expired. Please log in again.");
+        return;
+      }
       if (res.status === 409) {
         setError("This slot was just booked. Please choose another.");
         fetchAvailability(selectedDate);
