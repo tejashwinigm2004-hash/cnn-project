@@ -4692,21 +4692,20 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
-  // On mount: seed history with the current page, and listen for back/forward
-  // (including swipe-back gestures) to change `page` instead of leaving the app.
+  // On mount: push a "guard" history entry (not just replace) so that even the
+  // very FIRST swipe-back has an in-app entry to land on instead of exiting.
+  // Every time popstate fires, we immediately push a fresh guard entry again,
+  // so the browser's back-stack never runs dry no matter how many times the
+  // user swipes back in a row.
   useEffect(() => {
-    window.history.replaceState({ page }, "", `#${page}`);
+    window.history.pushState({ page }, "", `#${page}`);
 
     const handlePopState = (event) => {
-      if (event.state && event.state.page) {
-        setPage(event.state.page);
-        window.scrollTo(0, 0);
-      } else {
-        // No app state on this entry (e.g. user swiped past our first entry) —
-        // push it back so the next swipe stays inside the app instead of exiting.
-        window.history.pushState({ page: "home" }, "", "#home");
-        setPage("home");
-      }
+      const nextPage = (event.state && event.state.page) || "home";
+      setPage(nextPage);
+      window.scrollTo(0, 0);
+      // Replenish the guard immediately so the next swipe also stays in-app.
+      window.history.pushState({ page: nextPage }, "", `#${nextPage}`);
     };
 
     window.addEventListener("popstate", handlePopState);
