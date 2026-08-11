@@ -149,18 +149,43 @@ function ProductsTab({ token }) {
     loadProducts();
   };
  
-  const inputStyle = { padding: "10px 12px", borderRadius: 8, border: "1px solid rgba(0,0,0,0.15)", fontSize: 14 };
+  const inputStyle = { padding: "10px 12px", borderRadius: 8, border: "1px solid rgba(0,0,0,0.15)", fontSize: 14, width: "100%", boxSizing: "border-box" };
+  const labelStyle = { display: "block", fontSize: 12, fontWeight: 600, color: "rgba(11,11,11,0.55)", marginBottom: 4 };
+  const fieldStyle = { display: "flex", flexDirection: "column" };
  
   return (
     <div>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 10, marginBottom: 24, background: "#fff", padding: 20, borderRadius: 12, border: "1px solid rgba(0,0,0,0.08)" }}>
-        <input style={inputStyle} placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-        <input style={inputStyle} placeholder="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
-        <input style={inputStyle} placeholder="Price (₹)" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
-        <input style={inputStyle} placeholder="Stock" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
-        <input style={inputStyle} placeholder="Image URL" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
-        <input style={inputStyle} placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-        <div style={{ display: "flex", gap: 8 }}>
+      {editingId && (
+        <div style={{ fontSize: 13, fontWeight: 600, color: "#0b0b0b", marginBottom: 8 }}>
+          Editing: {form.name || "product"}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 24, background: "#fff", padding: 20, borderRadius: 12, border: "1px solid rgba(0,0,0,0.08)" }}>
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Name</label>
+          <input style={inputStyle} placeholder="e.g. White Butter" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+        </div>
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Category</label>
+          <input style={inputStyle} placeholder="e.g. Butter" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+        </div>
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Price (₹)</label>
+          <input style={inputStyle} placeholder="e.g. 350" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
+        </div>
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Stock</label>
+          <input style={inputStyle} placeholder="e.g. 20" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+        </div>
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Image URL</label>
+          <input style={inputStyle} placeholder="https:// or data:image/..." value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
+        </div>
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Description</label>
+          <input style={inputStyle} placeholder="Short description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
           <button type="submit" style={{ padding: "10px 18px", borderRadius: 8, border: "none", background: "#0b0b0b", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
             {editingId ? "Update" : "Add"} Product
           </button>
